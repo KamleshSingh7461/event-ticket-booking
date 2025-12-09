@@ -125,28 +125,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t">
-                        <p className="text-xs text-center text-muted-foreground mb-3">Demo Accounts:</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="p-2 bg-muted rounded">
-                                <p className="font-medium">Admin</p>
-                                <p className="text-muted-foreground">admin@test.com</p>
-                            </div>
-                            <div className="p-2 bg-muted rounded">
-                                <p className="font-medium">Manager</p>
-                                <p className="text-muted-foreground">manager@test.com</p>
-                            </div>
-                            <div className="p-2 bg-muted rounded">
-                                <p className="font-medium">Coordinator</p>
-                                <p className="text-muted-foreground">coord@test.com</p>
-                            </div>
-                            <div className="p-2 bg-muted rounded">
-                                <p className="font-medium">User</p>
-                                <p className="text-muted-foreground">user@test.com</p>
-                            </div>
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground mt-2">Password: password123</p>
-                    </div>
+
                 </CardContent>
             </Card>
         </div>
