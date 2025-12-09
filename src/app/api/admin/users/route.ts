@@ -32,10 +32,10 @@ export async function POST(req: NextRequest) {
     // Hash Password
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
-    const user = await User.create({
+    const user = (await User.create({
       ...body,
       password: hashedPassword
-    });
+    })) as any;
 
     return NextResponse.json({ success: true, data: { ...user.toObject(), password: undefined } }, { status: 201 });
   } catch (error: any) {
