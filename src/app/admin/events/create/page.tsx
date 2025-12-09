@@ -1,23 +1,29 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea'; // Need to add textarea if not present, will use Input for now or add it
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CreateEventPage() {
     const router = useRouter();
+    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
+    const [existingManagers, setExistingManagers] = useState<any[]>([]);
+
+    // Event Data
     const [formData, setFormData] = useState<any>({
         title: '',
         description: '',
         type: 'OFFLINE',
         venue: '',
+        banner: '', // Added banner
         startDate: '',
         endDate: '',
         ticketConfig: {
@@ -28,6 +34,33 @@ export default function CreateEventPage() {
         },
         subHeadings: []
     });
+
+    // Venue Manager Assignment (Super Admin Only)
+    const [managerMode, setManagerMode] = useState<'create' | 'existing'>('create');
+    const [managerDetails, setManagerDetails] = useState({
+        name: '',
+        email: '',
+        id: ''
+    });
+
+    useEffect(() => {
+        if (session?.user?.role === 'SUPER_ADMIN') {
+            fetchExistingManagers();
+        }
+    }, [session]);
+
+    const fetchExistingManagers = async () => {
+        try {
+            const res = await fetch('/api/admin/users');
+            const data = await res.json();
+            if (data.success) {
+                const managers = data.data.filter((u: any) => u.role === 'VENUE_MANAGER');
+                setExistingManagers(managers);
+            }
+        } catch (error) {
+            console.error('Failed to fetch managers', error);
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -89,16 +122,25 @@ export default function CreateEventPage() {
         setFormData({ ...formData, subHeadings: newSub });
     };
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
+        const payload = { ...formData };
+
+        // Attach Manager Details if Super Admin
+        if (session?.user?.role === 'SUPER_ADMIN') {
+            payload.venueManagerDetails = {
+                mode: managerMode,
+                ...managerDetails
+            };
+        }
 
         try {
             const res = await fetch('/api/events', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (data.success) {
@@ -115,12 +157,13 @@ export default function CreateEventPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 pb-10">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">Create New Event</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Basic Details */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Basic Details</CardTitle>
@@ -128,7 +171,7 @@ export default function CreateEventPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2 text space-y-2">
+                            <div className="space-y-2">
                                 <Label>Event Title</Label>
                                 <Input name="title" value={formData.title} onChange={handleInputChange} required placeholder="Summer Music Fest" />
                             </div>
@@ -147,9 +190,14 @@ export default function CreateEventPage() {
                         </div>
 
                         <div className="space-y-2">
+                            <Label>Banner Image URL</Label>
+                            <Input name="banner" value={formData.banner} onChange={handleInputChange} placeholder="https://example.com/banner.jpg" />
+                            <p className="text-xs text-muted-foreground">Provide a direct link to the banner image.</p>
+                        </div>
+
+                        <div className="space-y-2">
                             <Label>Description</Label>
                             <Input name="description" value={formData.description} onChange={handleInputChange} required />
-                            {/* Ideally Textarea */}
                         </div>
 
                         {formData.type === 'OFFLINE' && (
@@ -172,6 +220,73 @@ export default function CreateEventPage() {
                     </CardContent>
                 </Card>
 
+                {/* Venue Manager Assignment (Only for Super Admin) */}
+                {session?.user?.role === 'SUPER_ADMIN' && (
+                    <Card className="border-primary/50">
+                        <CardHeader className="bg-primary/5">
+                            <CardTitle className="flex items-center gap-2">
+                                <Users className="w-5 h-5" />
+                                Assign Venue Manager
+                            </CardTitle>
+                            <CardDescription>Create a new manager account or assign an existing one.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <Tabs value={managerMode} onValueChange={(v: any) => setManagerMode(v)} className="w-full">
+                                <TabsList className="grid w-full grid-cols-2 mb-4">
+                                    <TabsTrigger value="create">Create New Manager</TabsTrigger>
+                                    <TabsTrigger value="existing">Select Existing</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="create" className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Manager Name</Label>
+                                            <Input
+                                                value={managerDetails.name}
+                                                onChange={(e) => setManagerDetails({ ...managerDetails, name: e.target.value })}
+                                                placeholder="John Doe"
+                                                required={managerMode === 'create'}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Manager Email</Label>
+                                            <Input
+                                                type="email"
+                                                value={managerDetails.email}
+                                                onChange={(e) => setManagerDetails({ ...managerDetails, email: e.target.value })}
+                                                placeholder="manager@example.com"
+                                                required={managerMode === 'create'}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-green-600 flex items-center gap-2">
+                                        <UserPlus className="w-4 h-4" />
+                                        Credentials will be emailed automatically.
+                                    </p>
+                                </TabsContent>
+                                <TabsContent value="existing" className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Select Manager</Label>
+                                        <Select
+                                            value={managerDetails.id}
+                                            onValueChange={(v) => setManagerDetails({ ...managerDetails, id: v })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a manager" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {existingManagers.map((m: any) => (
+                                                    <SelectItem key={m._id} value={m._id}>{m.name} ({m.email})</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Ticket Config */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Ticket Configuration</CardTitle>
@@ -193,7 +308,7 @@ export default function CreateEventPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                            <div className="flex justify-between items-center bg-muted/50 p-2 rounded">
                                 <Label>Offers / Discounts</Label>
                                 <Button type="button" size="sm" variant="outline" onClick={addOffer}>
                                     <Plus className="w-4 h-4 mr-1" /> Add Offer
@@ -202,7 +317,7 @@ export default function CreateEventPage() {
                             {formData.ticketConfig.offers.map((offer: any, idx: number) => (
                                 <div key={idx} className="flex gap-2 items-end">
                                     <div className="flex-1">
-                                        <Input placeholder="Code (e.g., SUMMER10)" value={offer.code} onChange={(e) => updateOffer(idx, 'code', e.target.value)} />
+                                        <Input placeholder="Code" value={offer.code} onChange={(e) => updateOffer(idx, 'code', e.target.value)} />
                                     </div>
                                     <div className="flex-1">
                                         <Input type="number" placeholder="Discount %" value={offer.discountPercentage} onChange={(e) => updateOffer(idx, 'discountPercentage', e.target.value)} />
@@ -219,6 +334,7 @@ export default function CreateEventPage() {
                     </CardContent>
                 </Card>
 
+                {/* Additional Info */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Additional Information</CardTitle>
@@ -226,7 +342,7 @@ export default function CreateEventPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                            <div className="flex justify-between items-center bg-muted/50 p-2 rounded">
                                 <Label>Sub Headings</Label>
                                 <Button type="button" size="sm" variant="outline" onClick={addSubHeading}>
                                     <Plus className="w-4 h-4 mr-1" /> Add Section
@@ -236,7 +352,7 @@ export default function CreateEventPage() {
                                 <div key={idx} className="space-y-2 border p-4 rounded-lg">
                                     <div className="flex justify-between">
                                         <Label>Section {idx + 1}</Label>
-                                        <Button type="button" variant="ghost" size="sm" onClick={() => removeSubHeading(idx)} className="text-red-500 h-6">Remove</Button>
+                                        <Button type="button" variant="ghost" size="sm" onClick={() => removeSubHeading(idx)} className="text-destructive h-6">Remove</Button>
                                     </div>
                                     <Input placeholder="Title (e.g., Terms & Conditions)" value={sub.title} onChange={(e) => updateSubHeading(idx, 'title', e.target.value)} />
                                     <Input placeholder="Content" value={sub.content} onChange={(e) => updateSubHeading(idx, 'content', e.target.value)} />

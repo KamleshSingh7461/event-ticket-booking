@@ -28,11 +28,6 @@ export default function VenueManagerEventsPage() {
                             <h1 className="text-2xl font-bold">My Events</h1>
                             <p className="text-sm text-muted-foreground">Manage events you've created</p>
                         </div>
-                        <Link href="/venue-manager/events/create">
-                            <Button>
-                                <Plus className="w-4 h-4 mr-2" /> Create Event
-                            </Button>
-                        </Link>
                     </div>
                 </div>
             </header>
@@ -64,7 +59,7 @@ export default function VenueManagerEventsPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-between border-t pt-4">
-                                <Link href={`/venue-manager/events/${event._id}`}>
+                                <Link href={`/venue-manager/events/${event._id}/edit`}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="w-4 h-4 mr-1" /> Manage
                                     </Button>

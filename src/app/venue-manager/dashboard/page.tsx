@@ -55,13 +55,9 @@ export default function VenueManagerDashboard() {
             {/* Header */}
             <header className="bg-white border-b">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold">Venue Manager Portal</h1>
-                        <p className="text-sm text-muted-foreground">Manage your events and coordinators</p>
-                    </div>
-                    <Link href="/venue-manager/events/create">
-                        <Button>
-                            <Plus className="w-4 h-4 mr-2" /> Create Event
+                    <Link href="/venue-manager/coordinators">
+                        <Button className="w-full justify-start" variant="outline">
+                            <Users className="w-4 h-4 mr-2" /> Manage Coordinators
                         </Button>
                     </Link>
                 </div>

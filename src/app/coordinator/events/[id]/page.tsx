@@ -29,8 +29,13 @@ export default function CoordinatorEventDetailPage() {
             const data = await res.json();
             if (data.success) {
                 setEvent(data.data);
-                // Mock stats - in production, fetch from tickets API
-                setStats({ totalTickets: 150, verified: 89, pending: 61 });
+
+                // Fetch Real Stats
+                const statsRes = await fetch(`/api/events/${params.id}/stats`);
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    setStats(statsData.data);
+                }
             } else {
                 setError(data.error || 'Event not found');
                 toast.error(data.error || 'Event not found');

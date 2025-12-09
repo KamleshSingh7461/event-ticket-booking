@@ -47,5 +47,6 @@ export const config = {
         '/coordinator/:path*',
         '/user/:path*',
         '/verify/:path*',
+        '/api/admin/:path*'
     ],
 };

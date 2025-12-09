@@ -156,15 +156,23 @@ export default function HomePage() {
               {events.map((event) => (
                 <Link key={event._id} href={`/events/${event._id}`}>
                   <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group cursor-pointer border-2 hover:border-primary/50 h-full">
-                    <div className="relative h-40 md:h-48 bg-gradient-to-br from-primary/20 to-purple-500/20 overflow-hidden">
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                      <div className="absolute top-3 right-3 md:top-4 md:right-4">
-                        <Badge className="bg-white/90 text-primary border-0 shadow-lg text-xs">
+                    <div className="relative h-40 md:h-48 overflow-hidden bg-muted">
+                      {event.banner ? (
+                        <img
+                          src={event.banner}
+                          alt={event.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+                          <Calendar className="w-12 h-12 md:w-16 md:h-16 text-primary/20" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                      <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10">
+                        <Badge className="bg-white/90 text-primary border-0 shadow-lg text-xs backdrop-blur-sm">
                           {event.type}
                         </Badge>
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Calendar className="w-12 h-12 md:w-16 md:h-16 text-white/30" />
                       </div>
                     </div>
                     <CardContent className="p-4 md:p-6 space-y-2 md:space-y-3">

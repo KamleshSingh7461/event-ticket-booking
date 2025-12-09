@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 const navItems = [
     { href: '/venue-manager/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/venue-manager/events', label: 'My Events', icon: Calendar },
-    { href: '/venue-manager/events/create', label: 'Create Event', icon: Calendar },
     { href: '/venue-manager/coordinators', label: 'Coordinators', icon: Users },
     { href: '/venue-manager/reports', label: 'Reports', icon: BarChart3 },
     { href: '/venue-manager/settings', label: 'Settings', icon: Settings },
@@ -64,8 +63,8 @@ export default function VenueManagerLayout({ children }: { children: React.React
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 rounded-lg transition-colors text-sm md:text-base ${isActive
-                                        ? 'bg-primary text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-primary text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
