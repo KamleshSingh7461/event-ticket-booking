@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
         const body = await req.json();
-        const { eventId, user, quantity = 1 } = body;
+        const { eventId, user, quantity = 1, bookingType = 'DAILY' } = body;
         const ticketQty = parseInt(quantity as string) || 1;
 
         const event = await Event.findById(eventId);
@@ -23,26 +23,76 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, error: 'Invalid quantity (1-10 allowed)' }, { status: 400 });
         }
 
-        // ... User validation (lines 9-25 same)
+        let baseAmount = 0;
+        let productinfo = '';
+        let validDates: Date[] = [];
+        let totalDays = 0;
 
-        const selectedDates = body.selectedDates; // Expecting Array of date strings
-
-        if (!selectedDates || !Array.isArray(selectedDates) || selectedDates.length === 0) {
-            return NextResponse.json({ success: false, error: 'Please select at least one date.' }, { status: 400 });
-        }
-
-        // Validate dates are within event range
-        const start = new Date(event.startDate);
-        const end = new Date(event.endDate);
-        const validDates: Date[] = [];
-
-        for (const dateStr of selectedDates) {
-            const d = new Date(dateStr);
-            if (d < start || d > end) {
-                return NextResponse.json({ success: false, error: `Date ${dateStr} is outside event range.` }, { status: 400 });
+        // Detect all requested dates for this booking
+        let requestedDates: string[] = [];
+        if (bookingType === 'ALL_DAY') {
+            // Validate that All Day Price exists
+            if (!event.ticketConfig.allDayPrice) {
+                return NextResponse.json({ success: false, error: 'All Day Subscription not available for this event.' }, { status: 400 });
             }
-            validDates.push(d);
+
+            const start = new Date(event.startDate);
+            const end = new Date(event.endDate);
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                requestedDates.push(d.toDateString());
+                validDates.push(new Date(d));
+            }
+            totalDays = validDates.length;
+            baseAmount = event.ticketConfig.allDayPrice * ticketQty;
+            productinfo = `${event.title} (All Day Pass, ${ticketQty} tickets)`;
+
+        } else {
+            // DAILY Booking Logic
+            const selectedDates = body.selectedDates;
+            if (!selectedDates || !Array.isArray(selectedDates) || selectedDates.length === 0) {
+                return NextResponse.json({ success: false, error: 'Please select at least one date.' }, { status: 400 });
+            }
+
+            const start = new Date(event.startDate);
+            const end = new Date(event.endDate);
+
+            for (const dateStr of selectedDates) {
+                const d = new Date(dateStr);
+                if (d < start || d > end) {
+                    return NextResponse.json({ success: false, error: `Date ${dateStr} is outside event range.` }, { status: 400 });
+                }
+                requestedDates.push(d.toDateString());
+                validDates.push(d);
+            }
+            totalDays = validDates.length;
+            baseAmount = event.ticketConfig.price * ticketQty * totalDays;
+            productinfo = `${event.title} (${ticketQty} tickets, ${totalDays} days)`;
         }
+
+        // CRITICAL: Daily Inventory Check
+        // We must check if ADDING 'ticketQty' to ANY of the requested dates exceeds the daily limit.
+        const dailyCapacity = event.ticketConfig.quantity || 500; // Default to 500 if not set
+
+        for (const dateStr of requestedDates) {
+            // Count existing tickets that cover this specific date (Check 'selectedDates' array for match)
+            // Payment status must be SUCCESS
+            const existingCount = await Ticket.countDocuments({
+                event: event._id,
+                paymentStatus: 'SUCCESS',
+                selectedDates: {
+                    $elemMatch: { $gte: new Date(dateStr), $lt: new Date(new Date(dateStr).getTime() + 86400000) }
+                }
+            });
+
+            if (existingCount + ticketQty > dailyCapacity) {
+                return NextResponse.json({
+                    success: false,
+                    error: `Sold Out for date: ${dateStr}. Only ${dailyCapacity - existingCount} tickets remaining.`
+                }, { status: 400 });
+            }
+        }
+
+        // ... User validation continues below
 
         let dbUser = await User.findOne({ email: user.email });
         if (!dbUser) {
@@ -56,10 +106,11 @@ export async function POST(req: NextRequest) {
 
         // Transaction Setup
         const txnid = `TXN${Date.now()}${crypto.randomBytes(2).toString('hex')}`;
-        const unitPrice = event.ticketConfig.price;
-        const totalDays = validDates.length;
-        const totalAmount = unitPrice * ticketQty * totalDays; // Price * Qty * Days
-        const productinfo = `${event.title} (${ticketQty} tickets, ${totalDays} days)`;
+        // const unitPrice = event.ticketConfig.price; // Not used directly in generic formula anymore
+        // const totalDays = validDates.length; // Already calculated
+        // const baseAmount = unitPrice * ticketQty * totalDays; // Already calculated based on type
+        const gstAmount = baseAmount * 0.18;
+        const totalAmount = baseAmount + gstAmount;
 
         // Create Tickets Loop
         const tickets = [];
@@ -67,11 +118,16 @@ export async function POST(req: NextRequest) {
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             const qrHash = crypto.randomBytes(32).toString('hex');
 
+            // Calculate amount per ticket inclusive of GST
+            // Total Amount = Base + GST
+            // Amount per ticket = Total / Qty
+            const amountPerTicket = totalAmount / ticketQty;
+
             tickets.push({
                 event: event._id,
                 user: dbUser._id,
                 bookingReference: txnid,
-                amountPaid: unitPrice * totalDays, // Amount per ticket (for all days)
+                amountPaid: amountPerTicket,
                 paymentStatus: 'PENDING',
                 buyerDetails: {
                     name: user.name,

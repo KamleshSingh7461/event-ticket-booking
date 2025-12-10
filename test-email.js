@@ -15,7 +15,7 @@ const getEmailHeader = () => `
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
         <div style="max-width: 600px; margin: 0 auto;">
             <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: 1px;">
-                FREEDOM GLOBAL SPORTS NETWORK
+                WYLDCARD STATS PRIVATE LIMITED
             </h1>
             <p style="color: #ffffff; font-size: 14px; margin: 0; opacity: 0.95; letter-spacing: 0.5px;">
                 WYLDCARD STATS PRIVATE LIMITED
@@ -27,7 +27,7 @@ const getEmailHeader = () => `
 const getEmailFooter = () => `
     <div style="background-color: #f8f9fa; padding: 30px 20px; text-align: center; border-top: 3px solid #667eea;">
         <p style="color: #6c757d; font-size: 14px; margin: 0 0 10px 0;">
-            <strong>Freedom Global Sports Network (FGSN)</strong>
+            <strong>Wyldcard Stats Private Limited</strong>
         </p>
         <p style="color: #6c757d; font-size: 12px; margin: 0 0 5px 0;">
             Operated by WYLDCARD STATS PRIVATE LIMITED
@@ -46,7 +46,7 @@ const getEmailFooter = () => `
 async function sendTestEmail() {
     try {
         const mailOptions = {
-            from: `"Freedom Global Sports Network" <${process.env.EMAIL_SERVER_USER}>`,
+            from: `"Wyldcard Stats Private Limited" <${process.env.EMAIL_SERVER_USER}>`,
             to: 'drex7461@gmail.com',
             subject: 'Booking Confirmed - Test Event | FGSN',
             html: `
@@ -87,7 +87,7 @@ async function sendTestEmail() {
                                             </p>
                                             
                                             <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-                                                Thank you for choosing <strong>Freedom Global Sports Network</strong>! Your booking for <strong>Test Event - Email Template Demo</strong> has been successfully confirmed.
+                                                Thank you for choosing <strong>Wyldcard Stats Private Limited</strong>! Your booking for <strong>Test Event - Email Template Demo</strong> has been successfully confirmed.
                                             </p>
                                             
                                             <!-- Booking Details Card -->

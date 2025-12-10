@@ -15,12 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FREEDOM GLOBAL SPORTS NETWORK",
+  title: "WYLDCARD STATS PRIVATE LIMITED",
   description: "The ultimate platform for global sports events.",
   icons: {
-    icon: '/FGSN.png',
-    shortcut: '/FGSN.png',
-    apple: '/FGSN.png',
+    icon: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
+    shortcut: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
+    apple: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
   }
 };
 

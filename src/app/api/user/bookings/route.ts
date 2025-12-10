@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Ticket from '@/models/Ticket';
 
@@ -6,9 +8,17 @@ export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        // In production: filter by userId from auth session
-        // For now, get all tickets with SUCCESS payment status
-        const tickets = await Ticket.find({ paymentStatus: 'SUCCESS' })
+        const session = await getServerSession(authOptions);
+
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Filter by user ID from session
+        const tickets = await Ticket.find({
+            user: session.user.id,
+            paymentStatus: 'SUCCESS'
+        })
             .populate('event')
             .sort({ createdAt: -1 })
             .limit(50);

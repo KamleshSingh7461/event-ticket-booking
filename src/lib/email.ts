@@ -14,7 +14,7 @@ const getEmailHeader = () => `
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
         <div style="max-width: 600px; margin: 0 auto;">
             <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: 1px;">
-                FREEDOM GLOBAL SPORTS NETWORK
+                WYLDCARD STATS PRIVATE LIMITED
             </h1>
             <p style="color: #ffffff; font-size: 14px; margin: 0; opacity: 0.95; letter-spacing: 0.5px;">
                 WYLDCARD STATS PRIVATE LIMITED
@@ -26,7 +26,7 @@ const getEmailHeader = () => `
 const getEmailFooter = () => `
     <div style="background-color: #f8f9fa; padding: 30px 20px; text-align: center; border-top: 3px solid #667eea;">
         <p style="color: #6c757d; font-size: 14px; margin: 0 0 10px 0;">
-            <strong>Freedom Global Sports Network (FGSN)</strong>
+            <strong>Wyldcard Stats Private Limited</strong>
         </p>
         <p style="color: #6c757d; font-size: 12px; margin: 0 0 5px 0;">
             Operated by WYLDCARD STATS PRIVATE LIMITED
@@ -45,9 +45,9 @@ const getEmailFooter = () => `
 export const sendWelcomeEmail = async (email: string, name: string, role: string, password?: string) => {
     try {
         const mailOptions = {
-            from: '"Freedom Global Sports Network" <noreply@wildcardstat.com>',
+            from: '"Wyldcard Stats Private Limited" <noreply@wildcardstat.com>',
             to: email,
-            subject: 'Welcome to Freedom Global Sports Network - Account Credentials',
+            subject: 'Welcome to Wyldcard Stats Private Limited - Account Credentials',
             html: `
                 <!DOCTYPE html>
                 <html>
@@ -75,7 +75,7 @@ export const sendWelcomeEmail = async (email: string, name: string, role: string
                                             </h2>
                                             
                                             <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                                                We're excited to have you join the <strong>Freedom Global Sports Network</strong> family. Your account has been successfully created with the following role:
+                                                We're excited to have you join the <strong>Wyldcard Stats Private Limited</strong> family. Your account has been successfully created with the following role:
                                             </p>
                                             
                                             <div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin: 20px 0;">
@@ -146,7 +146,7 @@ export const sendBookingConfirmation = async (params: {
 }) => {
     try {
         const mailOptions = {
-            from: '"Freedom Global Sports Network" <noreply@wildcardstat.com>',
+            from: '"Wyldcard Stats Private Limited" <noreply@wildcardstat.com>',
             to: params.email,
             subject: `Booking Confirmed - ${params.eventTitle} | FGSN`,
             html: `
@@ -187,7 +187,7 @@ export const sendBookingConfirmation = async (params: {
                                             </p>
                                             
                                             <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-                                                Thank you for choosing <strong>Freedom Global Sports Network</strong>! Your booking for <strong>${params.eventTitle}</strong> has been successfully confirmed.
+                                                Thank you for choosing <strong>Wyldcard Stats Private Limited</strong>! Your booking for <strong>${params.eventTitle}</strong> has been successfully confirmed.
                                             </p>
                                             
                                             <!-- Booking Details Card -->
@@ -280,7 +280,7 @@ export const sendTicketEmail = async (params: {
 }) => {
     try {
         const mailOptions = {
-            from: '"Freedom Global Sports Network" <noreply@wildcardstat.com>',
+            from: '"Wyldcard Stats Private Limited" <noreply@wildcardstat.com>',
             to: params.email,
             subject: `Your Ticket for ${params.eventTitle} | FGSN`,
             html: `
@@ -315,7 +315,7 @@ export const sendTicketEmail = async (params: {
                                                 Hello ${params.name},
                                             </p>
                                             <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-                                                Thank you for booking with <strong>Freedom Global Sports Network</strong>! Your ticket for <strong>${params.eventTitle}</strong> is confirmed and ready.
+                                                Thank you for booking with <strong>Wyldcard Stats Private Limited</strong>! Your ticket for <strong>${params.eventTitle}</strong> is confirmed and ready.
                                             </p>
                                             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 8px; text-align: center; margin: 25px 0;">
                                                 <p style="color: #ffffff; font-size: 16px; margin: 0 0 15px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">

@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/db';
 import Ticket from '@/models/Ticket';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -18,7 +20,8 @@ export async function GET(req: NextRequest) {
         await connectDB();
 
         // Get user's bookings
-        const userBookings = await Ticket.find({ userId: session.user.id })
+        // Using 'user' field as per Ticket schema, not 'userId'
+        const userBookings = await Ticket.find({ user: session.user.id })
             .populate('event', 'startDate')
             .lean();
 

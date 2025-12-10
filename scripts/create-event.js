@@ -17,7 +17,7 @@ async function createEvent() {
             description: 'Join us for the exciting Telangana Pro Basketball League! Experience thrilling basketball action from December 16-24, 2024.',
             type: 'OFFLINE',
             venue: 'Telangana Basketball Arena',
-            banner: '', // You'll add this
+            banner: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386269/Q3_dbzldl.png', // Cloudinary banner
             startDate: new Date('2024-12-16T09:00:00'),
             endDate: new Date('2024-12-24T21:00:00'),
             ticketConfig: {

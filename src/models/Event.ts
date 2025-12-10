@@ -8,10 +8,17 @@ const EventSchema = new Schema({
     venueManager: { type: Schema.Types.ObjectId, ref: 'User' },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    entryTime: { type: String }, // Format "HH:mm" e.g. "18:00"
     ticketConfig: {
         price: { type: Number, required: true },
+        allDayPrice: { type: Number }, // Price for full event access
         currency: { type: String, default: 'INR' },
-        quantity: { type: Number }, // Total tickets available
+        quantity: { type: Number }, // Daily Capacity (Max tickets allowed per individual date)
+        dateSpecificCapacities: { // Override for specific dates
+            type: Map,
+            of: Number,
+            default: {}
+        },
         offers: [{
             code: String,
             discountPercentage: Number,
@@ -23,6 +30,8 @@ const EventSchema = new Schema({
         content: String
     }],
     banner: { type: String }, // Event banner image URL
+    gallery: [{ type: String }], // Array of image URLs for slider
+    schedule: [{ type: String }], // Array of URLs for schedule graphics
     assignedCoordinators: [{
         type: Schema.Types.ObjectId,
         ref: 'User'

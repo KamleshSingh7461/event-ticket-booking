@@ -91,3 +91,37 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+// Delete a coordinator (only if created by this VM)
+export async function DELETE(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get('id');
+
+        if (!session || session.user.role !== 'VENUE_MANAGER') {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 });
+        }
+
+        await connectDB();
+
+        const deleted = await User.findOneAndDelete({
+            _id: id,
+            role: 'COORDINATOR',
+            createdBy: session.user.id
+        });
+
+        if (!deleted) {
+            return NextResponse.json({ success: false, error: 'Coordinator not found or unauthorized' }, { status: 404 });
+        }
+
+        return NextResponse.json({ success: true, message: 'Coordinator removed' });
+
+    } catch (error: any) {
+        console.error('Delete coordinator error:', error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}

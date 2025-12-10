@@ -19,7 +19,7 @@ export default function AboutPage() {
                             Redefining Sports Experiences
                         </h1>
                         <p className="text-lg md:text-xl text-white/80 leading-relaxed mb-8">
-                            Empowering athletes, connecting fans, and creating unforgettable moments through the Freedom Global Sports Network (FGSN).
+                            Empowering athletes, connecting fans, and creating unforgettable moments through Wyldcard Stats Private Limited.
                         </p>
                     </div>
                 </section>
@@ -31,7 +31,7 @@ export default function AboutPage() {
                             <div>
                                 <h2 className="text-3xl font-bold mb-6 text-primary">Our Mission</h2>
                                 <p className="text-lg text-muted-foreground mb-4">
-                                    Freedom Global Sports Network (FGSN) is dedicated to revolutionizing the way sports events are organized, managed, and experienced.
+                                    Wyldcard Stats Private Limited is dedicated to revolutionizing the way sports events are organized, managed, and experienced.
                                     We aim to bridge the gap between talented athletes and the opportunities they deserve.
                                 </p>
                                 <p className="text-lg text-muted-foreground">

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,8 +33,35 @@ export default function CreateEventPage() {
             quantity: 100,
             offers: []
         },
-        subHeadings: []
+        subHeadings: [],
+        gallery: [],
+        schedule: []
     });
+
+    // ...
+
+    // Schedule Management
+    const addScheduleImage = () => {
+        setFormData({
+            ...formData,
+            schedule: [...formData.schedule, '']
+        });
+    };
+
+    const updateScheduleImage = (index: number, value: string) => {
+        const newSchedule = [...formData.schedule];
+        newSchedule[index] = value;
+        setFormData({ ...formData, schedule: newSchedule });
+    };
+
+    const removeScheduleImage = (index: number) => {
+        const newSchedule = formData.schedule.filter((_: any, i: number) => i !== index);
+        setFormData({ ...formData, schedule: newSchedule });
+    };
+
+    // ...
+
+
 
     // Venue Manager Assignment (Super Admin Only)
     const [managerMode, setManagerMode] = useState<'create' | 'existing'>('create');
@@ -122,6 +150,25 @@ export default function CreateEventPage() {
         setFormData({ ...formData, subHeadings: newSub });
     };
 
+    // Gallery Management
+    const addGalleryImage = () => {
+        setFormData({
+            ...formData,
+            gallery: [...formData.gallery, '']
+        });
+    };
+
+    const updateGalleryImage = (index: number, value: string) => {
+        const newGallery = [...formData.gallery];
+        newGallery[index] = value;
+        setFormData({ ...formData, gallery: newGallery });
+    };
+
+    const removeGalleryImage = (index: number) => {
+        const newGallery = formData.gallery.filter((_: any, i: number) => i !== index);
+        setFormData({ ...formData, gallery: newGallery });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -135,10 +182,13 @@ export default function CreateEventPage() {
         data.append('venue', formData.venue);
         data.append('startDate', formData.startDate);
         data.append('endDate', formData.endDate);
+        if (formData.entryTime) data.append('entryTime', formData.entryTime);
 
         // Append complex fields
         data.append('ticketConfig', JSON.stringify(formData.ticketConfig));
         data.append('subHeadings', JSON.stringify(formData.subHeadings));
+        data.append('gallery', JSON.stringify(formData.gallery));
+        data.append('scheduleImage', formData.scheduleImage);
 
         // Append Banner File if exists
         if (formData.banner instanceof File) {
@@ -210,23 +260,39 @@ export default function CreateEventPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Banner Image</Label>
+                            <Label>Banner Image URL</Label>
                             <Input
-                                type="file"
+                                type="url"
                                 name="banner"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    if (e.target.files && e.target.files[0]) {
-                                        setFormData({ ...formData, banner: e.target.files[0] });
-                                    }
-                                }}
+                                value={formData.banner}
+                                onChange={handleInputChange}
+                                placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
                             />
-                            <p className="text-xs text-muted-foreground">Upload an event banner image.</p>
+                            {formData.banner && (
+                                <div className="mt-2 relative h-48 w-full rounded-lg overflow-hidden border">
+                                    <img
+                                        src={formData.banner}
+                                        alt="Banner Preview"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.src = '';
+                                            e.currentTarget.alt = 'Invalid image URL';
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            <p className="text-xs text-muted-foreground">Enter the Cloudinary URL for the event banner.</p>
                         </div>
 
                         <div className="space-y-2">
                             <Label>Description</Label>
-                            <Input name="description" value={formData.description} onChange={handleInputChange} required />
+                            <Textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                required
+                                className="min-h-[100px]"
+                            />
                         </div>
 
                         {formData.type === 'OFFLINE' && (
@@ -245,6 +311,19 @@ export default function CreateEventPage() {
                                 <Label>End Date & Time</Label>
                                 <Input type="datetime-local" name="endDate" value={formData.endDate} onChange={handleInputChange} required />
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Entry Time (HH:mm)</Label>
+                            <Input
+                                type="time"
+                                name="entryTime"
+                                value={formData.entryTime || ''}
+                                onChange={handleInputChange}
+                                placeholder="18:00"
+                                className="w-full md:w-1/3"
+                            />
+                            <p className="text-xs text-muted-foreground">Time (24h) from when entry is allowed. Verification before this time will be rejected.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -321,18 +400,23 @@ export default function CreateEventPage() {
                         <CardTitle>Ticket Configuration</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="space-y-2">
-                                <Label>Price</Label>
-                                <Input type="number" name="price" value={formData.ticketConfig.price} onChange={handleTicketConfigChange} required />
+                                <Label>Price (Daily)</Label>
+                                <Input type="number" name="price" value={formData.ticketConfig.price} onChange={handleTicketConfigChange} required placeholder="Per day cost" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>All Day Price (Optional)</Label>
+                                <Input type="number" name="allDayPrice" value={formData.ticketConfig.allDayPrice || ''} onChange={handleTicketConfigChange} placeholder="Full event access cost" />
                             </div>
                             <div className="space-y-2">
                                 <Label>Currency</Label>
                                 <Input name="currency" value={formData.ticketConfig.currency} onChange={handleTicketConfigChange} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Total Quantity</Label>
-                                <Input type="number" name="quantity" value={formData.ticketConfig.quantity} onChange={handleTicketConfigChange} required />
+                                <Label>Daily Capacity (Tickets/Day)</Label>
+                                <Input type="number" name="quantity" value={formData.ticketConfig.quantity} onChange={handleTicketConfigChange} required placeholder="e.g. 500" />
+                                <p className="text-[10px] text-gray-500 pt-1">Max tickets allowed per date.</p>
                             </div>
                         </div>
 
@@ -363,6 +447,80 @@ export default function CreateEventPage() {
                     </CardContent>
                 </Card>
 
+                {/* Media & Visuals (Schedule & Gallery) */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Media & Schedule</CardTitle>
+                        <CardDescription>Add schedule graphics and event gallery.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Schedule Images */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center bg-muted/50 p-2 rounded">
+                                <Label>Schedule Graphics</Label>
+                                <Button type="button" size="sm" variant="outline" onClick={addScheduleImage}>
+                                    <Plus className="w-4 h-4 mr-1" /> Add Schedule URL
+                                </Button>
+                            </div>
+                            <div className="space-y-3">
+                                {formData.schedule.map((url: string, idx: number) => (
+                                    <div key={idx} className="flex gap-2 items-start">
+                                        <div className="flex-1 space-y-2">
+                                            <Input
+                                                value={url}
+                                                onChange={(e) => updateScheduleImage(idx, e.target.value)}
+                                                placeholder={`Schedule Image URL #${idx + 1}`}
+                                            />
+                                            {url && (
+                                                <div className="relative h-32 w-full max-w-sm rounded border overflow-hidden bg-muted">
+                                                    <img src={url} className="w-full h-full object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => removeScheduleImage(idx)}>
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                {formData.schedule.length === 0 && <p className="text-sm text-muted-foreground italic">No schedule graphics added.</p>}
+                            </div>
+                            <p className="text-xs text-muted-foreground">URLs for the schedule graphics (displayed in modal).</p>
+                        </div>
+
+                        {/* Gallery */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center bg-muted/50 p-2 rounded">
+                                <Label>Event Gallery</Label>
+                                <Button type="button" size="sm" variant="outline" onClick={addGalleryImage}>
+                                    <Plus className="w-4 h-4 mr-1" /> Add Image URL
+                                </Button>
+                            </div>
+                            <div className="space-y-3">
+                                {formData.gallery.map((url: string, idx: number) => (
+                                    <div key={idx} className="flex gap-2 items-start">
+                                        <div className="flex-1 space-y-2">
+                                            <Input
+                                                value={url}
+                                                onChange={(e) => updateGalleryImage(idx, e.target.value)}
+                                                placeholder={`Image URL #${idx + 1}`}
+                                            />
+                                            {url && (
+                                                <div className="relative h-20 w-32 rounded border overflow-hidden bg-muted">
+                                                    <img src={url} className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => removeGalleryImage(idx)}>
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                {formData.gallery.length === 0 && <p className="text-sm text-muted-foreground italic">No gallery images added.</p>}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Additional Info */}
                 <Card>
                     <CardHeader>
@@ -384,7 +542,12 @@ export default function CreateEventPage() {
                                         <Button type="button" variant="ghost" size="sm" onClick={() => removeSubHeading(idx)} className="text-destructive h-6">Remove</Button>
                                     </div>
                                     <Input placeholder="Title (e.g., Terms & Conditions)" value={sub.title} onChange={(e) => updateSubHeading(idx, 'title', e.target.value)} />
-                                    <Input placeholder="Content" value={sub.content} onChange={(e) => updateSubHeading(idx, 'content', e.target.value)} />
+                                    <Textarea
+                                        placeholder="Content"
+                                        value={sub.content}
+                                        onChange={(e) => updateSubHeading(idx, 'content', e.target.value)}
+                                        className="min-h-[100px]"
+                                    />
                                 </div>
                             ))}
                         </div>

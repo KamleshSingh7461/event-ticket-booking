@@ -31,11 +31,12 @@ export function Navbar() {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     return (
-        <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <nav className="border-b bg-[#AE8638] text-black sticky top-0 z-50 shadow-md">
             <div className="container flex h-16 items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center space-x-2">
-                        <img src="/FGSN.png" alt="FGSN Logo" className="h-14 w-auto object-contain" />
+                        <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png" alt="FGSN Logo" className="h-14 w-auto object-contain" />
+                        <span className="text-sm md:text-xl font-black italic tracking-widest text-black uppercase drop-shadow-[1px_1px_0_rgba(255,255,255,0.5)] transform -skew-x-12">WYLDCARD STATS</span>
                     </Link>
                 </div>
 
@@ -46,10 +47,10 @@ export function Navbar() {
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary">
+                    <Link href="/events" className="text-sm font-bold text-black hover:text-white transition-colors">
                         Events
                     </Link>
-                    <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
+                    <Link href="/about" className="text-sm font-bold text-black hover:text-white transition-colors">
                         About
                     </Link>
 
@@ -94,12 +95,12 @@ export function Navbar() {
 
             {/* Mobile Menu Dropdown */}
             {isMenuOpen && (
-                <div className="md:hidden border-t bg-background p-4 space-y-4">
+                <div className="md:hidden border-t bg-[#AE8638] p-4 space-y-4 shadow-xl">
                     <div className="flex flex-col space-y-3">
-                        <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary" onClick={toggleMenu}>
+                        <Link href="/events" className="text-sm font-bold text-black hover:text-white transition-colors" onClick={toggleMenu}>
                             Events
                         </Link>
-                        <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary" onClick={toggleMenu}>
+                        <Link href="/about" className="text-sm font-bold text-black hover:text-white transition-colors" onClick={toggleMenu}>
                             About
                         </Link>
                     </div>

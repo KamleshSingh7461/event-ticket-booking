@@ -18,8 +18,7 @@ export async function GET(req: NextRequest) {
         await connectDB();
 
         // Get events for this venue manager
-        // For now, get all events (in production, filter by venueManager field)
-        const events = await Event.find()
+        const events = await Event.find({ venueManager: session.user.id })
             .sort({ createdAt: -1 })
             .lean();
 

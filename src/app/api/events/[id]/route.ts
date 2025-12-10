@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Event from '@/models/Event';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
@@ -96,6 +98,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
                 await writeFile(filepath, buffer);
                 bannerUrl = `/uploads/events/${filename}`;
                 await logDebug('New Banner URL generated:', bannerUrl);
+            } else if (typeof file === 'string' && file.trim() !== '') {
+                // If it's a string (URL), use it directly
+                bannerUrl = file;
             }
 
             formData.forEach((value, key) => {
@@ -110,6 +115,20 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             // Also map direct fields if they exist
             if (!body.ticketConfig && formData.has('ticketConfig')) {
                 try { body.ticketConfig = JSON.parse(formData.get('ticketConfig') as string); } catch { }
+            }
+            if (formData.has('schedule')) {
+                try {
+                    body.schedule = JSON.parse(formData.get('schedule') as string);
+                } catch {
+                    body.schedule = [];
+                }
+            }
+            if (formData.has('gallery')) {
+                try {
+                    body.gallery = JSON.parse(formData.get('gallery') as string);
+                } catch {
+                    body.gallery = [];
+                }
             }
         } else {
             body = await req.json();

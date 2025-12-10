@@ -42,6 +42,22 @@ export async function POST(req: NextRequest) {
         const now = new Date();
         const todayStr = now.toDateString(); // "Wed Dec 25 2024"
 
+        // 0. Check Entry Time (if applicable)
+        if (ticket.event.entryTime) {
+            const [entryHour, entryMinute] = ticket.event.entryTime.split(':').map(Number);
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            const isAfterEntryTime = currentHour > entryHour || (currentHour === entryHour && currentMinute >= entryMinute);
+
+            if (!isAfterEntryTime) {
+                return NextResponse.json({
+                    success: false,
+                    message: `Entry disallowed before ${ticket.event.entryTime}`
+                }, { status: 400 });
+            }
+        }
+
         // 1. Is ticket valid for today?
         const validForToday = ticket.selectedDates.some((d: Date) => new Date(d).toDateString() === todayStr);
 
