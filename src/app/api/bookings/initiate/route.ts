@@ -107,10 +107,15 @@ export async function POST(req: NextRequest) {
         // ... Generate Hash and Return (Same)
         const hash = generateHash(payuConfig, payuConfig.salt);
 
+        // Determine PayU URL based on environment
+        const payuUrl = process.env.PAYU_ENV === 'production'
+            ? (process.env.PAYU_PROD_URL || 'https://secure.payu.in/_payment')
+            : (process.env.PAYU_TEST_URL || 'https://test.payu.in/_payment');
+
         return NextResponse.json({
             success: true,
             payuParams: {
-                action: process.env.PAYU_TEST_URL || 'https://test.payu.in/_payment',
+                action: payuUrl,
                 params: {
                     ...payuConfig,
                     hash
