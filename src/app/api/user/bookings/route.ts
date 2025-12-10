@@ -14,6 +14,10 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }
 
+        // Debug logging
+        console.log('User Bookings API - Session User ID:', session.user.id);
+        console.log('User Bookings API - Session User Email:', session.user.email);
+
         // Filter by user ID from session
         const tickets = await Ticket.find({
             user: session.user.id,
@@ -22,6 +26,8 @@ export async function GET(req: NextRequest) {
             .populate('event')
             .sort({ createdAt: -1 })
             .limit(50);
+
+        console.log('User Bookings API - Tickets Found:', tickets.length);
 
         return NextResponse.json({
             success: true,
