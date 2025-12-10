@@ -85,8 +85,14 @@ export default function QrScanner({ onResult }: QrScannerProps) {
 
                 if (code) {
                     console.log('🎉 QR Code Found:', code.data);
+                    console.log('📍 QR Code Location:', code.location);
                     onResult(code.data);
                     // Debounce or stop logic handled by parent
+                } else {
+                    // Log every 60 frames (about once per second at 60fps)
+                    if (Math.random() < 0.016) {
+                        console.log('🔍 Scanning... (no QR code detected yet)');
+                    }
                 }
             } else {
                 // console.log('Waiting for video data...', video.readyState);
