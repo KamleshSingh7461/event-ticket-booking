@@ -47,7 +47,7 @@ export default function CoordinatorLayout({ children }: { children: React.ReactN
         `}
             >
                 <div className="p-4 md:p-6 border-b border-[#AE8638]/20 flex items-center gap-3">
-                    <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png" alt="Logo" className="h-8 w-8 object-contain" />
+                    <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png" alt="Logo" className="h-8 w-8 object-contain" />
                     <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-[#AE8638] to-[#D4AF37] bg-clip-text text-transparent">
                         FGSN Coordinator
                     </h1>

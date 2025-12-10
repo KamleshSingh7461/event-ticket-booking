@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: "WYLDCARD STATS PRIVATE LIMITED",
   description: "The ultimate platform for global sports events.",
   icons: {
-    icon: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
-    shortcut: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
-    apple: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png',
+    icon: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png',
+    shortcut: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png',
+    apple: 'https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png',
   }
 };
 

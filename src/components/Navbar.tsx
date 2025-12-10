@@ -35,7 +35,7 @@ export function Navbar() {
             <div className="container flex h-16 items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center space-x-2">
-                        <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1756488747/logo_bplslj.png" alt="FGSN Logo" className="h-14 w-auto object-contain" />
+                        <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png" alt="FGSN Logo" className="h-14 w-auto object-contain" />
                         <span className="text-sm md:text-xl font-black italic tracking-widest text-black uppercase drop-shadow-[1px_1px_0_rgba(255,255,255,0.5)] transform -skew-x-12">WYLDCARD STATS</span>
                     </Link>
                 </div>
