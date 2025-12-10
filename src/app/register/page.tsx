@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, UserPlus } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -60,8 +61,13 @@ export default function RegisterPage() {
         }
     };
 
+
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
+            <div className="w-full max-w-md mb-4 flex justify-start">
+                <BackButton />
+            </div>
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1 text-center">
                     <div className="flex justify-center mb-4">

@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        // Mark ticket as failed
-        await Ticket.findOneAndUpdate(
+        // Mark ALL tickets as failed
+        await Ticket.updateMany(
             { bookingReference: data.txnid },
             { paymentStatus: 'FAILED' }
         );

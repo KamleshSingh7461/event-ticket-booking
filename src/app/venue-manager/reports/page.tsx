@@ -15,14 +15,20 @@ export default function VenueManagerReportsPage() {
     });
 
     useEffect(() => {
-        // Mock data - in production, fetch from API based on timeRange
-        setStats({
-            totalRevenue: 117000,
-            ticketsSold: 234,
-            averageTicketPrice: 500,
-            topEvent: { title: 'Summer Music Fest', sales: 120 }
-        });
-    }, [timeRange]);
+        const fetchReports = async () => {
+            try {
+                const res = await fetch('/api/venue-manager/reports');
+                const data = await res.json();
+                if (data.success) {
+                    setStats(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch reports:", error);
+            }
+        };
+
+        fetchReports();
+    }, [timeRange]); // Note: Currently API returns all-time data, but timeRange structure kept for future expansion
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -108,34 +114,33 @@ export default function VenueManagerReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {[
-                                { name: 'Summer Music Fest', sold: 120, total: 150, revenue: 60000 },
-                                { name: 'Tech Conference', sold: 89, total: 100, revenue: 44500 },
-                                { name: 'Art Exhibition', sold: 25, total: 50, revenue: 12500 }
-                            ].map((event, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 border rounded-lg">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold">{event.name}</h3>
-                                        <div className="flex items-center gap-4 mt-2">
-                                            <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-primary h-2 rounded-full"
-                                                    style={{ width: `${(event.sold / event.total) * 100}%` }}
-                                                ></div>
+                            <div className="space-y-4">
+                                {/* @ts-ignore */}
+                                {stats.eventPerformance && stats.eventPerformance.map((event: any, idx: number) => (
+                                    <div key={idx} className="flex items-center justify-between p-4 border rounded-lg">
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold">{event.title}</h3>
+                                            <div className="flex items-center gap-4 mt-2">
+                                                <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className="bg-primary h-2 rounded-full"
+                                                        style={{ width: `${(event.sold / event.total) * 100}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                                                    {event.sold}/{event.total} sold
+                                                </span>
                                             </div>
-                                            <span className="text-sm text-muted-foreground whitespace-nowrap">
-                                                {event.sold}/{event.total} sold
-                                            </span>
+                                        </div>
+                                        <div className="text-right ml-4">
+                                            <div className="text-lg font-bold">₹{event.revenue.toLocaleString()}</div>
+                                            <Badge variant={(event.sold / event.total) > 0.8 ? 'default' : 'secondary'}>
+                                                {Math.round((event.sold / event.total) * 100)}%
+                                            </Badge>
                                         </div>
                                     </div>
-                                    <div className="text-right ml-4">
-                                        <div className="text-lg font-bold">₹{event.revenue.toLocaleString()}</div>
-                                        <Badge variant={(event.sold / event.total) > 0.8 ? 'default' : 'secondary'}>
-                                            {Math.round((event.sold / event.total) * 100)}%
-                                        </Badge>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -148,8 +153,9 @@ export default function VenueManagerReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="h-64 flex items-end justify-around gap-2">
-                            {[12, 19, 15, 28, 22, 31, 25, 18, 29, 35, 27, 32, 38, 42].map((value, idx) => (
-                                <div key={idx} className="flex-1 bg-primary/20 hover:bg-primary/40 transition rounded-t" style={{ height: `${(value / 42) * 100}%` }} title={`${value} tickets`}></div>
+                            {/* @ts-ignore */}
+                            {stats.salesTrend && stats.salesTrend.map((value: number, idx: number) => (
+                                <div key={idx} className="flex-1 bg-primary/20 hover:bg-primary/40 transition rounded-t" style={{ height: `${Math.max((value / 10) * 100, 5)}%` }} title={`${value} tickets`}></div>
                             ))}
                         </div>
                         <div className="flex justify-between mt-4 text-xs text-muted-foreground">

@@ -12,7 +12,6 @@ const navItems = [
     { href: '/venue-manager/events', label: 'My Events', icon: Calendar },
     { href: '/venue-manager/coordinators', label: 'Coordinators', icon: Users },
     { href: '/venue-manager/reports', label: 'Reports', icon: BarChart3 },
-    { href: '/venue-manager/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function VenueManagerLayout({ children }: { children: React.ReactNode }) {
@@ -47,9 +46,10 @@ export default function VenueManagerLayout({ children }: { children: React.React
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
             >
-                <div className="p-4 md:p-6 border-b">
-                    <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                        Venue Manager
+                <div className="p-4 md:p-6 border-b flex items-center gap-3">
+                    <img src="/FGSN.png" alt="Logo" className="h-8 w-8 object-contain" />
+                    <h1 className="text-sm md:text-base font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent leading-tight line-clamp-2">
+                        FREEDOM GLOBAL SPORTS NETWORK
                     </h1>
                 </div>
 

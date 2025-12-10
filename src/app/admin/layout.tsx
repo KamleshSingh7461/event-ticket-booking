@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -11,6 +11,7 @@ const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events/create', label: 'Create Event', icon: Calendar },
     { href: '/admin/events', label: 'Events', icon: Calendar },
+    { href: '/admin/transactions', label: 'Transactions', icon: BarChart3 },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
@@ -47,9 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
             >
-                <div className="p-4 md:p-6 border-b">
+                <div className="p-4 md:p-6 border-b flex items-center gap-3">
+                    <img src="/FGSN.png" alt="Logo" className="h-8 w-8 object-contain" />
                     <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                        EventZone Admin
+                        FGSN Admin
                     </h1>
                 </div>
 
@@ -63,8 +65,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 rounded-lg transition-colors text-sm md:text-base ${isActive
-                                        ? 'bg-primary text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-primary text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />

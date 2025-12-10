@@ -10,74 +10,101 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
         const body = await req.json();
-        const { eventId, user } = body;
+        const { eventId, user, quantity = 1 } = body;
+        const ticketQty = parseInt(quantity as string) || 1;
 
         const event = await Event.findById(eventId);
         if (!event) {
             return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 });
         }
 
-        // Create a temporary or actual user if needed. For now, we assume guest checkout or simple user creation.
-        // In a real app, check if user exists.
+        // Validate quantity
+        if (ticketQty < 1 || ticketQty > 10) {
+            return NextResponse.json({ success: false, error: 'Invalid quantity (1-10 allowed)' }, { status: 400 });
+        }
+
+        // ... User validation (lines 9-25 same)
+
+        const selectedDates = body.selectedDates; // Expecting Array of date strings
+
+        if (!selectedDates || !Array.isArray(selectedDates) || selectedDates.length === 0) {
+            return NextResponse.json({ success: false, error: 'Please select at least one date.' }, { status: 400 });
+        }
+
+        // Validate dates are within event range
+        const start = new Date(event.startDate);
+        const end = new Date(event.endDate);
+        const validDates: Date[] = [];
+
+        for (const dateStr of selectedDates) {
+            const d = new Date(dateStr);
+            if (d < start || d > end) {
+                return NextResponse.json({ success: false, error: `Date ${dateStr} is outside event range.` }, { status: 400 });
+            }
+            validDates.push(d);
+        }
+
         let dbUser = await User.findOne({ email: user.email });
         if (!dbUser) {
-            // Create user implicitly
             dbUser = await User.create({
                 name: user.name,
                 email: user.email,
-                password: crypto.randomBytes(8).toString('hex'), // Temporary password
+                password: crypto.randomBytes(8).toString('hex'),
                 role: 'USER'
             });
         }
 
-        // Create Pending Ticket
+        // Transaction Setup
         const txnid = `TXN${Date.now()}${crypto.randomBytes(2).toString('hex')}`;
-        const amount = event.ticketConfig.price;
-        const productinfo = event.title;
+        const unitPrice = event.ticketConfig.price;
+        const totalDays = validDates.length;
+        const totalAmount = unitPrice * ticketQty * totalDays; // Price * Qty * Days
+        const productinfo = `${event.title} (${ticketQty} tickets, ${totalDays} days)`;
 
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // Create Tickets Loop
+        const tickets = [];
+        for (let i = 0; i < ticketQty; i++) {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            const qrHash = crypto.randomBytes(32).toString('hex');
 
-        // QR Hash for this ticket (unique secret)
-        const qrHash = crypto.randomBytes(32).toString('hex');
+            tickets.push({
+                event: event._id,
+                user: dbUser._id,
+                bookingReference: txnid,
+                amountPaid: unitPrice * totalDays, // Amount per ticket (for all days)
+                paymentStatus: 'PENDING',
+                buyerDetails: {
+                    name: user.name,
+                    email: user.email,
+                    age: parseInt(user.age),
+                    gender: user.gender,
+                    contact: user.phone
+                },
+                // ticketType: 'MULTI_DAY', // Use default from model or derived
+                selectedDates: validDates, // Array of Dates
+                otp: otp,
+                checkIns: [],
+                qrCodeHash: qrHash
+            });
+        }
 
-        const ticket = await Ticket.create({
-            event: event._id,
-            user: dbUser._id,
-            bookingReference: txnid,
-            amountPaid: amount,
-            paymentStatus: 'PENDING',
-            buyerDetails: {
-                name: user.name,
-                email: user.email,
-                age: parseInt(user.age),
-                gender: user.gender,
-                contact: user.phone
-            },
-            ticketType: body.ticketType || 'SINGLE_DAY', // SINGLE_DAY or ALL_DAY_PACKAGE
-            selectedDate: body.selectedDate ? new Date(body.selectedDate) : null,
-            otp: otp, // 6-digit OTP for verification
-            verified: false,
-            qrCodeHash: qrHash // Keep for backward compatibility
-        });
+        await Ticket.insertMany(tickets);
 
-        // TODO: Send OTP email here
-        console.log('📧 OTP for', user.email, ':', otp);
-
-        // Generate PayU Params
+        // PayU Params (Use totalAmount)
         const payuConfig = {
-            key: process.env.PAYU_KEY || 'JPM7Fg', // DEFAULT TESTING KEY
-            salt: process.env.PAYU_SALT || 'TuxqAugd', // DEFAULT TESTING SALT
+            key: process.env.PAYU_KEY || 'JPM7Fg',
+            salt: process.env.PAYU_SALT || 'TuxqAugd',
             txnid: txnid,
-            amount: amount.toFixed(2),
-            productinfo: productinfo.slice(0, 100), // Max length check
-            firstname: user.name.split(' ')[0], // PayU often takes first name
+            amount: totalAmount.toFixed(2),
+            productinfo: productinfo.slice(0, 100),
+            firstname: user.name.split(' ')[0],
             email: user.email,
             phone: user.phone,
             surl: `${process.env.NEXTAUTH_URL}/api/payment/success`,
             furl: `${process.env.NEXTAUTH_URL}/api/payment/failure`,
         };
 
+        // ... Generate Hash and Return (Same)
         const hash = generateHash(payuConfig, payuConfig.salt);
 
         return NextResponse.json({

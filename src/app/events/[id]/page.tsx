@@ -6,6 +6,7 @@ import { Calendar, MapPin, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import BackButton from '@/components/BackButton';
 
 async function getEvent(id: string) {
     await dbConnect();
@@ -38,33 +39,45 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
         startDate: event.startDate.toISOString(),
         endDate: event.endDate.toISOString(),
         venueManager: event.venueManager?.toString(),
-        // ... handles other ObjectIds if necessary
     };
 
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
-            <div className="relative h-[400px] w-full bg-slate-900 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
-                {/* Placeholder for Event Image */}
-                <div className="absolute inset-0 flex items-center justify-center text-white/10 font-bold text-9xl select-none">
-                    EVENT
+            <div className="relative h-auto min-h-[300px] md:h-[450px] w-full bg-slate-900 overflow-hidden flex flex-col relative">
+                <div className="absolute top-24 left-4 z-30 md:top-28">
+                    <BackButton className="text-white hover:text-white/80 bg-black/20 hover:bg-black/40 p-2 rounded-full transition-colors backdrop-blur-sm" />
                 </div>
-                <div className="container relative z-20 h-full flex flex-col justify-end pb-12">
-                    <span className="bg-primary/20 text-primary w-fit px-3 py-1 rounded-full text-sm font-semibold mb-4 backdrop-blur-md border border-primary/20">
-                        {serializedEvent.type} EVENT
+                {serializedEvent.banner ? (
+                    <div className="absolute inset-0 z-0">
+                        <img
+                            src={serializedEvent.banner}
+                            alt={serializedEvent.title}
+                            className="w-full h-full object-cover opacity-80"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                    </div>
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-white/10 font-bold text-9xl select-none bg-slate-900 z-0">
+                        EVENT
+                    </div>
+                )}
+
+                <div className="container relative z-20 flex-1 flex flex-col justify-end pb-8 pt-32 md:pb-12">
+                    <span className="bg-primary text-white w-fit px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4 shadow-lg uppercase tracking-wider">
+                        {serializedEvent.type}
                     </span>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4">
+                    <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-3 md:mb-6 leading-tight drop-shadow-lg">
                         {serializedEvent.title}
                     </h1>
-                    <div className="flex flex-wrap gap-6 text-white/80">
+                    <div className="flex flex-wrap gap-y-3 gap-x-6 text-white/90 text-sm md:text-lg font-medium">
                         <div className="flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-primary" />
-                            {new Date(serializedEvent.startDate).toLocaleString()}
+                            <Calendar className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                            {new Date(serializedEvent.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </div>
                         {serializedEvent.type === 'OFFLINE' && (
                             <div className="flex items-center gap-2">
-                                <MapPin className="w-5 h-5 text-primary" />
+                                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                                 {serializedEvent.venue}
                             </div>
                         )}

@@ -6,7 +6,7 @@ export function Footer() {
             <div className="container py-8 md:py-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">EventZone</h3>
+                        <h3 className="text-lg font-semibold mb-4">FREEDOM GLOBAL SPORTS NETWORK</h3>
                         <p className="text-sm text-muted-foreground">
                             Your premium platform for booking events, online and offline.
                         </p>
@@ -31,13 +31,12 @@ export function Footer() {
                     <div>
                         <h4 className="font-medium mb-4">Contact</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li>Email: support@eventzone.com</li>
-                            <li>Phone: +1 234 567 890</li>
+                            <li>Email: supports@wildcardstat.com</li>
                         </ul>
                     </div>
                 </div>
                 <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-                    © {new Date().getFullYear()} EventZone. All rights reserved.
+                    © {new Date().getFullYear()} WYLDCARD STATS PRIVATE LIMITED. All rights reserved.
                 </div>
             </div>
         </footer>

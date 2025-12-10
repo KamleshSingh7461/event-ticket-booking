@@ -3,7 +3,7 @@ import mongoose, { Schema, model, models } from 'mongoose';
 const TicketSchema = new Schema({
     event: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    bookingReference: { type: String, required: true, unique: true }, // From PayU txnid or generated
+    bookingReference: { type: String, required: true }, // From PayU txnid or generated - Shared across tickets in same order
     paymentStatus: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' },
     payuTransactionId: { type: String },
     amountPaid: { type: Number, required: true },
@@ -17,23 +17,25 @@ const TicketSchema = new Schema({
         contact: String
     },
 
-    // Ticket Type for Dec 16-24 event
-    ticketType: {
-        type: String,
-        enum: ['SINGLE_DAY', 'ALL_DAY_PACKAGE'],
-        default: 'SINGLE_DAY'
-    },
-    selectedDate: { type: Date }, // For single day tickets (Dec 16-24)
+    // Ticket Validity
+    selectedDates: [{ type: Date }], //  Array of specific dates this ticket is valid for
 
-    // OTP Verification
-    otp: { type: String, required: true }, // 6-digit OTP
-    verified: { type: Boolean, default: false },
-    verifiedAt: { type: Date },
+    // Check-in History (Multiple entries potential)
+    checkIns: [{
+        date: { type: Date }, // The scheduled date they are checking in for
+        scannedAt: { type: Date, default: Date.now },
+        scannedBy: { type: Schema.Types.ObjectId, ref: 'User' }
+    }],
 
-    qrCodeHash: { type: String, required: true, unique: true }, // For One-Time Verification
-    isRedeemed: { type: Boolean, default: false },
-    redeemedAt: { type: Date },
-    redeemedBy: { type: Schema.Types.ObjectId, ref: 'User' }, // Coordinator
+    // Deprecated / Legacy Support
+    ticketType: { type: String, enum: ['SINGLE_DAY', 'MULTI_DAY'], default: 'SINGLE_DAY' },
+
+    otp: { type: String, required: true },
+    qrCodeHash: { type: String, required: true, unique: true },
+
+    // Status
+    isRedeemed: { type: Boolean, default: false }, // True if ALL selected dates have been used? Or just if it's "fully used"
+
 
     createdAt: { type: Date, default: Date.now },
 });

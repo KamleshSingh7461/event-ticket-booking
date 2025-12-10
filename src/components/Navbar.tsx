@@ -3,10 +3,13 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Menu, X } from 'lucide-react';
+
+import { useState } from 'react';
 
 export function Navbar() {
     const { data: session, status } = useSession();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const getDashboardLink = () => {
         if (!session?.user?.role) return '/';
@@ -25,17 +28,24 @@ export function Navbar() {
         }
     };
 
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
     return (
         <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
             <div className="container flex h-16 items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center space-x-2">
-                        <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                            EventZone
-                        </span>
+                        <img src="/FGSN.png" alt="FGSN Logo" className="h-14 w-auto object-contain" />
                     </Link>
                 </div>
-                <div className="flex items-center gap-4">
+
+                {/* Mobile Menu Button */}
+                <button className="md:hidden p-2" onClick={toggleMenu}>
+                    {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+
+                {/* Desktop Menu */}
+                <div className="hidden md:flex items-center gap-4">
                     <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary">
                         Events
                     </Link>
@@ -81,6 +91,62 @@ export function Navbar() {
                     )}
                 </div>
             </div>
+
+            {/* Mobile Menu Dropdown */}
+            {isMenuOpen && (
+                <div className="md:hidden border-t bg-background p-4 space-y-4">
+                    <div className="flex flex-col space-y-3">
+                        <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary" onClick={toggleMenu}>
+                            Events
+                        </Link>
+                        <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary" onClick={toggleMenu}>
+                            About
+                        </Link>
+                    </div>
+                    <div className="pt-4 border-t">
+                        {status === 'loading' ? (
+                            <div className="h-8 w-20 bg-muted animate-pulse rounded"></div>
+                        ) : session ? (
+                            <div className="flex flex-col gap-3">
+                                <Link href={getDashboardLink()} onClick={toggleMenu}>
+                                    <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+                                        <Avatar className="h-6 w-6">
+                                            <AvatarFallback className="text-xs">
+                                                {session.user.name?.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span>{session.user.name}</span>
+                                        <span className="text-xs text-muted-foreground ml-auto">{session.user.role} Dashboard</span>
+                                    </Button>
+                                </Link>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        signOut({ callbackUrl: '/' });
+                                        toggleMenu();
+                                    }}
+                                    className="w-full justify-start gap-2 text-red-600"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    <span>Logout</span>
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-2">
+                                <Link href="/login" onClick={toggleMenu}>
+                                    <Button variant="ghost" size="sm" className="w-full">
+                                        Sign In
+                                    </Button>
+                                </Link>
+                                <Link href="/register" onClick={toggleMenu}>
+                                    <Button size="sm" className="w-full">Get Started</Button>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }

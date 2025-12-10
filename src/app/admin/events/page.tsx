@@ -14,6 +14,7 @@ interface Event {
     startDate: string;
     venue: string;
     type: string;
+    banner?: string;
     ticketConfig: {
         price: number;
         currency: string;
@@ -82,11 +83,24 @@ export default function AdminEventsPage() {
                     </div>
                 ) : (
                     events.map((event) => (
-                        <Card key={event._id} className="flex flex-col">
+                        <Card key={event._id} className="flex flex-col overflow-hidden">
+                            <div className="h-48 relative bg-gray-100">
+                                {event.banner ? (
+                                    <img src={event.banner} alt={event.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-400">
+                                        <Calendar className="w-12 h-12" />
+                                    </div>
+                                )}
+                                <div className="absolute top-2 right-2">
+                                    <Badge variant={event.type === 'ONLINE' ? 'secondary' : 'default'} className="bg-white/90 hover:bg-white text-black shadow-sm backdrop-blur-sm">
+                                        {event.type}
+                                    </Badge>
+                                </div>
+                            </div>
                             <CardHeader>
                                 <div className="flex justify-between items-start">
                                     <CardTitle className="line-clamp-1" title={event.title}>{event.title}</CardTitle>
-                                    <Badge variant={event.type === 'ONLINE' ? 'secondary' : 'default'}>{event.type}</Badge>
                                 </div>
                                 <CardDescription className="flex items-center gap-1">
                                     <Calendar className="w-3 h-3" />
@@ -104,9 +118,11 @@ export default function AdminEventsPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-end gap-2 border-t pt-4">
-                                <Button variant="outline" size="sm" disabled title="Edit Coming Soon">
-                                    <Edit className="w-4 h-4" />
-                                </Button>
+                                <Link href={`/admin/events/${event._id}/edit`}>
+                                    <Button variant="outline" size="sm">
+                                        <Edit className="w-4 h-4" />
+                                    </Button>
+                                </Link>
                                 <Button variant="destructive" size="sm" onClick={() => handleDelete(event._id)}>
                                     <Trash2 className="w-4 h-4" />
                                 </Button>

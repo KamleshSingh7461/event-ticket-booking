@@ -23,33 +23,59 @@ export async function POST(req: NextRequest) {
         }
 
         if (ticket.isRedeemed) {
+            // "Partially Used" check or "Fully Used"?
+            // We can treat isRedeemed as "Can never be used again".
+            // Implementation: We verify against `checkIns`.
+            // If checking in for today:
+        }
+
+        const now = new Date();
+        const todayStr = now.toDateString(); // "Wed Dec 25 2024"
+
+        // 1. Is ticket valid for today?
+        const validForToday = ticket.selectedDates.some((d: Date) => new Date(d).toDateString() === todayStr);
+
+        if (!validForToday) {
+            return NextResponse.json({ success: false, message: 'Ticket not valid for TODAY' }, { status: 400 });
+        }
+
+        // 2. Already checked in today?
+        const alreadyCheckedIn = ticket.checkIns.some((c: any) => new Date(c.date).toDateString() === todayStr);
+
+        if (alreadyCheckedIn) {
             return NextResponse.json({
                 success: false,
-                message: 'Ticket already used!',
+                message: 'Already Checked-In Today!',
                 data: {
-                    redeemedAt: ticket.redeemedAt,
+                    redeemedAt: ticket.checkIns.find((c: any) => new Date(c.date).toDateString() === todayStr).scannedAt,
                     buyer: ticket.buyerDetails.name
                 }
             }, { status: 400 });
         }
 
-        // Check Event Date (Optional: Can only redeem on event day)
-        const now = new Date();
-        // if (now < ticket.event.startDate) { ... }
+        // 3. Perform Check-in
+        ticket.checkIns.push({
+            date: now, // Storing "today" as the check-in date
+            scannedAt: now,
+            scannedBy: coordinatorId // Assuming ID is passed
+        });
 
-        // Redeem Ticket
-        ticket.isRedeemed = true;
-        ticket.redeemedAt = new Date();
-        // ticket.redeemedBy = coordinatorId; // If we had auth context
+        // Mark as redeemed if all days used? Or just keep open? 
+        // Let's mark redeemed only if checkIns.length === selectedDates.length
+        if (ticket.checkIns.length >= ticket.selectedDates.length) {
+            ticket.isRedeemed = true;
+        }
+
         await ticket.save();
 
         return NextResponse.json({
             success: true,
-            message: 'Verified Successfully',
+            message: 'Check-in Successful',
             data: {
                 buyer: ticket.buyerDetails.name,
-                type: 'General Entry',
-                event: ticket.event.title
+                type: 'Day Entry',
+                event: ticket.event.title,
+                daysUsed: `${ticket.checkIns.length}/${ticket.selectedDates.length}`
             }
         });
 

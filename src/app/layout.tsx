@@ -15,8 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EventZone - Book Amazing Events",
-  description: "Discover and book tickets for the best events",
+  title: "FREEDOM GLOBAL SPORTS NETWORK",
+  description: "The ultimate platform for global sports events.",
+  icons: {
+    icon: '/FGSN.png',
+    shortcut: '/FGSN.png',
+    apple: '/FGSN.png',
+  }
 };
 
 export default function RootLayout({
@@ -28,6 +33,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <AuthProvider>
           {children}

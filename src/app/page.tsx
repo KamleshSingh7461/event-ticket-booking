@@ -194,7 +194,7 @@ export default function HomePage() {
                       )}
                       <div className="flex items-center justify-between pt-2 md:pt-3 border-t">
                         <span className="text-lg md:text-2xl font-bold text-primary">
-                          ₹{event.ticketPrice?.toLocaleString()}
+                          ₹{event.ticketConfig?.price?.toLocaleString()}
                         </span>
                         <Button size="sm" className="group-hover:bg-primary group-hover:text-white text-xs md:text-sm h-8 md:h-9">
                           Book Now
@@ -213,7 +213,7 @@ export default function HomePage() {
       <section className="py-12 md:py-20 bg-white dark:bg-slate-950">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Why Choose EventZone?</h2>
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Why Choose FREEDOM GLOBAL SPORTS NETWORK?</h2>
             <p className="text-sm md:text-lg text-muted-foreground">
               The most trusted platform for discovering and booking events
             </p>

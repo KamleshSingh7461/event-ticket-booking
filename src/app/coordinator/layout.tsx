@@ -46,9 +46,10 @@ export default function CoordinatorLayout({ children }: { children: React.ReactN
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
             >
-                <div className="p-4 md:p-6 border-b border-slate-800">
+                <div className="p-4 md:p-6 border-b border-slate-800 flex items-center gap-3">
+                    <img src="/FGSN.png" alt="Logo" className="h-8 w-8 object-contain" />
                     <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                        Coordinator Portal
+                        FGSN Coordinator
                     </h1>
                 </div>
 
@@ -62,8 +63,8 @@ export default function CoordinatorLayout({ children }: { children: React.ReactN
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 rounded-lg transition-colors text-sm md:text-base ${isActive
-                                        ? 'bg-primary text-white'
-                                        : 'text-slate-300 hover:bg-slate-800'
+                                    ? 'bg-primary text-white'
+                                    : 'text-slate-300 hover:bg-slate-800'
                                     }`}
                             >
                                 <Icon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />

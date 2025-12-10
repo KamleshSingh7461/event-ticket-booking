@@ -20,34 +20,43 @@ export async function POST(req: NextRequest) {
         console.log('PayU Success Callback Data:', data);
 
         if (verifyResponseHash(data, salt, data.hash)) {
-            // Update Ticket
-            const ticket = await Ticket.findOne({ bookingReference: data.txnid }).populate('event');
+            // Find ALL tickets for this transaction
+            const tickets = await Ticket.find({ bookingReference: data.txnid }).populate('event');
 
-            if (ticket) {
-                if (ticket.paymentStatus !== 'SUCCESS') {
-                    ticket.paymentStatus = 'SUCCESS';
-                    ticket.payuTransactionId = data.mihpayid;
-                    await ticket.save();
+            if (tickets.length > 0) {
+                // Update all tickets to SUCCESS
+                await Ticket.updateMany(
+                    { bookingReference: data.txnid },
+                    {
+                        paymentStatus: 'SUCCESS',
+                        payuTransactionId: data.mihpayid
+                    }
+                );
 
-                    // Send Email
-                    try {
-                        await sendBookingConfirmation({
-                            email: ticket.buyerDetails.email,
-                            name: ticket.buyerDetails.name,
-                            otp: ticket.otp,
-                            eventTitle: ticket.event.title,
-                            ticketType: ticket.ticketType,
-                            bookingReference: ticket.bookingReference
-                        });
-                    } catch (emailErr) {
-                        console.error('Email failed', emailErr);
+                // Send Emails
+                for (const ticket of tickets) {
+                    // Avoid sending duplicate emails if already success (idempotency)
+                    if (ticket.paymentStatus !== 'SUCCESS') {
+                        try {
+                            await sendBookingConfirmation({
+                                email: ticket.buyerDetails.email,
+                                name: ticket.buyerDetails.name,
+                                otp: ticket.otp,
+                                eventTitle: ticket.event.title,
+                                ticketType: ticket.ticketType,
+                                bookingReference: ticket.bookingReference,
+                                quantity: tickets.length // Total quantity in this order
+                            });
+                        } catch (emailErr) {
+                            console.error('Email failed', emailErr);
+                        }
                     }
                 }
 
-                // Redirect to Confirmation Page
-                return NextResponse.redirect(new URL(`/booking/confirmation?id=${ticket._id}`, req.url), 303);
+                // Redirect to Confirmation Page (using the first ticket ID as reference)
+                return NextResponse.redirect(new URL(`/booking/confirmation?id=${tickets[0]._id}`, req.url), 303);
             } else {
-                return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+                return NextResponse.json({ error: 'Tickets not found' }, { status: 404 });
             }
         } else {
             return NextResponse.json({ error: 'Hash Verification Failed' }, { status: 400 });

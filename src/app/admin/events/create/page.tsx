@@ -126,28 +126,48 @@ export default function CreateEventPage() {
         e.preventDefault();
         setLoading(true);
 
-        const payload = { ...formData };
+        const data = new FormData();
+
+        // Append basic fields
+        data.append('title', formData.title);
+        data.append('description', formData.description);
+        data.append('type', formData.type);
+        data.append('venue', formData.venue);
+        data.append('startDate', formData.startDate);
+        data.append('endDate', formData.endDate);
+
+        // Append complex fields
+        data.append('ticketConfig', JSON.stringify(formData.ticketConfig));
+        data.append('subHeadings', JSON.stringify(formData.subHeadings));
+
+        // Append Banner File if exists
+        if (formData.banner instanceof File) {
+            data.append('banner', formData.banner);
+        } else if (typeof formData.banner === 'string') {
+            data.append('banner', formData.banner);
+        }
 
         // Attach Manager Details if Super Admin
         if (session?.user?.role === 'SUPER_ADMIN') {
-            payload.venueManagerDetails = {
+            const managerData = {
                 mode: managerMode,
                 ...managerDetails
             };
+            data.append('venueManagerDetails', JSON.stringify(managerData));
         }
 
         try {
             const res = await fetch('/api/events', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                // Content-Type header is explicitly NOT set to let browser set boundary
+                body: data
             });
-            const data = await res.json();
-            if (data.success) {
+            const resData = await res.json();
+            if (resData.success) {
                 toast.success('Event Created Successfully!');
                 router.push('/admin/events');
             } else {
-                toast.error(data.error);
+                toast.error(resData.error);
             }
         } catch (err) {
             toast.error('Failed to create event');
@@ -190,9 +210,18 @@ export default function CreateEventPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Banner Image URL</Label>
-                            <Input name="banner" value={formData.banner} onChange={handleInputChange} placeholder="https://example.com/banner.jpg" />
-                            <p className="text-xs text-muted-foreground">Provide a direct link to the banner image.</p>
+                            <Label>Banner Image</Label>
+                            <Input
+                                type="file"
+                                name="banner"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        setFormData({ ...formData, banner: e.target.files[0] });
+                                    }
+                                }}
+                            />
+                            <p className="text-xs text-muted-foreground">Upload an event banner image.</p>
                         </div>
 
                         <div className="space-y-2">
