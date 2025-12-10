@@ -22,7 +22,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const event = await Event.findOne({
             _id: id,
             venueManager: session.user.id
-        }).lean();
+        })
+            .populate('assignedCoordinators', 'name email')
+            .lean();
 
         if (!event) {
             return NextResponse.json({ success: false, error: 'Event not found or unauthorized' }, { status: 404 });
@@ -109,7 +111,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         await connectDB();
 
         const body = await req.json();
-        const { ticketConfig } = body;
+        const { ticketConfig, assignedCoordinators } = body;
 
         if (!ticketConfig) {
             return NextResponse.json({ success: false, error: 'No ticket configuration provided' }, { status: 400 });
@@ -124,15 +126,20 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         // Validate basic rules (optional: check if new quantity < sold quantity)
         // For now, we trust the Venue Manager but we could add safety checks here.
 
+        const updateData: any = {
+            'ticketConfig.price': ticketConfig.price,
+            'ticketConfig.quantity': ticketConfig.quantity,
+            'ticketConfig.dateSpecificCapacities': ticketConfig.dateSpecificCapacities || {}
+        };
+
+        // Add assignedCoordinators if provided
+        if (assignedCoordinators !== undefined) {
+            updateData.assignedCoordinators = assignedCoordinators;
+        }
+
         const updatedEvent = await Event.findByIdAndUpdate(
             id,
-            {
-                $set: {
-                    'ticketConfig.price': ticketConfig.price,
-                    'ticketConfig.quantity': ticketConfig.quantity,
-                    'ticketConfig.dateSpecificCapacities': ticketConfig.dateSpecificCapacities || {}
-                }
-            },
+            { $set: updateData },
             { new: true }
         );
 

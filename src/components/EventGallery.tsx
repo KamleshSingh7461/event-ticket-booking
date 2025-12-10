@@ -45,24 +45,32 @@ export default function EventGallery({ images }: EventGalleryProps) {
                 {images.map((img, idx) => (
                     <Dialog key={idx}>
                         <DialogTrigger asChild>
-                            <div className="flex-none min-w-full w-full h-[35vh] md:h-[50vh] relative overflow-hidden cursor-pointer group snap-center bg-muted">
+                            <div className="flex-none min-w-full w-full h-[35vh] md:h-[50vh] relative overflow-hidden cursor-pointer group snap-center bg-black/20 border border-[#AE8638]/10 rounded-lg">
                                 <img
                                     src={img}
                                     alt={`Gallery Image ${idx + 1}`}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain bg-black/50"
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                                     <Maximize2 className="text-white w-12 h-12 drop-shadow-lg" />
                                 </div>
                             </div>
                         </DialogTrigger>
-                        <DialogContent className="max-w-7xl w-full p-0 bg-transparent border-none shadow-none text-white">
+                        <DialogContent className="max-w-[100vw] w-[100vw] h-[100dvh] sm:h-auto p-0 bg-black/95 border-none shadow-none text-white backdrop-blur-md flex flex-col items-center justify-center m-0 gap-0 focus:outline-none">
                             <DialogTitle className="sr-only">Event Image {idx + 1}</DialogTitle>
-                            <div className="relative w-full h-[90vh] flex items-center justify-center pointer-events-none">
+
+                            {/* Close Button */}
+                            <DialogTrigger asChild>
+                                <button className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-black/80 rounded-full text-white backdrop-blur-sm border md:border-none border-white/20">
+                                    <Maximize2 className="w-6 h-6 rotate-45" /> {/* Close Icon Simulation */}
+                                </button>
+                            </DialogTrigger>
+
+                            <div className="relative w-full h-full flex items-center justify-center overflow-hidden p-1 sm:p-4 md:p-10 pointer-events-none">
                                 <img
                                     src={img}
                                     alt="Full View"
-                                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-auto"
+                                    className="max-w-full max-h-full w-auto h-auto object-contain pointer-events-auto"
                                 />
                             </div>
                         </DialogContent>

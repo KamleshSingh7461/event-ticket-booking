@@ -1895,3 +1895,195 @@
   ],
   "entryTime": "18:00"
 }
+[2025-12-10T22:12:11.073Z] PUT Request Content-Type: "multipart/form-data; boundary=----WebKitFormBoundaryZeCD7FkNvb7O64dh"
+[2025-12-10T22:12:11.077Z] FormData Keys: [
+  "title",
+  "description",
+  "type",
+  "venue",
+  "venueManager",
+  "startDate",
+  "endDate",
+  "entryTime",
+  "ticketConfig",
+  "subHeadings",
+  "gallery",
+  "schedule",
+  "banner"
+]
+[2025-12-10T22:12:11.078Z] File received info: {
+  "type": "string",
+  "isString": true
+}
+[2025-12-10T22:12:11.080Z] Final Update Data: {
+  "title": "TELANGANA PRO BASKETBALL LEAGUE",
+  "description": "The Telangana Pro Basketball League (TPBL) Season 1 is officially tipping off on 16th December 2025, bringing together the finest basketball talent from across the state for a high-intensity, action-packed tournament. Across six power-packed teams, the league will showcase competitive matchups, emerging stars, passionate fanbases, and the rising basketball culture in Telangana.\r\n\r\nThis season features six dynamic franchises:\r\n\t•\tHyderabad Honey Badgers\r\n\t•\tWarangal Warriors\r\n\t•\tKhammam Knights\r\n\t•\tNizam Nawabs\r\n\t•\tMedchal Mavericks\r\n\t•\tRangareddy Risers\r\n\r\nOver multiple days of Round Robin matchups, every team will battle for a top spot, aiming to qualify for the Playoffs and ultimately lift the prestigious TPBL Season 1 Championship Trophy. Fans can expect thrilling encounters, buzzer-beaters, rivalries, and standout individual performances as each team fights for supremacy.\r\n\r\nAll games will be played in front of energetic crowds, with tickets priced at ₹150 (+GST) for General Entry. Each ticket provides access to the matchday experience, where fans can witness high-speed basketball, live entertainment, and the electrifying atmosphere of professional league competition.\r\n\r\nWith live streaming on FGSN, strong partner support, and professional league operations, TPBL Season 1 marks a new chapter in Telangana’s sports landscape.\r\n\r\nGet ready to witness Telangana’s biggest basketball festival —\r\nTPBL Season 1. The Battle Begins.",
+  "type": "OFFLINE",
+  "venue": "HYDERABAD",
+  "venueManager": "693951b967f7f49cb5cb83e9",
+  "startDate": "2025-12-11T00:00",
+  "endDate": "2025-12-24T19:55",
+  "entryTime": "00:00",
+  "ticketConfig": {
+    "dateSpecificCapacities": {},
+    "price": 150,
+    "currency": "INR",
+    "quantity": 500,
+    "offers": [],
+    "allDayPrice": 1000
+  },
+  "subHeadings": [
+    {
+      "title": "TPBL SEASON 1 – TICKET TERMS & CONDITIONS",
+      "content": "1. Ticket Validity\n\t•\tEach General Ticket (₹150 + GST) grants entry for one person to the specific match-day mentioned on the ticket.\n\t•\tTickets cannot be transferred to another date or event once purchased.\n\t•\tRe-entry to the arena is not allowed under any circumstances.\n\n\n2. QR Code & Entry Process\n\t•\tEvery ticket contains a unique QR code which must be scanned at the arena entry gate.\n\t•\tOnly one-time scan is permitted per ticket.\n\t•\tScreenshots or duplicated QR codes will be considered invalid.\n\t•\tThe league reserves the right to deny entry if the QR code shows “already scanned” or appears tampered.\n\n\n3. Refunds, Cancellations & Exchanges\n\t•\tNo refund or cancellation is allowed after ticket purchase.\n\t•\tTickets are non-transferable and non-exchangeable.\n\t•\tIf a game is postponed due to unavoidable circumstances, the same ticket may be used for the rescheduled date.\n\t•\tIf a match is completely cancelled by the league, only then the league may issue a refund or credit, subject to internal policy.\n\n\n4. Arena Rules & Conduct\n\t•\tAll spectators must follow the instructions of security staff, volunteers, and league officials at all times.\n\t•\tOutside food, beverages, alcohol, cigarettes, lighters, sharp objects, or any prohibited items are strictly not allowed.\n\t•\tThe league has a zero-tolerance policy for abuse, violence, misconduct, or disturbance inside the arena. Anyone violating these rules will be removed immediately without refund.\n\t•\tBags may be subject to security checks.\n\n\n5. Seating & Access\n\t•\tGeneral Tickets guarantee entry but not reserved seating. Seating is available on a first-come, first-served basis.\n\t•\tAccess to players, benches, media zones, locker rooms, and restricted areas is strictly prohibited.\n\n\n6. Photography, Videography & Media Usage\n\t•\tSpectators may take personal photos and short clips, provided they do not disrupt players or officials.\n\t•\tProfessional cameras, tripods, and broadcasting equipment are not permitted without prior authorization.\n\t•\tBy entering the arena, spectators agree that the TPBL may use images or videos of the audience for promotions, broadcasts, and media purposes without compensation.\n\n\n7. Safety & Liability\n\t•\tSpectators enter the venue at their own risk.\n\t•\tTPBL is not responsible for loss of belongings, injury due to crowd movement, or any incidents unrelated to league negligence.\n\t•\tIn case of emergency, spectators must follow evacuation procedures immediately.\n\n\n8. Age & Admission\n\t•\tChildren aged 5 and above require a ticket.\n\t•\tParents/guardians are responsible for minors at all times.\n\t•\tThe league may deny entry to anyone deemed unfit, intoxicated, or causing disturbance.\n\n\n9. Event Changes\n\t•\tTPBL reserves all rights to change match timings, venue layout, seating arrangements, or schedule due to operational reasons.\n\t•\tAnnouncements will be made via official TPBL communication channels.\n\n\n10. Acceptance of Terms\n\t•\tPurchasing a ticket signifies acceptance of all Terms & Conditions mentioned above.\n\t•\tThese Terms may be updated by the league at any time.",
+      "_id": "6939b0cf934d4cc764f8c7cf"
+    }
+  ],
+  "gallery": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386268/3_ko6cav.png"
+  ],
+  "schedule": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_cc3277d4_tkxqqg.jpg",
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_8e6e10b9_tzgi2n.jpg"
+  ],
+  "banner": "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386269/Q3_dbzldl.png"
+}
+[2025-12-10T22:12:11.099Z] Event saved successfully {
+  "ticketConfig": {
+    "dateSpecificCapacities": {},
+    "price": 150,
+    "currency": "INR",
+    "quantity": 500,
+    "offers": [],
+    "allDayPrice": 1000
+  },
+  "_id": "693951bc67f7f49cb5cb83eb",
+  "title": "TELANGANA PRO BASKETBALL LEAGUE",
+  "description": "The Telangana Pro Basketball League (TPBL) Season 1 is officially tipping off on 16th December 2025, bringing together the finest basketball talent from across the state for a high-intensity, action-packed tournament. Across six power-packed teams, the league will showcase competitive matchups, emerging stars, passionate fanbases, and the rising basketball culture in Telangana.\r\n\r\nThis season features six dynamic franchises:\r\n\t•\tHyderabad Honey Badgers\r\n\t•\tWarangal Warriors\r\n\t•\tKhammam Knights\r\n\t•\tNizam Nawabs\r\n\t•\tMedchal Mavericks\r\n\t•\tRangareddy Risers\r\n\r\nOver multiple days of Round Robin matchups, every team will battle for a top spot, aiming to qualify for the Playoffs and ultimately lift the prestigious TPBL Season 1 Championship Trophy. Fans can expect thrilling encounters, buzzer-beaters, rivalries, and standout individual performances as each team fights for supremacy.\r\n\r\nAll games will be played in front of energetic crowds, with tickets priced at ₹150 (+GST) for General Entry. Each ticket provides access to the matchday experience, where fans can witness high-speed basketball, live entertainment, and the electrifying atmosphere of professional league competition.\r\n\r\nWith live streaming on FGSN, strong partner support, and professional league operations, TPBL Season 1 marks a new chapter in Telangana’s sports landscape.\r\n\r\nGet ready to witness Telangana’s biggest basketball festival —\r\nTPBL Season 1. The Battle Begins.",
+  "type": "OFFLINE",
+  "venue": "HYDERABAD",
+  "venueManager": "693951b967f7f49cb5cb83e9",
+  "startDate": "2025-12-10T18:30:00.000Z",
+  "endDate": "2025-12-24T14:25:00.000Z",
+  "subHeadings": [
+    {
+      "title": "TPBL SEASON 1 – TICKET TERMS & CONDITIONS",
+      "content": "1. Ticket Validity\n\t•\tEach General Ticket (₹150 + GST) grants entry for one person to the specific match-day mentioned on the ticket.\n\t•\tTickets cannot be transferred to another date or event once purchased.\n\t•\tRe-entry to the arena is not allowed under any circumstances.\n\n\n2. QR Code & Entry Process\n\t•\tEvery ticket contains a unique QR code which must be scanned at the arena entry gate.\n\t•\tOnly one-time scan is permitted per ticket.\n\t•\tScreenshots or duplicated QR codes will be considered invalid.\n\t•\tThe league reserves the right to deny entry if the QR code shows “already scanned” or appears tampered.\n\n\n3. Refunds, Cancellations & Exchanges\n\t•\tNo refund or cancellation is allowed after ticket purchase.\n\t•\tTickets are non-transferable and non-exchangeable.\n\t•\tIf a game is postponed due to unavoidable circumstances, the same ticket may be used for the rescheduled date.\n\t•\tIf a match is completely cancelled by the league, only then the league may issue a refund or credit, subject to internal policy.\n\n\n4. Arena Rules & Conduct\n\t•\tAll spectators must follow the instructions of security staff, volunteers, and league officials at all times.\n\t•\tOutside food, beverages, alcohol, cigarettes, lighters, sharp objects, or any prohibited items are strictly not allowed.\n\t•\tThe league has a zero-tolerance policy for abuse, violence, misconduct, or disturbance inside the arena. Anyone violating these rules will be removed immediately without refund.\n\t•\tBags may be subject to security checks.\n\n\n5. Seating & Access\n\t•\tGeneral Tickets guarantee entry but not reserved seating. Seating is available on a first-come, first-served basis.\n\t•\tAccess to players, benches, media zones, locker rooms, and restricted areas is strictly prohibited.\n\n\n6. Photography, Videography & Media Usage\n\t•\tSpectators may take personal photos and short clips, provided they do not disrupt players or officials.\n\t•\tProfessional cameras, tripods, and broadcasting equipment are not permitted without prior authorization.\n\t•\tBy entering the arena, spectators agree that the TPBL may use images or videos of the audience for promotions, broadcasts, and media purposes without compensation.\n\n\n7. Safety & Liability\n\t•\tSpectators enter the venue at their own risk.\n\t•\tTPBL is not responsible for loss of belongings, injury due to crowd movement, or any incidents unrelated to league negligence.\n\t•\tIn case of emergency, spectators must follow evacuation procedures immediately.\n\n\n8. Age & Admission\n\t•\tChildren aged 5 and above require a ticket.\n\t•\tParents/guardians are responsible for minors at all times.\n\t•\tThe league may deny entry to anyone deemed unfit, intoxicated, or causing disturbance.\n\n\n9. Event Changes\n\t•\tTPBL reserves all rights to change match timings, venue layout, seating arrangements, or schedule due to operational reasons.\n\t•\tAnnouncements will be made via official TPBL communication channels.\n\n\n10. Acceptance of Terms\n\t•\tPurchasing a ticket signifies acceptance of all Terms & Conditions mentioned above.\n\t•\tThese Terms may be updated by the league at any time.",
+      "_id": "6939b0cf934d4cc764f8c7cf"
+    }
+  ],
+  "banner": "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386269/Q3_dbzldl.png",
+  "assignedCoordinators": [
+    "6939522667f7f49cb5cb83fc"
+  ],
+  "createdBy": "6938ad0591927759ade2415a",
+  "isActive": true,
+  "createdAt": "2025-12-10T10:55:56.605Z",
+  "updatedAt": "2025-12-10T10:55:56.605Z",
+  "__v": 1,
+  "gallery": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386268/3_ko6cav.png"
+  ],
+  "scheduleImage": "",
+  "schedule": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_cc3277d4_tkxqqg.jpg",
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_8e6e10b9_tzgi2n.jpg"
+  ],
+  "entryTime": "00:00"
+}
+[2025-12-10T22:23:11.119Z] PUT Request Content-Type: "multipart/form-data; boundary=----WebKitFormBoundarytVcXhWbrxSuuNc8T"
+[2025-12-10T22:23:11.121Z] FormData Keys: [
+  "title",
+  "description",
+  "type",
+  "venue",
+  "venueManager",
+  "startDate",
+  "endDate",
+  "entryTime",
+  "ticketConfig",
+  "subHeadings",
+  "gallery",
+  "schedule",
+  "banner"
+]
+[2025-12-10T22:23:11.123Z] File received info: {
+  "type": "string",
+  "isString": true
+}
+[2025-12-10T22:23:11.124Z] Final Update Data: {
+  "title": "TELANGANA PRO BASKETBALL LEAGUE",
+  "description": "The Telangana Pro Basketball League (TPBL) Season 1 is officially tipping off on 16th December 2025, bringing together the finest basketball talent from across the state for a high-intensity, action-packed tournament. Across six power-packed teams, the league will showcase competitive matchups, emerging stars, passionate fanbases, and the rising basketball culture in Telangana.\r\n\r\nThis season features six dynamic franchises:\r\n\t•\tHyderabad Honey Badgers\r\n\t•\tWarangal Warriors\r\n\t•\tKhammam Knights\r\n\t•\tNizam Nawabs\r\n\t•\tMedchal Mavericks\r\n\t•\tRangareddy Risers\r\n\r\nOver multiple days of Round Robin matchups, every team will battle for a top spot, aiming to qualify for the Playoffs and ultimately lift the prestigious TPBL Season 1 Championship Trophy. Fans can expect thrilling encounters, buzzer-beaters, rivalries, and standout individual performances as each team fights for supremacy.\r\n\r\nAll games will be played in front of energetic crowds, with tickets priced at ₹150 (+GST) for General Entry. Each ticket provides access to the matchday experience, where fans can witness high-speed basketball, live entertainment, and the electrifying atmosphere of professional league competition.\r\n\r\nWith live streaming on FGSN, strong partner support, and professional league operations, TPBL Season 1 marks a new chapter in Telangana’s sports landscape.\r\n\r\nGet ready to witness Telangana’s biggest basketball festival —\r\nTPBL Season 1. The Battle Begins.",
+  "type": "OFFLINE",
+  "venue": "HYDERABAD",
+  "venueManager": "693951b967f7f49cb5cb83e9",
+  "startDate": "2025-12-16T18:00",
+  "endDate": "2025-12-24T23:55",
+  "entryTime": "18:00",
+  "ticketConfig": {
+    "dateSpecificCapacities": {},
+    "price": 150,
+    "currency": "INR",
+    "quantity": 500,
+    "offers": [],
+    "allDayPrice": 1000
+  },
+  "subHeadings": [
+    {
+      "title": "TPBL SEASON 1 – TICKET TERMS & CONDITIONS",
+      "content": "1. Ticket Validity\n\t•\tEach General Ticket (₹150 + GST) grants entry for one person to the specific match-day mentioned on the ticket.\n\t•\tTickets cannot be transferred to another date or event once purchased.\n\t•\tRe-entry to the arena is not allowed under any circumstances.\n\n\n2. QR Code & Entry Process\n\t•\tEvery ticket contains a unique QR code which must be scanned at the arena entry gate.\n\t•\tOnly one-time scan is permitted per ticket.\n\t•\tScreenshots or duplicated QR codes will be considered invalid.\n\t•\tThe league reserves the right to deny entry if the QR code shows “already scanned” or appears tampered.\n\n\n3. Refunds, Cancellations & Exchanges\n\t•\tNo refund or cancellation is allowed after ticket purchase.\n\t•\tTickets are non-transferable and non-exchangeable.\n\t•\tIf a game is postponed due to unavoidable circumstances, the same ticket may be used for the rescheduled date.\n\t•\tIf a match is completely cancelled by the league, only then the league may issue a refund or credit, subject to internal policy.\n\n\n4. Arena Rules & Conduct\n\t•\tAll spectators must follow the instructions of security staff, volunteers, and league officials at all times.\n\t•\tOutside food, beverages, alcohol, cigarettes, lighters, sharp objects, or any prohibited items are strictly not allowed.\n\t•\tThe league has a zero-tolerance policy for abuse, violence, misconduct, or disturbance inside the arena. Anyone violating these rules will be removed immediately without refund.\n\t•\tBags may be subject to security checks.\n\n\n5. Seating & Access\n\t•\tGeneral Tickets guarantee entry but not reserved seating. Seating is available on a first-come, first-served basis.\n\t•\tAccess to players, benches, media zones, locker rooms, and restricted areas is strictly prohibited.\n\n\n6. Photography, Videography & Media Usage\n\t•\tSpectators may take personal photos and short clips, provided they do not disrupt players or officials.\n\t•\tProfessional cameras, tripods, and broadcasting equipment are not permitted without prior authorization.\n\t•\tBy entering the arena, spectators agree that the TPBL may use images or videos of the audience for promotions, broadcasts, and media purposes without compensation.\n\n\n7. Safety & Liability\n\t•\tSpectators enter the venue at their own risk.\n\t•\tTPBL is not responsible for loss of belongings, injury due to crowd movement, or any incidents unrelated to league negligence.\n\t•\tIn case of emergency, spectators must follow evacuation procedures immediately.\n\n\n8. Age & Admission\n\t•\tChildren aged 5 and above require a ticket.\n\t•\tParents/guardians are responsible for minors at all times.\n\t•\tThe league may deny entry to anyone deemed unfit, intoxicated, or causing disturbance.\n\n\n9. Event Changes\n\t•\tTPBL reserves all rights to change match timings, venue layout, seating arrangements, or schedule due to operational reasons.\n\t•\tAnnouncements will be made via official TPBL communication channels.\n\n\n10. Acceptance of Terms\n\t•\tPurchasing a ticket signifies acceptance of all Terms & Conditions mentioned above.\n\t•\tThese Terms may be updated by the league at any time.",
+      "_id": "6939b0cf934d4cc764f8c7cf"
+    }
+  ],
+  "gallery": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386268/3_ko6cav.png"
+  ],
+  "schedule": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_cc3277d4_tkxqqg.jpg",
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_8e6e10b9_tzgi2n.jpg"
+  ],
+  "banner": "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386269/Q3_dbzldl.png"
+}
+[2025-12-10T22:23:11.158Z] Event saved successfully {
+  "ticketConfig": {
+    "dateSpecificCapacities": {},
+    "price": 150,
+    "currency": "INR",
+    "quantity": 500,
+    "offers": [],
+    "allDayPrice": 1000
+  },
+  "_id": "693951bc67f7f49cb5cb83eb",
+  "title": "TELANGANA PRO BASKETBALL LEAGUE",
+  "description": "The Telangana Pro Basketball League (TPBL) Season 1 is officially tipping off on 16th December 2025, bringing together the finest basketball talent from across the state for a high-intensity, action-packed tournament. Across six power-packed teams, the league will showcase competitive matchups, emerging stars, passionate fanbases, and the rising basketball culture in Telangana.\r\n\r\nThis season features six dynamic franchises:\r\n\t•\tHyderabad Honey Badgers\r\n\t•\tWarangal Warriors\r\n\t•\tKhammam Knights\r\n\t•\tNizam Nawabs\r\n\t•\tMedchal Mavericks\r\n\t•\tRangareddy Risers\r\n\r\nOver multiple days of Round Robin matchups, every team will battle for a top spot, aiming to qualify for the Playoffs and ultimately lift the prestigious TPBL Season 1 Championship Trophy. Fans can expect thrilling encounters, buzzer-beaters, rivalries, and standout individual performances as each team fights for supremacy.\r\n\r\nAll games will be played in front of energetic crowds, with tickets priced at ₹150 (+GST) for General Entry. Each ticket provides access to the matchday experience, where fans can witness high-speed basketball, live entertainment, and the electrifying atmosphere of professional league competition.\r\n\r\nWith live streaming on FGSN, strong partner support, and professional league operations, TPBL Season 1 marks a new chapter in Telangana’s sports landscape.\r\n\r\nGet ready to witness Telangana’s biggest basketball festival —\r\nTPBL Season 1. The Battle Begins.",
+  "type": "OFFLINE",
+  "venue": "HYDERABAD",
+  "venueManager": "693951b967f7f49cb5cb83e9",
+  "startDate": "2025-12-16T12:30:00.000Z",
+  "endDate": "2025-12-24T18:25:00.000Z",
+  "subHeadings": [
+    {
+      "title": "TPBL SEASON 1 – TICKET TERMS & CONDITIONS",
+      "content": "1. Ticket Validity\n\t•\tEach General Ticket (₹150 + GST) grants entry for one person to the specific match-day mentioned on the ticket.\n\t•\tTickets cannot be transferred to another date or event once purchased.\n\t•\tRe-entry to the arena is not allowed under any circumstances.\n\n\n2. QR Code & Entry Process\n\t•\tEvery ticket contains a unique QR code which must be scanned at the arena entry gate.\n\t•\tOnly one-time scan is permitted per ticket.\n\t•\tScreenshots or duplicated QR codes will be considered invalid.\n\t•\tThe league reserves the right to deny entry if the QR code shows “already scanned” or appears tampered.\n\n\n3. Refunds, Cancellations & Exchanges\n\t•\tNo refund or cancellation is allowed after ticket purchase.\n\t•\tTickets are non-transferable and non-exchangeable.\n\t•\tIf a game is postponed due to unavoidable circumstances, the same ticket may be used for the rescheduled date.\n\t•\tIf a match is completely cancelled by the league, only then the league may issue a refund or credit, subject to internal policy.\n\n\n4. Arena Rules & Conduct\n\t•\tAll spectators must follow the instructions of security staff, volunteers, and league officials at all times.\n\t•\tOutside food, beverages, alcohol, cigarettes, lighters, sharp objects, or any prohibited items are strictly not allowed.\n\t•\tThe league has a zero-tolerance policy for abuse, violence, misconduct, or disturbance inside the arena. Anyone violating these rules will be removed immediately without refund.\n\t•\tBags may be subject to security checks.\n\n\n5. Seating & Access\n\t•\tGeneral Tickets guarantee entry but not reserved seating. Seating is available on a first-come, first-served basis.\n\t•\tAccess to players, benches, media zones, locker rooms, and restricted areas is strictly prohibited.\n\n\n6. Photography, Videography & Media Usage\n\t•\tSpectators may take personal photos and short clips, provided they do not disrupt players or officials.\n\t•\tProfessional cameras, tripods, and broadcasting equipment are not permitted without prior authorization.\n\t•\tBy entering the arena, spectators agree that the TPBL may use images or videos of the audience for promotions, broadcasts, and media purposes without compensation.\n\n\n7. Safety & Liability\n\t•\tSpectators enter the venue at their own risk.\n\t•\tTPBL is not responsible for loss of belongings, injury due to crowd movement, or any incidents unrelated to league negligence.\n\t•\tIn case of emergency, spectators must follow evacuation procedures immediately.\n\n\n8. Age & Admission\n\t•\tChildren aged 5 and above require a ticket.\n\t•\tParents/guardians are responsible for minors at all times.\n\t•\tThe league may deny entry to anyone deemed unfit, intoxicated, or causing disturbance.\n\n\n9. Event Changes\n\t•\tTPBL reserves all rights to change match timings, venue layout, seating arrangements, or schedule due to operational reasons.\n\t•\tAnnouncements will be made via official TPBL communication channels.\n\n\n10. Acceptance of Terms\n\t•\tPurchasing a ticket signifies acceptance of all Terms & Conditions mentioned above.\n\t•\tThese Terms may be updated by the league at any time.",
+      "_id": "6939b0cf934d4cc764f8c7cf"
+    }
+  ],
+  "banner": "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386269/Q3_dbzldl.png",
+  "assignedCoordinators": [
+    "6939522667f7f49cb5cb83fc"
+  ],
+  "createdBy": "6938ad0591927759ade2415a",
+  "isActive": true,
+  "createdAt": "2025-12-10T10:55:56.605Z",
+  "updatedAt": "2025-12-10T10:55:56.605Z",
+  "__v": 1,
+  "gallery": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386268/3_ko6cav.png"
+  ],
+  "scheduleImage": "",
+  "schedule": [
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_cc3277d4_tkxqqg.jpg",
+    "https://res.cloudinary.com/dxgx75kwb/image/upload/v1765386253/WhatsApp_Image_2025-12-10_at_17.49.57_8e6e10b9_tzgi2n.jpg"
+  ],
+  "entryTime": "18:00"
+}

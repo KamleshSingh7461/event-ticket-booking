@@ -13,12 +13,35 @@ async function getStats() {
     const totalEvents = await EventModel.countDocuments();
     const totalTicketsSold = await TicketModel.countDocuments({ paymentStatus: 'SUCCESS' });
 
-    // Calculate Revenue
-    const revenueResult = await TicketModel.aggregate([
-        { $match: { paymentStatus: 'SUCCESS' } },
-        { $group: { _id: null, total: { $sum: "$amountPaid" } } }
-    ]);
-    const totalRevenue = revenueResult[0]?.total || 0;
+    // Calculate Detailed Financial Stats
+    const successfulTickets = await TicketModel.find({ paymentStatus: 'SUCCESS' }).lean();
+
+    let totalRevenue = 0; // Base amount before GST
+    let totalGST = 0;
+    let totalReceived = 0; // Total including GST
+
+    successfulTickets.forEach((ticket: any) => {
+        if (ticket.pricing && ticket.pricing.baseAmount) {
+            // New tickets with pricing breakdown
+            totalRevenue += ticket.pricing.baseAmount;
+            totalGST += ticket.pricing.gstAmount;
+            totalReceived += ticket.pricing.totalAmount;
+        } else {
+            // Old tickets - reverse calculate from amountPaid
+            const total = ticket.amountPaid;
+            const base = total / 1.18;
+            const gst = total - base;
+
+            totalRevenue += base;
+            totalGST += gst;
+            totalReceived += total;
+        }
+    });
+
+    // Round to 2 decimal places
+    totalRevenue = Math.round(totalRevenue * 100) / 100;
+    totalGST = Math.round(totalGST * 100) / 100;
+    totalReceived = Math.round(totalReceived * 100) / 100;
 
     // Detailed Event Stats
     const events = await EventModel.find({ isActive: true }).sort({ startDate: 1 });
@@ -26,7 +49,16 @@ async function getStats() {
         const tickets = await TicketModel.find({ event: event._id, paymentStatus: 'SUCCESS' });
         const soldCount = tickets.length;
         const totalCapacity = event.ticketConfig.quantity || 500; // Use default 500 as per new logic
-        const revenue = tickets.reduce((sum: number, t: any) => sum + t.amountPaid, 0);
+
+        // Calculate event revenue with GST breakdown
+        let eventRevenue = 0;
+        tickets.forEach((ticket: any) => {
+            if (ticket.pricing && ticket.pricing.baseAmount) {
+                eventRevenue += ticket.pricing.baseAmount;
+            } else {
+                eventRevenue += ticket.amountPaid / 1.18;
+            }
+        });
 
         // Daily Breakdown Calculation
         const dailyBreakdown: Record<string, number> = {};
@@ -67,11 +99,19 @@ async function getStats() {
             peakDay,
             remaining: totalCapacity - peakDay.count, // Remaining logic is tricky for whole event, usually implies "Tightest Bottle Neck"
             percentage: Math.min((peakDay.count / totalCapacity) * 100, 100), // Percent based on PEAK day usage vs Capacity
-            revenue
+            revenue: Math.round(eventRevenue * 100) / 100
         };
     }));
 
-    return { totalUsers, totalEvents, totalTicketsSold, totalRevenue, eventStats };
+    return {
+        totalUsers,
+        totalEvents,
+        totalTicketsSold,
+        totalRevenue,
+        totalGST,
+        totalReceived,
+        eventStats
+    };
 }
 
 export default async function AdminDashboard() {
@@ -82,44 +122,78 @@ export default async function AdminDashboard() {
             <div className="py-2 flex-1 p-6">
                 <h1 className="text-3xl font-bold mb-8 text-white border-b border-[#AE8638]/20 pb-4">Admin Dashboard</h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-[#AE8638]">Total Revenue</CardTitle>
-                            <IndianRupee className="h-4 w-4 text-[#AE8638]/60" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">₹{stats.totalRevenue.toLocaleString()}</div>
-                            <p className="text-xs text-gray-400">+20.1% from last month</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-[#AE8638]">Tickets Sold</CardTitle>
-                            <Ticket className="h-4 w-4 text-[#AE8638]/60" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">{stats.totalTicketsSold}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-[#AE8638]">Active Events</CardTitle>
-                            <BarChart3 className="h-4 w-4 text-[#AE8638]/60" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">{stats.totalEvents}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-[#AE8638]">Users</CardTitle>
-                            <Users className="h-4 w-4 text-[#AE8638]/60" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
-                        </CardContent>
-                    </Card>
+                {/* Financial Overview Section */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-[#AE8638] mb-4">Financial Overview</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <Card className="bg-gradient-to-br from-green-500/10 to-black border border-green-500/30 shadow-xl">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-green-400">Base Revenue</CardTitle>
+                                <IndianRupee className="h-4 w-4 text-green-400/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">₹{stats.totalRevenue.toLocaleString()}</div>
+                                <p className="text-xs text-gray-400">Revenue before GST</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-yellow-500/10 to-black border border-yellow-500/30 shadow-xl">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-yellow-400">GST Collected (18%)</CardTitle>
+                                <IndianRupee className="h-4 w-4 text-yellow-400/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">₹{stats.totalGST.toLocaleString()}</div>
+                                <p className="text-xs text-gray-400">Tax amount collected</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-[#AE8638]/20 to-black border border-[#AE8638]/40 shadow-xl">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-[#AE8638]">Total Received</CardTitle>
+                                <IndianRupee className="h-4 w-4 text-[#AE8638]/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">₹{stats.totalReceived.toLocaleString()}</div>
+                                <p className="text-xs text-gray-400">Revenue + GST</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+
+                {/* General Stats Section */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-[#AE8638] mb-4">General Statistics</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-[#AE8638]">Tickets Sold</CardTitle>
+                                <Ticket className="h-4 w-4 text-[#AE8638]/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">{stats.totalTicketsSold}</div>
+                                <p className="text-xs text-gray-400">Successful bookings</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-[#AE8638]">Active Events</CardTitle>
+                                <BarChart3 className="h-4 w-4 text-[#AE8638]/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">{stats.totalEvents}</div>
+                                <p className="text-xs text-gray-400">Currently active</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-[#AE8638]">Users</CardTitle>
+                                <Users className="h-4 w-4 text-[#AE8638]/60" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                                <p className="text-xs text-gray-400">Registered users</p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

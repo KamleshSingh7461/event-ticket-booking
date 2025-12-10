@@ -192,7 +192,7 @@ export default function EventBookingsPage() {
                                         </td>
                                         <td className="p-4">
                                             <Badge variant="outline" className={`border-${isAllDay ? 'purple' : 'blue'}-500/50 text-${isAllDay ? 'purple' : 'blue'}-400`}>
-                                                {isAllDay ? 'ALL DAY PASS' : 'DAILY PASS'}
+                                                {isAllDay ? 'SEASON PASS' : 'DAILY PASS'}
                                             </Badge>
                                         </td>
                                         <td className="p-4 text-xs text-gray-400 max-w-[200px]">

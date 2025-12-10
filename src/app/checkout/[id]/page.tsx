@@ -203,7 +203,7 @@ export default function CheckoutPage() {
                                                 `}>
                                                 <RadioGroupItem value="ALL_DAY" id="allday" className="text-[#AE8638] border-[#AE8638]" />
                                                 <Label htmlFor="allday" className="cursor-pointer text-white">
-                                                    All Day Pass
+                                                    Season Pass (For all 9 days)
                                                     <span className="block text-xs text-[#AE8638]/80 font-normal">
                                                         {event.ticketConfig.currency} {event.ticketConfig.allDayPrice}
                                                     </span>
@@ -217,14 +217,16 @@ export default function CheckoutPage() {
                                 <div className="mt-2">
                                     <div className="flex justify-between items-center mb-3">
                                         <Label className="text-base font-semibold text-[#AE8638]">Select Dates:</Label>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={selectAllDates}
-                                            className="text-[#AE8638] hover:text-[#AE8638]/80 hover:bg-[#AE8638]/10 h-auto p-0"
-                                        >
-                                            {selectedDates.length === availableDates.length ? 'Clear All' : 'Select All'}
-                                        </Button>
+                                        {bookingType === 'DAILY' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={selectAllDates}
+                                                className="text-[#AE8638] hover:text-[#AE8638]/80 hover:bg-[#AE8638]/10 h-auto p-0"
+                                            >
+                                                {selectedDates.length === availableDates.length ? 'Clear All' : 'Select All'}
+                                            </Button>
+                                        )}
                                     </div>
 
                                     <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 ${bookingType === 'ALL_DAY' ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -250,7 +252,7 @@ export default function CheckoutPage() {
                                         })}
                                     </div>
                                     {bookingType === 'ALL_DAY' && (
-                                        <p className="text-xs text-[#AE8638] mt-2 italic">* All dates are included in the All Day Pass.</p>
+                                        <p className="text-xs text-[#AE8638] mt-2 italic">* All dates are included in the Season Pass.</p>
                                     )}
                                     {bookingType === 'DAILY' && selectedDates.length === 0 && (
                                         <p className="text-xs text-red-500 mt-2">Please select at least one date.</p>
@@ -281,7 +283,7 @@ export default function CheckoutPage() {
                                 <div className="mt-6 space-y-2 border-t border-[#AE8638]/20 pt-4 bg-[#AE8638]/5 p-4 rounded-lg">
                                     <div className="flex justify-between text-sm text-gray-400">
                                         <span>Type:</span>
-                                        <span className="text-white font-medium">{bookingType === 'ALL_DAY' ? 'All Day Pass' : 'Daily Pass'}</span>
+                                        <span className="text-white font-medium">{bookingType === 'ALL_DAY' ? 'Season Pass' : 'Daily Pass'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-400">
                                         <span>{bookingType === 'ALL_DAY' ? 'Pass Price:' : 'Price per Day:'}</span>

@@ -410,3 +410,122 @@ export const sendTicketEmail = async (params: {
         return false;
     }
 };
+
+// Send Invoice Email with PDF attachment
+export const sendInvoiceEmail = async (params: {
+    email: string;
+    name: string;
+    invoiceNumber: string;
+    eventTitle: string;
+    totalAmount: number;
+    currency: string;
+    pdfBuffer?: Buffer;
+}) => {
+    try {
+        const mailOptions = {
+            from: '"Wyldcard Stats Private Limited" <noreply@wildcardstat.com>',
+            to: params.email,
+            subject: `Invoice ${params.invoiceNumber} - ${params.eventTitle}`,
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 0;">
+                                <table role="presentation" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            ${getEmailHeader()}
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 30px 30px 0 30px; text-align: center;">
+                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                                                <h2 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 700;">
+                                                    📄 Invoice Generated
+                                                </h2>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 20px 30px 40px 30px;">
+                                            <p style="color: #2c3e50; font-size: 18px; margin: 0 0 20px 0; font-weight: 600;">
+                                                Dear ${params.name},
+                                            </p>
+                                            
+                                            <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+                                                Thank you for your purchase! Please find attached your invoice for <strong>${params.eventTitle}</strong>.
+                                            </p>
+                                            
+                                            <div style="background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 25px; margin: 25px 0;">
+                                                <h3 style="color: #667eea; font-size: 18px; margin: 0 0 20px 0; font-weight: 600; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                                                    📋 Invoice Details
+                                                </h3>
+                                                <table style="width: 100%;">
+                                                    <tr>
+                                                        <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600; width: 40%;">Invoice Number:</td>
+                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 14px; font-family: 'Courier New', monospace;">${params.invoiceNumber}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600;">Event:</td>
+                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">${params.eventTitle}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600;">Total Amount:</td>
+                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 18px; font-weight: 700;">${params.currency} ${params.totalAmount.toFixed(2)}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600;">Status:</td>
+                                                        <td style="padding: 10px 0; color: #10b981; font-size: 14px; font-weight: 700;">✓ PAID</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            
+                                            <div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; border-radius: 4px; margin: 25px 0;">
+                                                <p style="color: #004085; font-size: 14px; margin: 0; line-height: 1.6;">
+                                                    <strong>💡 Note:</strong> Your invoice is attached to this email as a PDF. Please keep it for your records.
+                                                </p>
+                                            </div>
+                                            
+                                            <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 25px 0 0 0;">
+                                                If you have any questions about this invoice, please don't hesitate to contact our support team.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            ${getEmailFooter()}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `,
+            attachments: params.pdfBuffer ? [
+                {
+                    filename: `Invoice-${params.invoiceNumber}.pdf`,
+                    content: params.pdfBuffer,
+                    contentType: 'application/pdf'
+                }
+            ] : []
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Invoice Email sent: ' + info.response);
+        return true;
+    } catch (error) {
+        console.error('Error sending invoice email:', error);
+        return false;
+    }
+};

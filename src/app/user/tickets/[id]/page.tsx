@@ -184,7 +184,7 @@ export default function UserTicketPage() {
                                         <p className="text-sm text-gray-400">Pass Type</p>
                                         <p className="font-semibold text-lg">
                                             {/* Deduce Type based on data available if not explicitly stored */}
-                                            All Access Pass
+                                            Season Pass (For all 9 days)
                                         </p>
                                         <p className="text-xs text-[#AE8638]">{ticket.selectedDates?.length} Day(s) Access</p>
                                     </div>

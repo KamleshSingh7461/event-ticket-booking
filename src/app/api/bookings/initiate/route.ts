@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
             }
             totalDays = validDates.length;
             baseAmount = event.ticketConfig.allDayPrice * ticketQty;
-            productinfo = `${event.title} (All Day Pass, ${ticketQty} tickets)`;
+            productinfo = `${event.title} (Season Pass, ${ticketQty} tickets)`;
 
         } else {
             // DAILY Booking Logic
@@ -118,16 +118,23 @@ export async function POST(req: NextRequest) {
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             const qrHash = crypto.randomBytes(32).toString('hex');
 
-            // Calculate amount per ticket inclusive of GST
-            // Total Amount = Base + GST
-            // Amount per ticket = Total / Qty
-            const amountPerTicket = totalAmount / ticketQty;
+            // Calculate amount per ticket with detailed breakdown
+            const baseAmountPerTicket = baseAmount / ticketQty;
+            const gstAmountPerTicket = gstAmount / ticketQty;
+            const totalAmountPerTicket = totalAmount / ticketQty;
 
             tickets.push({
                 event: event._id,
                 user: dbUser._id,
                 bookingReference: txnid,
-                amountPaid: amountPerTicket,
+                amountPaid: totalAmountPerTicket, // Kept for backward compatibility
+                pricing: {
+                    baseAmount: baseAmountPerTicket,
+                    gstRate: 0.18,
+                    gstAmount: gstAmountPerTicket,
+                    totalAmount: totalAmountPerTicket,
+                    currency: event.ticketConfig.currency || 'INR'
+                },
                 paymentStatus: 'PENDING',
                 buyerDetails: {
                     name: user.name,

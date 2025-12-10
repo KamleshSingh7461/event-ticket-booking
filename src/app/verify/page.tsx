@@ -56,6 +56,7 @@ export default function VerifyPage() {
             } else {
                 setStatus('ERROR');
                 setResult({ message: data.message, ...data.data });
+                console.error('❌ Verification API Error:', data);
                 toast.error(data.message);
                 if (type === 'QR') {
                     setTimeout(() => reset(), 2000); // Auto reset error for QR
@@ -110,15 +111,6 @@ export default function VerifyPage() {
                                 <TabsContent value="scan" className="mt-4 md:mt-6">
                                     <div className="bg-black border-2 border-[#AE8638]/30 rounded-lg min-h-[250px] md:min-h-[300px] flex items-center justify-center text-[#AE8638]/50 overflow-hidden relative">
                                         <QrScanner onResult={onScan} />
-                                        <div className="absolute inset-0 pointer-events-none border-[30px] border-black/50"></div>
-                                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                                            <div className="w-48 h-48 border-2 border-[#AE8638] relative">
-                                                <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-[#AE8638] -mt-1 -ml-1"></div>
-                                                <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-[#AE8638] -mt-1 -mr-1"></div>
-                                                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-[#AE8638] -mb-1 -ml-1"></div>
-                                                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-[#AE8638] -mb-1 -mr-1"></div>
-                                            </div>
-                                        </div>
                                     </div>
                                     <p className="text-center text-xs text-[#AE8638]/60 mt-4 animate-pulse">Point camera at the QR code</p>
                                 </TabsContent>

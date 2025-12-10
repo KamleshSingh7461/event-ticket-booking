@@ -119,7 +119,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                             </div>
                             {serializedEvent.ticketConfig.allDayPrice && (
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-gray-400 text-sm">All Day Pass</span>
+                                    <span className="text-gray-400 text-sm">Season Pass (For all 9 days)</span>
                                     <span className="text-xl font-bold text-[#AE8638]">
                                         {serializedEvent.ticketConfig.currency} {serializedEvent.ticketConfig.allDayPrice}
                                     </span>

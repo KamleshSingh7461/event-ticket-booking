@@ -98,10 +98,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
             {[
-              { icon: Users, label: 'Active Users', value: '50K+' },
-              { icon: Calendar, label: 'Events Hosted', value: '10K+' },
-              { icon: TrendingUp, label: 'Tickets Sold', value: '500K+' },
-              { icon: Star, label: 'Satisfaction', value: '4.9/5' },
+              { icon: Star, label: 'Premium Experience', value: 'Elite' },
+              { icon: TrendingUp, label: 'Secure Payments', value: '100%' },
+              { icon: Calendar, label: 'Events Hosted', value: 'Live' },
+              { icon: Users, label: 'Customer Support', value: '24/7' },
             ].map((stat, idx) => (
               <div key={idx} className="text-center space-y-1 md:space-y-2">
                 <stat.icon className="w-6 h-6 md:w-8 md:h-8 mx-auto text-[#AE8638]" />

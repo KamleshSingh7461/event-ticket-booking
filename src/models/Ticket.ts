@@ -6,7 +6,16 @@ const TicketSchema = new Schema({
     bookingReference: { type: String, required: true }, // From PayU txnid or generated - Shared across tickets in same order
     paymentStatus: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' },
     payuTransactionId: { type: String },
-    amountPaid: { type: Number, required: true },
+    amountPaid: { type: Number, required: true }, // Deprecated - kept for backward compatibility
+
+    // Detailed Pricing Breakdown (NEW)
+    pricing: {
+        baseAmount: { type: Number }, // Price before GST (per ticket)
+        gstRate: { type: Number, default: 0.18 }, // GST rate (18%)
+        gstAmount: { type: Number }, // GST amount (per ticket)
+        totalAmount: { type: Number }, // Total including GST (per ticket)
+        currency: { type: String, default: 'INR' } // Currency
+    },
 
     // Buyer Details (Snapshot at booking)
     buyerDetails: {
