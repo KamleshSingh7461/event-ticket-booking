@@ -8,15 +8,25 @@ export async function POST(req: NextRequest) {
         await dbConnect();
         const { qrHash, coordinatorId } = await req.json();
 
+        console.log('🔍 [VERIFY API] Request received');
+        console.log('📋 [VERIFY API] QR Hash:', qrHash);
+        console.log('👤 [VERIFY API] Coordinator ID:', coordinatorId || 'None');
+
         if (!qrHash) {
+            console.error('❌ [VERIFY API] No QR Hash provided');
             return NextResponse.json({ success: false, message: 'QR Hash is required' }, { status: 400 });
         }
 
+        console.log('🔎 [VERIFY API] Searching for ticket with hash:', qrHash);
         const ticket = await Ticket.findOne({ qrCodeHash: qrHash }).populate('event');
 
         if (!ticket) {
+            console.error('❌ [VERIFY API] Ticket not found for hash:', qrHash);
             return NextResponse.json({ success: false, message: 'Invalid Ticket' }, { status: 404 });
         }
+
+        console.log('✅ [VERIFY API] Ticket found:', ticket._id);
+        console.log('💳 [VERIFY API] Payment status:', ticket.paymentStatus);
 
         if (ticket.paymentStatus !== 'SUCCESS') {
             return NextResponse.json({ success: false, message: 'Ticket not paid for' }, { status: 400 });

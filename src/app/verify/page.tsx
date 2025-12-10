@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Scan, CheckCircle, XCircle, Keyboard, Camera } from 'lucide-react';
 import QrScanner from '@/components/QrScanner';
 
 export default function VerifyPage() {
+    const { data: session } = useSession();
     const [hash, setHash] = useState('');
     const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
     const [result, setResult] = useState<any>(null);
@@ -28,13 +30,26 @@ export default function VerifyPage() {
         setResult(null);
         setLastScannedCode(inputHash);
 
+        console.log('🔍 Verifying ticket:', inputHash);
+        console.log('👤 Coordinator ID:', session?.user?.id || 'Not logged in');
+
         try {
+            const requestBody = {
+                qrHash: inputHash,
+                coordinatorId: session?.user?.id || null
+            };
+
+            console.log('📤 Sending verification request:', requestBody);
+
             const res = await fetch('/api/tickets/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ qrHash: inputHash })
+                body: JSON.stringify(requestBody)
             });
+
+            console.log('📥 Response status:', res.status);
             const data = await res.json();
+            console.log('📥 Response data:', data);
 
             if (data.success) {
                 setStatus('SUCCESS');
@@ -49,6 +64,7 @@ export default function VerifyPage() {
                 setStatus('ERROR');
                 setResult({ message: data.message, ...data.data });
                 toast.error(data.message);
+                console.error('❌ Verification failed:', data.message);
 
                 // Auto-reset after 2 seconds on error
                 setTimeout(() => {
@@ -57,6 +73,7 @@ export default function VerifyPage() {
             }
 
         } catch (err) {
+            console.error('❌ Network error:', err);
             setStatus('ERROR');
             setResult({ message: 'Network error' });
             toast.error('Network error');
