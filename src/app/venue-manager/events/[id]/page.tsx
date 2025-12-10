@@ -2,8 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/link'; // Correction: next/navigation used below
-import { useRouter as useNextRouter, useParams as useNextParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Search, Calendar, MapPin, Edit, RefreshCw, Smartphone } from 'lucide-react';
@@ -12,8 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 export default function VenueManagerEventDetailPage() {
-    const params = useNextParams();
-    const router = useNextRouter();
+    const params = useParams();
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
