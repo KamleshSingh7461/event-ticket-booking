@@ -38,14 +38,13 @@ const InvoiceSchema = new Schema({
 });
 
 // Generate invoice number
-InvoiceSchema.pre('save', async function (next) {
+InvoiceSchema.pre('save', async function () {
     if (!this.invoiceNumber) {
         const count = await mongoose.model('Invoice').countDocuments();
         const year = new Date().getFullYear();
         this.invoiceNumber = `INV-${year}-${String(count + 1).padStart(5, '0')}`;
     }
     this.updatedAt = new Date();
-    next();
 });
 
 const Invoice = models.Invoice || model('Invoice', InvoiceSchema);
