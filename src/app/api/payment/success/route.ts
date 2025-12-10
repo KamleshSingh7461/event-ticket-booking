@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 // Redirect to Confirmation Page (using the first ticket ID as reference)
-                return NextResponse.redirect(new URL(`/booking/confirmation?id=${tickets[0]._id}`, req.url), 303);
+                return NextResponse.redirect(new URL(`/booking/confirmation?id=${tickets[0]._id}`, process.env.NEXTAUTH_URL || 'http://localhost:3000'), 303);
             } else {
                 return NextResponse.json({ error: 'Tickets not found' }, { status: 404 });
             }

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
             { paymentStatus: 'FAILED' }
         );
 
-        return NextResponse.redirect(new URL(`/booking/failure?txnid=${data.txnid}`, req.url), 303);
+        return NextResponse.redirect(new URL(`/booking/failure?txnid=${data.txnid}`, process.env.NEXTAUTH_URL || 'http://localhost:3000'), 303);
     } catch (error) {
         return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
     }
