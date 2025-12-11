@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,7 @@ export default function CheckoutPage() {
     const params = useParams();
     const eventId = params.id as string;
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     const [loading, setLoading] = useState(false);
     const [event, setEvent] = useState<any>(null);
@@ -38,6 +40,20 @@ export default function CheckoutPage() {
     const [payuParams, setPayuParams] = useState<any>(null);
 
     useEffect(() => {
+        if (status === 'unauthenticated') {
+            toast.error('Please login to book tickets');
+            router.push(`/login?callbackUrl=/checkout/${eventId}`);
+            return;
+        }
+
+        if (status === 'authenticated' && session?.user) {
+            setFormData(prev => ({
+                ...prev,
+                name: session.user.name || '',
+                email: session.user.email || '',
+            }));
+        }
+
         // Fetch event details to show summary
         fetch(`/api/events?id=${eventId}`).then(res => res.json()).then(data => {
             if (data.data) {
@@ -57,7 +73,7 @@ export default function CheckoutPage() {
                 }
             }
         });
-    }, [eventId]);
+    }, [eventId, status, session, router]);
 
     const toggleDate = (dateIso: string) => {
         if (selectedDates.includes(dateIso)) {
@@ -121,6 +137,14 @@ export default function CheckoutPage() {
             setLoading(false);
         }
     };
+
+    if (status === 'loading') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-black">
+                <div className="animate-spin h-8 w-8 border-4 border-[#AE8638] border-t-transparent rounded-full"></div>
+            </div>
+        );
+    }
 
     if (payuParams) {
         return (

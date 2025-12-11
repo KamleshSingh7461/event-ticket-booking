@@ -529,3 +529,76 @@ export const sendInvoiceEmail = async (params: {
         return false;
     }
 };
+
+export const sendPasswordResetEmail = async (email: string, token: string) => {
+    try {
+        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+
+        const mailOptions = {
+            from: '"Wyldcard Stats Private Limited" <noreply@wildcardstat.com>',
+            to: email,
+            subject: 'Password Reset Request | FGSN',
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 0;">
+                                <table role="presentation" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            ${getEmailHeader()}
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 40px 30px;">
+                                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0; font-weight: 600;">
+                                                Password Reset Request
+                                            </h2>
+                                            
+                                            <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                                                You requested a password reset for your Wyldcard Stats Private Limited account. Click the button below to set a new password.
+                                            </p>
+                                            
+                                            <div style="text-align: center; margin: 30px 0;">
+                                                <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #ae8638 0%, #d4af37 100%); color: #000000; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                                    Reset Password
+                                                </a>
+                                            </div>
+                                            
+                                            <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0;">
+                                                If you didn't request this, you can safely ignore this email. Your password will not change.
+                                            </p>
+                                            <p style="color: #999; font-size: 12px; margin-top: 10px;">
+                                                This link expires in 1 hour.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 0;">
+                                            ${getEmailFooter()}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Password Reset Email sent: ' + info.response);
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        return false;
+    }
+};

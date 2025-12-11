@@ -18,6 +18,7 @@ export default function HomePage() {
     fetchEvents();
   }, []);
 
+  
   const fetchEvents = async () => {
     try {
       const res = await fetch('/api/events');
@@ -26,7 +27,7 @@ export default function HomePage() {
         setEvents(data.data.slice(0, 6)); // Show top 6 events
       }
     } catch (err) {
-      console.error('Failed to fetch events');
+      console.error('Failed to fetch events:', err);
     } finally {
       setLoading(false);
     }

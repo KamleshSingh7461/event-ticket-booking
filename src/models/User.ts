@@ -16,6 +16,8 @@ const UserSchema = new Schema({
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    resetPasswordToken: { type: String, required: false },
+    resetPasswordExpires: { type: Date, required: false },
 });
 
 const User = models.User || model('User', UserSchema);
