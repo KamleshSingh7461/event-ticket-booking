@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
 
         // Get user's bookings
         // Using 'user' field as per Ticket schema, not 'userId'
-        const userBookings = await Ticket.find({ user: session.user.id })
+        const userBookings = await Ticket.find({
+            user: session.user.id,
+            paymentStatus: 'SUCCESS'
+        })
             .populate('event', 'startDate')
             .lean();
 
