@@ -7,6 +7,10 @@ import EventModel from '@/models/Event';
 import UserModel from '@/models/User';
 import Link from 'next/link';
 
+// Disable caching for real-time data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getStats() {
     await dbConnect();
     const totalUsers = await UserModel.countDocuments();
