@@ -56,14 +56,14 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-black">
+        <div className="min-h-screen flex flex-col bg-white">
             <Navbar />
-            <div className="relative h-auto min-h-[300px] md:h-[450px] w-full bg-black overflow-hidden flex flex-col relative">
+            <div className="relative h-auto min-h-[300px] md:h-[450px] w-full bg-gray-100 overflow-hidden flex flex-col border-b border-gray-200">
                 <div className="absolute top-24 left-4 z-30 md:top-28">
-                    <BackButton className="text-[#AE8638] hover:text-[#AE8638]/80 bg-black/40 hover:bg-black/60 p-2 rounded-full transition-colors backdrop-blur-sm border border-[#AE8638]/20" />
+                    <BackButton className="text-black hover:text-gray-600 bg-white hover:bg-gray-50 p-2 rounded-none transition-colors border border-gray-200 shadow-sm" />
                 </div>
                 {serializedEvent.banner || serializedEvent.mobileBanner ? (
-                    <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 z-0 bg-gray-900">
                         <picture>
                             {serializedEvent.mobileBanner && (
                                 <source media="(max-width: 768px)" srcSet={serializedEvent.mobileBanner} />
@@ -71,32 +71,31 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                             <img
                                 src={serializedEvent.banner || serializedEvent.mobileBanner}
                                 alt={serializedEvent.title}
-                                className="w-full h-full object-cover opacity-60"
+                                className="w-full h-full object-cover mix-blend-multiply opacity-80"
                             />
                         </picture>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     </div>
                 ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-[#AE8638]/10 font-bold text-9xl select-none bg-black z-0">
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-200 font-bold text-9xl select-none z-0">
                         EVENT
                     </div>
                 )}
 
-                <div className="container relative z-20 flex-1 flex flex-col justify-end pb-8 pt-32 md:pb-12">
-                    <span className="bg-[#AE8638] text-black w-fit px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4 shadow-lg uppercase tracking-wider">
+                <div className="container relative z-20 flex-1 flex flex-col justify-end pb-8 pt-32 md:pb-12 text-white">
+                    <span className="bg-white text-black w-fit px-4 py-1.5 rounded-none text-xs font-bold mb-4 uppercase tracking-widest border border-transparent shadow-sm">
                         {serializedEvent.type}
                     </span>
-                    <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-3 md:mb-6 leading-tight drop-shadow-xl">
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-medium tracking-tight mb-4 leading-tight">
                         {serializedEvent.title}
                     </h1>
-                    <div className="flex flex-wrap gap-y-3 gap-x-6 text-white/90 text-sm md:text-lg font-medium">
-                        <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#AE8638]" />
+                    <div className="flex flex-wrap gap-y-3 gap-x-8 text-white/90 text-sm md:text-base font-light">
+                        <div className="flex items-center gap-3">
+                            <Calendar className="w-5 h-5 text-white" />
                             {new Date(serializedEvent.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </div>
                         {serializedEvent.type === 'OFFLINE' && (
-                            <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#AE8638]" />
+                            <div className="flex items-center gap-3">
+                                <MapPin className="w-5 h-5 text-white" />
                                 {serializedEvent.venue}
                             </div>
                         )}
@@ -116,44 +115,47 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
                 {/* Sidebar / Booking Card */}
                 <div className="relative">
-                    <div className="sticky top-24 rounded-2xl border border-[#AE8638]/20 bg-black p-6 shadow-xl shadow-[#AE8638]/5 space-y-6">
-                        <div className="flex flex-col gap-2 border-b border-[#AE8638]/10 pb-4">
+                    <div className="sticky top-24 border border-gray-200 bg-white p-8 shadow-sm rounded-none space-y-6">
+                        <div className="flex flex-col gap-2 border-b border-gray-200 pb-6">
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-400">Price per ticket</span>
-                                <span className="text-3xl font-bold text-[#AE8638]">
-                                    {serializedEvent.ticketConfig.currency} {serializedEvent.ticketConfig.price}
+                                <span className="text-gray-500 font-medium">Standard Access</span>
+                                <span className="text-3xl font-semibold text-black">
+                                    {serializedEvent.ticketConfig.currency} {serializedEvent.ticketConfig.price.toLocaleString()}
                                 </span>
                             </div>
                             {serializedEvent.ticketConfig.allDayPrice && (
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-gray-400 text-sm">Season Pass (For all 9 days)</span>
-                                    <span className="text-xl font-bold text-[#AE8638]">
-                                        {serializedEvent.ticketConfig.currency} {serializedEvent.ticketConfig.allDayPrice}
+                                    <span className="text-gray-500 text-sm font-medium">Full Season Pass</span>
+                                    <span className="text-xl font-semibold text-black">
+                                        {serializedEvent.ticketConfig.currency} {serializedEvent.ticketConfig.allDayPrice.toLocaleString()}
                                     </span>
                                 </div>
                             )}
                         </div>
 
                         {serializedEvent.ticketConfig.offers && serializedEvent.ticketConfig.offers.length > 0 && (
-                            <div className="bg-[#AE8638]/10 border border-[#AE8638]/20 p-3 rounded-lg">
-                                <p className="text-sm text-[#AE8638] font-medium">Offers Available:</p>
-                                <ul className="text-sm text-[#AE8638]/80">
+                            <div className="bg-gray-50 border border-gray-200 p-4 rounded-none">
+                                <p className="text-xs font-bold uppercase tracking-widest text-black mb-2">Available Incentives</p>
+                                <ul className="text-sm text-gray-600 font-light space-y-1">
                                     {serializedEvent.ticketConfig.offers.map((offer: any, idx: number) => (
-                                        <li key={idx}>{offer.description} ({offer.discountPercentage}% off)</li>
+                                        <li key={idx} className="flex items-center gap-2">
+                                            <span className="w-1 h-1 bg-black rounded-full" />
+                                            {offer.description} ({offer.discountPercentage}% off)
+                                        </li>
                                     ))}
                                 </ul>
                             </div>
                         )}
 
                         <div className="flex flex-col gap-4">
-                            <Button size="lg" className="w-full text-lg h-12 bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold" asChild>
+                            <Button size="lg" className="w-full h-14 bg-black text-white hover:bg-gray-800 font-semibold rounded-none" asChild>
                                 <Link href={`/checkout/${serializedEvent._id}`}>
-                                    <Ticket className="mr-2 w-5 h-5" />
-                                    Book Tickets Now
+                                    <Ticket className="mr-3 w-5 h-5" />
+                                    Acquire Allocation
                                 </Link>
                             </Button>
-                            <p className="text-xs text-center text-gray-500">
-                                Secure payment via PayU. Instant confirmation.
+                            <p className="text-xs text-center text-gray-400 font-medium">
+                                Encrypted transaction via secure gateway.
                             </p>
                         </div>
                     </div>
@@ -162,7 +164,10 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
             {/* Gallery Section */}
             {serializedEvent.gallery && serializedEvent.gallery.length > 0 && (
-                <div className="w-full pb-12 border-t border-[#AE8638]/20 pt-10 bg-black">
+                <div className="w-full pb-16 border-t border-gray-200 pt-16 bg-gray-50">
+                    <div className="container mb-8">
+                        <h2 className="text-2xl font-semibold text-black">Event Gallery</h2>
+                    </div>
                     <EventGallery images={serializedEvent.gallery} />
                 </div>
             )}

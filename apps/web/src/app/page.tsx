@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Calendar, MapPin, Search, Sparkles, TrendingUp, Users, Zap, ArrowRight, Star } from 'lucide-react';
 
 export default function HomePage() {
+  const router = useRouter();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +19,15 @@ export default function HomePage() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/events?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/events');
+    }
+  };
 
   
   const fetchEvents = async () => {
@@ -37,178 +48,139 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-black overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative py-16 md:py-24 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center space-y-6 md:space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-[#AE8638]/10 rounded-full border border-[#AE8638]/20 mb-2 md:mb-4">
-              <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-[#AE8638]" />
-              <span className="text-xs md:text-sm font-medium text-[#AE8638]">Discover Amazing Events</span>
+      {/* Minimal Corporate Hero Section */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40">
+          <div className="max-w-5xl mx-auto space-y-8">
+            <div className="inline-block border border-black px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-black">
+              Enterprise Event Management
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight px-4">
-              <span className="text-white">
-                Your Gateway to
-              </span>
-              <br />
-              <span className="text-[#AE8638]">Unforgettable Experiences</span>
+            <h1 className="text-5xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-black leading-[1.05]">
+              Seamless Ticketing.<br />
+              <span className="text-gray-800">Professional Delivery.</span>
             </h1>
 
-            <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
-              Book tickets for concerts, conferences, workshops, and more. Join thousands of event-goers discovering their next adventure.
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl font-light leading-relaxed">
+              The industry standard for secure, reliable event ticketing. Designed for organizers who demand excellence and attendees who expect perfection.
             </p>
 
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto px-4">
-              <div className="relative group">
-                <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                <Input
-                  placeholder="Search events..."
-                  className="pl-10 md:pl-12 pr-20 md:pr-24 h-12 md:h-14 text-sm md:text-lg bg-white/5 border-2 border-[#AE8638]/20 text-white placeholder:text-gray-500 focus:border-[#AE8638] shadow-lg group-hover:shadow-xl transition-all"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button className="absolute right-1.5 md:right-2 top-1/2 -translate-y-1/2 h-9 md:h-10 text-xs md:text-sm bg-[#AE8638] hover:bg-[#AE8638]/90 text-black font-bold">
+            {/* Stark Search Bar */}
+            <div className="max-w-3xl pt-8">
+              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative w-full">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    placeholder="Search global events, conferences, and seminars..."
+                    className="w-full pl-12 h-14 text-lg bg-gray-50 border-gray-200 text-black placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-black rounded-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full sm:w-auto h-14 px-8 bg-black hover:bg-gray-800 text-white font-medium text-base rounded-none transition-colors">
                   Search
                 </Button>
-              </div>
+              </form>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
-              <Link href="/events" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-11 md:h-12 px-6 md:px-8 text-sm md:text-base shadow-lg hover:shadow-xl transition-all bg-[#AE8638] hover:bg-[#AE8638]/90 text-black font-bold">
-                  Explore Events
-                  <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/register" className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-11 md:h-12 px-6 md:px-8 text-sm md:text-base border-2 border-[#AE8638]/30 text-[#AE8638] hover:border-[#AE8638] hover:bg-[#AE8638]/10 font-medium">
-                  Create Account
-                </Button>
-              </Link>
+            {/* Corporate Stats inline */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 border-t border-gray-100 mt-16">
+               {[
+                { label: 'Uptime', value: '99.99%' },
+                { label: 'Secure Transactions', value: '100%' },
+                { label: 'Global Events', value: 'Live' },
+                { label: 'Enterprise Support', value: '24/7' },
+              ].map((stat, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="text-2xl font-semibold text-black">{stat.value}</div>
+                  <div className="text-sm text-gray-500 font-medium tracking-wide uppercase">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-8 md:py-12 bg-black border-y border-[#AE8638]/20">
+      {/* Featured Events - Minimalist Grid */}
+      <section className="py-20 md:py-32 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
-            {[
-              { icon: Star, label: 'Premium Experience', value: 'Elite' },
-              { icon: TrendingUp, label: 'Secure Payments', value: '100%' },
-              { icon: Calendar, label: 'Events Hosted', value: 'Live' },
-              { icon: Users, label: 'Customer Support', value: '24/7' },
-            ].map((stat, idx) => (
-              <div key={idx} className="text-center space-y-1 md:space-y-2">
-                <stat.icon className="w-6 h-6 md:w-8 md:h-8 mx-auto text-[#AE8638]" />
-                <div className="text-xl md:text-3xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs md:text-sm text-gray-400">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Events */}
-      <section className="py-12 md:py-20 bg-black">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 md:mb-12 gap-4">
-            <div>
-              <h2 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2 text-white">Featured Events</h2>
-              <p className="text-sm md:text-base text-gray-400">Don't miss out on these amazing experiences</p>
-            </div>
-            <Link href="/events">
-              <Button variant="outline" className="gap-2 text-sm md:text-base border-[#AE8638]/30 text-[#AE8638] hover:border-[#AE8638] hover:bg-[#AE8638]/10 hover:text-[#AE8638]">
-                View All
-                <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-              </Button>
+          <div className="flex flex-col md:flex-row items-baseline justify-between mb-12 border-b border-gray-200 pb-6">
+            <h2 className="text-3xl font-semibold text-black tracking-tight">Featured Engagements</h2>
+            <Link href="/events" className="text-sm font-semibold text-black hover:underline transition-all uppercase tracking-widest mt-4 md:mt-0 flex items-center gap-2">
+              View Directory <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="overflow-hidden bg-black border border-[#AE8638]/20">
-                  <div className="h-40 md:h-48 bg-[#AE8638]/10 animate-pulse" />
-                  <CardContent className="p-4 md:p-6 space-y-2 md:space-y-3">
-                    <div className="h-3 md:h-4 bg-[#AE8638]/10 animate-pulse rounded" />
-                    <div className="h-3 md:h-4 bg-[#AE8638]/10 animate-pulse rounded w-2/3" />
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse bg-white border border-gray-100 h-96" />
               ))}
             </div>
           ) : events.length === 0 ? (
-            <Card className="p-8 md:p-12 text-center bg-black border border-dashed border-[#AE8638]/30">
-              <Calendar className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-4 text-[#AE8638]/50" />
-              <h3 className="text-lg md:text-xl font-semibold mb-2 text-white">No Events Yet</h3>
-              <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6">Be the first to create an amazing event!</p>
-              <Link href="/login">
-                <Button className="text-sm md:text-base bg-[#AE8638] text-black hover:bg-[#AE8638]/90">Get Started</Button>
-              </Link>
-            </Card>
+            <div className="p-16 text-center bg-white border border-gray-200">
+              <h3 className="text-xl font-medium text-black mb-2">No Active Events</h3>
+              <p className="text-gray-500">The schedule is currently clear.</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {events.map((event) => (
-                <Link key={event._id} href={event.isSoldOut ? '#' : `/events/${event._id}`} className={event.isSoldOut ? 'cursor-not-allowed opacity-70 grayscale' : ''}>
-                  <Card className="overflow-hidden hover:shadow-2xl hover:shadow-[#AE8638]/10 transition-all duration-300 group cursor-pointer border border-[#AE8638]/20 hover:border-[#AE8638] h-full bg-black">
-                    <div className="relative h-40 md:h-48 overflow-hidden bg-white/5">
+                <Link key={event._id} href={event.isSoldOut ? '#' : `/events/${event._id}`} className={event.isSoldOut ? 'cursor-not-allowed opacity-50 grayscale' : ''}>
+                  <Card className="h-full bg-white border border-gray-200 hover:border-black rounded-none shadow-none transition-colors group flex flex-col">
+                    <div className="relative h-60 overflow-hidden bg-gray-100">
                       {event.banner ? (
                         <img
                           src={event.banner}
                           alt={event.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover mix-blend-multiply"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#AE8638]/20 to-black flex items-center justify-center">
-                          <Calendar className="w-12 h-12 md:w-16 md:h-16 text-[#AE8638]/40" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Calendar className="w-10 h-10 text-gray-300" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                      <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10">
-                        <Badge className="bg-[#AE8638] text-black border-0 shadow-lg text-xs font-bold mb-1">
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <span className="bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1">
                           {event.type}
-                        </Badge>
+                        </span>
                         {event.isSoldOut && (
-                          <Badge className="bg-red-600 text-white font-bold border-0 shadow-lg text-xs animate-pulse block w-fit">
-                            SOLD OUT
-                          </Badge>
-                        )}
-                        {event.isSellingFast && !event.isSoldOut && (
-                          <Badge className="bg-orange-500 text-white font-bold border-0 shadow-lg text-xs animate-pulse block w-fit">
-                            SELLING FAST 🔥
-                          </Badge>
+                          <span className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1">
+                            Sold Out
+                          </span>
                         )}
                       </div>
                     </div>
-                    <CardContent className="p-4 md:p-6 space-y-2 md:space-y-3">
-                      <h3 className="font-bold text-base md:text-xl line-clamp-1 group-hover:text-[#AE8638] transition-colors text-white">
-                        {event.title}
-                      </h3>
-                      <p className="text-xs md:text-sm text-gray-400 line-clamp-2">
-                        {event.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs md:text-sm text-[#AE8638]">
-                        <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-                        <span>{new Date(event.startDate).toLocaleDateString()}</span>
-                      </div>
-                      {event.type === 'OFFLINE' && (
-                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
-                          <MapPin className="w-3 h-3 md:w-4 md:h-4" />
-                          <span className="line-clamp-1">{event.venue}</span>
+                    <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="font-semibold text-xl text-black leading-tight group-hover:underline transition-all">
+                            {event.title}
+                          </h3>
                         </div>
-                      )}
-                      <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-[#AE8638]/20">
-                        <span className="text-lg md:text-2xl font-bold text-[#AE8638]">
-                          ₹{event.ticketConfig?.price?.toLocaleString()}
-                        </span>
-                        <Button size="sm" className="bg-[#AE8638] text-black hover:bg-[#AE8638]/90 text-xs md:text-sm h-8 md:h-9 transition-colors">
-                          Book Now
-                        </Button>
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-6 leading-relaxed">
+                          {event.description}
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Calendar className="w-4 h-4 mr-3 text-black" />
+                          {new Date(event.startDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </div>
+                        {event.type === 'OFFLINE' && (
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="w-4 h-4 mr-3 text-black" />
+                            <span className="truncate">{event.venue}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center pt-4">
+                          <span className="text-lg font-medium text-black">
+                            ₹{event.ticketConfig?.price?.toLocaleString()}
+                          </span>
+                          <span className="text-sm font-semibold text-black uppercase tracking-wider group-hover:underline">
+                            Register &rarr;
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -219,68 +191,119 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12 md:py-20 bg-black">
+      {/* Corporate Features */}
+      <section className="py-24 bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 text-white">Why Choose WYLDCARD STATS PRIVATE LIMITED?</h2>
-            <p className="text-sm md:text-lg text-gray-400">
-              The most trusted platform for discovering and booking events
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                icon: Zap,
-                title: 'Instant Booking',
-                description: 'Book tickets in seconds with our streamlined checkout process',
-                color: 'text-[#AE8638]'
-              },
-              {
-                icon: Users,
-                title: 'Trusted Community',
-                description: 'Join thousands of happy event-goers and organizers',
-                color: 'text-[#AE8638]'
-              },
-              {
-                icon: Star,
-                title: 'Verified Events',
-                description: 'All events are verified for authenticity and quality',
-                color: 'text-[#AE8638]'
-              },
-            ].map((feature, idx) => (
-              <Card key={idx} className="p-6 md:p-8 text-center hover:shadow-xl hover:shadow-[#AE8638]/10 transition-all border border-[#AE8638]/20 hover:border-[#AE8638] bg-black">
-                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-4 rounded-full bg-[#AE8638]/10 flex items-center justify-center`}>
-                  <feature.icon className={`w-6 h-6 md:w-8 md:h-8 ${feature.color}`} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-4xl font-medium text-black mb-6 tracking-tight">Engineered for Scale.</h2>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                Wyldcard Stats provides a robust infrastructure for managing high-volume ticketing, secure access control, and comprehensive analytics for professional event organizers.
+              </p>
+              <ul className="space-y-6">
+                {[
+                  { title: 'Bank-Grade Security', desc: 'End-to-end encryption for all transactions.' },
+                  { title: 'Real-time Analytics', desc: 'Actionable data on attendance and revenue.' },
+                  { title: 'Seamless Integration', desc: 'API-first architecture for enterprise needs.' }
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <div className="flex-shrink-0 w-1.5 h-1.5 mt-2.5 bg-black rounded-none mr-4" />
+                    <div>
+                      <h4 className="text-base font-semibold text-black">{item.title}</h4>
+                      <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* CSS Dashboard Mockup */}
+            <div className="relative aspect-square w-full rounded-sm border border-gray-200 bg-white shadow-2xl overflow-hidden flex flex-col">
+              {/* Dashboard Header */}
+              <div className="h-12 border-b border-gray-100 bg-gray-50 flex items-center px-4 justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-400" />
+                  <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
                 </div>
-                <h3 className="text-lg md:text-xl font-bold mb-2 text-white">{feature.title}</h3>
-                <p className="text-sm md:text-base text-gray-400">{feature.description}</p>
-              </Card>
-            ))}
+                <div className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">WYLDCARD ADMIN</div>
+              </div>
+              
+              {/* Dashboard Body */}
+              <div className="flex-1 flex bg-white">
+                {/* Sidebar */}
+                <div className="w-1/4 border-r border-gray-100 p-3 space-y-3 bg-gray-50/50">
+                  <div className="h-2 w-1/2 bg-gray-300 rounded-sm mb-6" />
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className={`h-2 rounded-sm ${i === 1 ? 'bg-black w-full' : 'bg-gray-200 w-5/6'}`} />
+                  ))}
+                </div>
+
+                {/* Main Content Area */}
+                <div className="w-3/4 p-6 flex flex-col gap-6">
+                  {/* Top Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border border-gray-100 p-3 rounded-sm bg-white shadow-sm">
+                      <div className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Total Revenue</div>
+                      <div className="text-xl font-bold text-black">₹4,250,000</div>
+                      <div className="text-[10px] text-green-500 font-medium mt-1">+14.2% this week</div>
+                    </div>
+                    <div className="border border-gray-100 p-3 rounded-sm bg-white shadow-sm">
+                      <div className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Tickets Sold</div>
+                      <div className="text-xl font-bold text-black">12,405</div>
+                      <div className="text-[10px] text-green-500 font-medium mt-1">+5.8% this week</div>
+                    </div>
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="flex-1 border border-gray-100 rounded-sm p-4 flex flex-col justify-end relative bg-white">
+                    <div className="text-[10px] font-bold text-black absolute top-4 left-4 uppercase tracking-widest">Attendance Flow</div>
+                    {/* CSS Bar Chart */}
+                    <div className="flex items-end justify-between h-24 gap-2 mt-auto w-full">
+                      {[40, 65, 45, 80, 55, 90, 70].map((height, i) => (
+                         <div key={i} className="w-full bg-black/5 rounded-t-sm group relative">
+                           <div 
+                             className="absolute bottom-0 w-full bg-black transition-all duration-500 rounded-t-sm" 
+                             style={{ height: `${height}%` }}
+                           />
+                         </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 md:py-20 bg-[#AE8638] text-black">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
-            Ready to Get Started?
+      {/* Stark CTA */}
+      <section className="py-32 bg-white border-t border-gray-200 relative overflow-hidden">
+        {/* Architectural Grid Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000005_1px,transparent_1px),linear-gradient(to_bottom,#00000005_1px,transparent_1px)] bg-[size:24px_24px]" />
+        
+        {/* Geometric Accents */}
+        <div className="absolute left-0 top-0 w-32 h-32 border-b border-r border-black/5" />
+        <div className="absolute right-0 bottom-0 w-32 h-32 border-t border-l border-black/5" />
+
+        <div className="container mx-auto px-4 text-center max-w-3xl relative z-10">
+          <div className="inline-block border border-black/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-black mb-8">
+            Ready For Production
+          </div>
+          <h2 className="text-4xl md:text-6xl font-medium text-black mb-6 tracking-tighter leading-tight">
+            Initiate Your Deployment.
           </h2>
-          <p className="text-base md:text-xl text-black/80 mb-6 md:mb-8 max-w-2xl mx-auto font-medium">
-            Create your account today and start discovering amazing events in your area
+          <p className="text-lg md:text-xl text-gray-500 mb-12 font-light max-w-2xl mx-auto leading-relaxed">
+            Register your organization today and access the industry's most powerful event management tools. Join the network of top-tier professionals.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
-            <Link href="/register" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto h-11 md:h-12 px-6 md:px-8 text-sm md:text-base shadow-xl bg-black hover:bg-black/80 text-[#AE8638] font-bold border-0">
-                Sign Up Free
-                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-2" />
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/register">
+              <Button size="lg" className="w-full sm:w-auto h-14 px-10 bg-black text-white hover:bg-gray-800 rounded-none font-semibold text-base transition-colors group flex items-center">
+                Open Account <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/events" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-11 md:h-12 px-6 md:px-8 text-sm md:text-base border-2 border-black/20 text-black hover:border-black hover:bg-black/5">
-                Browse Events
+            <Link href="/events">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-10 border-gray-200 text-black hover:bg-gray-50 rounded-none font-medium text-base transition-colors">
+                View Directory
               </Button>
             </Link>
           </div>

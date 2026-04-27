@@ -8,9 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, LogIn, Eye, EyeOff } from 'lucide-react';
-import BackButton from '@/components/BackButton';
-
+import { Loader2, LogIn, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 export default function LoginPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -72,46 +70,44 @@ export default function LoginPage() {
 
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-black relative overflow-hidden p-4">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-
-            <div className="w-full max-w-md mb-8 flex justify-start relative z-10">
-                <BackButton className="text-[#AE8638] hover:text-[#AE8638]/80 bg-black/40 hover:bg-black/60 p-2 rounded-full transition-colors backdrop-blur-sm border border-[#AE8638]/20" />
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+            <div className="w-full max-w-md mb-8 flex justify-start">
+                <Link href="/" className="flex items-center gap-2 text-sm text-black hover:text-gray-600 bg-white hover:bg-gray-50 p-2 rounded-none transition-colors border border-gray-200 shadow-sm font-semibold uppercase tracking-widest px-4">
+                    <ArrowLeft className="w-4 h-4" /> Back to Home
+                </Link>
             </div>
 
-            <Card className="w-full max-w-md bg-black border border-[#AE8638]/20 shadow-2xl relative z-10">
-                <CardHeader className="space-y-2 text-center pb-2">
+            <Card className="w-full max-w-md bg-white border border-gray-200 shadow-sm rounded-none">
+                <CardHeader className="space-y-2 text-center pb-6 border-b border-gray-100">
                     <div className="flex justify-center mb-4">
-                        <div className="w-20 h-20 bg-[#AE8638]/10 rounded-full flex items-center justify-center border border-[#AE8638]/20">
-                            <LogIn className="w-10 h-10 text-[#AE8638]" />
+                        <div className="w-16 h-16 bg-black flex items-center justify-center">
+                            <LogIn className="w-8 h-8 text-white" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-bold text-white">Welcome Back</CardTitle>
-                    <CardDescription className="text-gray-400">Sign in to your account</CardDescription>
+                    <CardTitle className="text-2xl font-semibold text-black tracking-tight">System Authentication</CardTitle>
+                    <CardDescription className="text-gray-500 font-light">Access your enterprise dashboard</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                <CardContent className="pt-6">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-gray-200">Email</Label>
+                            <Label htmlFor="email" className="text-black font-semibold uppercase tracking-wider text-xs">Email Address</Label>
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="you@example.com"
+                                placeholder="name@company.com"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 required
                                 disabled={loading}
-                                className="bg-white/5 border-[#AE8638]/20 text-white placeholder:text-gray-600 focus:border-[#AE8638]"
+                                className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
                             />
                         </div>
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="text-gray-200">Password</Label>
+                                <Label htmlFor="password" className="text-black font-semibold uppercase tracking-wider text-xs">Password</Label>
                                 <Link
                                     href="/forgot-password"
-                                    className="text-xs text-[#AE8638] hover:text-[#AE8638]/80 hover:underline"
+                                    className="text-xs text-gray-500 hover:text-black hover:underline"
                                 >
                                     Forgot password?
                                 </Link>
@@ -125,12 +121,12 @@ export default function LoginPage() {
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     required
                                     disabled={loading}
-                                    className="bg-white/5 border-[#AE8638]/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] pr-10"
+                                    className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12 pr-10"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#AE8638] transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
@@ -139,13 +135,13 @@ export default function LoginPage() {
                         </div>
                         <Button
                             type="submit"
-                            className="w-full bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold"
+                            className="w-full bg-black text-white hover:bg-gray-800 font-semibold rounded-none h-12"
                             disabled={loading}
                         >
                             {loading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Signing in...
+                                    Authenticating...
                                 </>
                             ) : (
                                 'Sign In'
@@ -153,11 +149,11 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-6 text-center text-sm">
-                        <p className="text-gray-400">
+                    <div className="mt-8 text-center text-sm border-t border-gray-100 pt-6">
+                        <p className="text-gray-500">
                             Don't have an account?{' '}
-                            <Link href="/register" className="text-[#AE8638] hover:underline font-bold">
-                                Sign up
+                            <Link href="/register" className="text-black hover:underline font-bold">
+                                Request Access
                             </Link>
                         </p>
                     </div>

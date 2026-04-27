@@ -1,7 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,57 +51,57 @@ export default function UserSettingsPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            <Navbar />
-
-            <main className="flex-1 container py-8">
+            <main className="flex-1 p-6 md:p-12">
                 <div className="max-w-4xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-                        <p className="text-muted-foreground">Manage your profile and preferences</p>
+                    <div className="mb-8 border-b border-gray-200 pb-6">
+                        <h1 className="text-3xl font-bold mb-2 text-black tracking-tight">Account Settings</h1>
+                        <p className="text-gray-500">Manage your profile and preferences</p>
                     </div>
 
-                    <Tabs defaultValue="profile" className="space-y-6">
-                        <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="profile">Profile</TabsTrigger>
-                            <TabsTrigger value="security">Security</TabsTrigger>
-                            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-                            <TabsTrigger value="billing">Billing</TabsTrigger>
+                    <Tabs defaultValue="profile" className="space-y-8">
+                        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-none h-12 p-0">
+                            <TabsTrigger value="profile" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Profile</TabsTrigger>
+                            <TabsTrigger value="security" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Security</TabsTrigger>
+                            <TabsTrigger value="notifications" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Notifications</TabsTrigger>
+                            <TabsTrigger value="billing" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Billing</TabsTrigger>
                         </TabsList>
 
                         {/* Profile Tab */}
-                        <TabsContent value="profile">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                        <TabsContent value="profile" className="m-0">
+                            <Card className="rounded-none shadow-sm border border-gray-200">
+                                <CardHeader className="border-b border-gray-100 bg-white">
+                                    <CardTitle className="flex items-center gap-2 text-black">
                                         <User className="w-5 h-5" />
                                         Personal Information
                                     </CardTitle>
                                     <CardDescription>Update your personal details</CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center gap-6 mb-6">
-                                        <Avatar className="w-20 h-20 bg-primary text-white text-2xl">
-                                            <AvatarFallback>{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                <CardContent className="pt-8">
+                                    <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+                                        <Avatar className="w-20 h-20 bg-black text-white text-2xl rounded-none">
+                                            <AvatarFallback className="rounded-none bg-black text-white">{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <h3 className="text-lg font-semibold">{profile.name}</h3>
-                                            <p className="text-sm text-muted-foreground">{profile.email}</p>
-                                            <Button variant="outline" size="sm" className="mt-2">Change Photo</Button>
+                                            <h3 className="text-xl font-bold text-black">{profile.name}</h3>
+                                            <p className="text-sm text-gray-500 mb-3">{profile.email}</p>
+                                            <Button variant="outline" size="sm" className="rounded-none border-gray-300 text-black hover:bg-gray-100">Change Photo</Button>
                                         </div>
                                     </div>
 
-                                    <form onSubmit={handleProfileUpdate} className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <form onSubmit={handleProfileUpdate} className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label>Full Name</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Full Name</Label>
                                                 <Input
+                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     value={profile.name}
                                                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>Email</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Email Address</Label>
                                                 <Input
+                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     type="email"
                                                     value={profile.email}
                                                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
@@ -111,127 +109,131 @@ export default function UserSettingsPage() {
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Phone Number</Label>
+                                            <Label className="text-black font-semibold text-xs uppercase tracking-widest">Phone Number</Label>
                                             <Input
+                                                className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                 value={profile.phone}
                                                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                                             />
                                         </div>
-                                        <Button type="submit">Save Changes</Button>
+                                        <Button type="submit" className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold">Save Changes</Button>
                                     </form>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
                         {/* Security Tab */}
-                        <TabsContent value="security">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                        <TabsContent value="security" className="m-0">
+                            <Card className="rounded-none shadow-sm border border-gray-200">
+                                <CardHeader className="border-b border-gray-100 bg-white">
+                                    <CardTitle className="flex items-center gap-2 text-black">
                                         <Lock className="w-5 h-5" />
                                         Password & Security
                                     </CardTitle>
                                     <CardDescription>Keep your account secure</CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <form onSubmit={handlePasswordChange} className="space-y-4">
+                                <CardContent className="pt-8">
+                                    <form onSubmit={handlePasswordChange} className="space-y-6">
                                         <div className="space-y-2">
-                                            <Label>Current Password</Label>
+                                            <Label className="text-black font-semibold text-xs uppercase tracking-widest">Current Password</Label>
                                             <Input
+                                                className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                 type="password"
                                                 value={passwordData.current}
                                                 onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
                                             />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label>New Password</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">New Password</Label>
                                                 <Input
+                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     type="password"
                                                     value={passwordData.new}
                                                     onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>Confirm Password</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Confirm Password</Label>
                                                 <Input
+                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     type="password"
                                                     value={passwordData.confirm}
                                                     onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
                                                 />
                                             </div>
                                         </div>
-                                        <Button type="submit">Update Password</Button>
+                                        <Button type="submit" className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold">Update Password</Button>
                                     </form>
 
-                                    <div className="mt-6 pt-6 border-t">
-                                        <h4 className="font-semibold mb-4">Two-Factor Authentication</h4>
-                                        <p className="text-sm text-muted-foreground mb-4">
-                                            Add an extra layer of security to your account
+                                    <div className="mt-8 pt-8 border-t border-gray-100">
+                                        <h4 className="font-bold text-black mb-2 tracking-tight text-lg">Two-Factor Authentication</h4>
+                                        <p className="text-sm text-gray-500 mb-6">
+                                            Add an extra layer of security to your account to prevent unauthorized access.
                                         </p>
-                                        <Button variant="outline">Enable 2FA</Button>
+                                        <Button variant="outline" className="rounded-none border-gray-300 text-black hover:bg-gray-100">Enable 2FA</Button>
                                     </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
                         {/* Notifications Tab */}
-                        <TabsContent value="notifications">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                        <TabsContent value="notifications" className="m-0">
+                            <Card className="rounded-none shadow-sm border border-gray-200">
+                                <CardHeader className="border-b border-gray-100 bg-white">
+                                    <CardTitle className="flex items-center gap-2 text-black">
                                         <Bell className="w-5 h-5" />
                                         Notification Preferences
                                     </CardTitle>
                                     <CardDescription>Choose how you want to be notified</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                                <CardContent className="space-y-4 pt-8">
+                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
                                         <div>
-                                            <p className="font-medium">Booking Confirmations</p>
-                                            <p className="text-sm text-muted-foreground">Receive email when you book a ticket</p>
+                                            <p className="font-bold text-black">Booking Confirmations</p>
+                                            <p className="text-sm text-gray-500">Receive email when you book a ticket</p>
                                         </div>
                                         <input
                                             type="checkbox"
                                             checked={notifications.emailBooking}
                                             onChange={() => handleNotificationToggle('emailBooking')}
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 accent-black cursor-pointer"
                                         />
                                     </div>
-                                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
                                         <div>
-                                            <p className="font-medium">Event Reminders</p>
-                                            <p className="text-sm text-muted-foreground">Get reminded before your events</p>
+                                            <p className="font-bold text-black">Event Reminders</p>
+                                            <p className="text-sm text-gray-500">Get reminded before your events</p>
                                         </div>
                                         <input
                                             type="checkbox"
                                             checked={notifications.emailReminders}
                                             onChange={() => handleNotificationToggle('emailReminders')}
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 accent-black cursor-pointer"
                                         />
                                     </div>
-                                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
                                         <div>
-                                            <p className="font-medium">SMS Alerts</p>
-                                            <p className="text-sm text-muted-foreground">Receive text messages for important updates</p>
+                                            <p className="font-bold text-black">SMS Alerts</p>
+                                            <p className="text-sm text-gray-500">Receive text messages for important updates</p>
                                         </div>
                                         <input
                                             type="checkbox"
                                             checked={notifications.smsAlerts}
                                             onChange={() => handleNotificationToggle('smsAlerts')}
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 accent-black cursor-pointer"
                                         />
                                     </div>
-                                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
                                         <div>
-                                            <p className="font-medium">Promotional Emails</p>
-                                            <p className="text-sm text-muted-foreground">Receive updates about new events and offers</p>
+                                            <p className="font-bold text-black">Promotional Emails</p>
+                                            <p className="text-sm text-gray-500">Receive updates about new events and offers</p>
                                         </div>
                                         <input
                                             type="checkbox"
                                             checked={notifications.promotions}
                                             onChange={() => handleNotificationToggle('promotions')}
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 accent-black cursor-pointer"
                                         />
                                     </div>
                                 </CardContent>
@@ -239,30 +241,30 @@ export default function UserSettingsPage() {
                         </TabsContent>
 
                         {/* Billing Tab */}
-                        <TabsContent value="billing">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                        <TabsContent value="billing" className="m-0">
+                            <Card className="rounded-none shadow-sm border border-gray-200">
+                                <CardHeader className="border-b border-gray-100 bg-white">
+                                    <CardTitle className="flex items-center gap-2 text-black">
                                         <CreditCard className="w-5 h-5" />
                                         Payment Methods
                                     </CardTitle>
                                     <CardDescription>Manage your saved payment methods</CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="text-center py-12 text-muted-foreground">
-                                        <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                        <p className="mb-2">No saved payment methods</p>
-                                        <p className="text-sm">Payment methods will be saved during checkout</p>
+                                <CardContent className="pt-8">
+                                    <div className="text-center py-16 bg-gray-50 border border-dashed border-gray-300">
+                                        <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                                        <p className="mb-2 font-bold text-black">No saved payment methods</p>
+                                        <p className="text-sm text-gray-500">Payment methods will be saved during checkout</p>
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            <Card className="mt-6">
-                                <CardHeader>
-                                    <CardTitle>Billing History</CardTitle>
+                            <Card className="mt-8 rounded-none shadow-sm border border-gray-200">
+                                <CardHeader className="border-b border-gray-100 bg-white">
+                                    <CardTitle className="text-black">Billing History</CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="text-center py-8 text-muted-foreground">
+                                <CardContent className="pt-8">
+                                    <div className="text-center py-12 text-gray-500">
                                         <p>Your transaction history will appear here</p>
                                     </div>
                                 </CardContent>
@@ -271,8 +273,6 @@ export default function UserSettingsPage() {
                     </Tabs>
                 </div>
             </main>
-
-            <Footer />
         </div>
     );
 }

@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -74,91 +72,85 @@ export default function UserBookingDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex flex-col">
-                <Navbar />
+            <div className="min-h-screen flex flex-col bg-white">
                 <div className="flex-1 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <Loader2 className="w-8 h-8 animate-spin text-black" />
                 </div>
-                <Footer />
             </div>
         );
     }
 
     if (!booking) {
         return (
-            <div className="min-h-screen flex flex-col">
-                <Navbar />
+            <div className="min-h-screen flex flex-col bg-white">
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                        <p className="text-xl text-muted-foreground mb-4">Booking not found</p>
-                        <Button onClick={() => router.push('/user/dashboard')}>
+                        <p className="text-xl text-gray-500 mb-6">Booking not found</p>
+                        <Button onClick={() => router.push('/user/dashboard')} className="rounded-none bg-black text-white hover:bg-gray-800 uppercase tracking-widest text-xs font-bold px-8 h-12">
                             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
                         </Button>
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            <Navbar />
-
-            <main className="flex-1 container py-8">
-                <Button variant="ghost" className="mb-6" onClick={() => router.back()}>
+            <main className="flex-1 p-6 md:p-12">
+                <Button variant="ghost" className="mb-8 text-gray-500 hover:text-black hover:bg-gray-100 rounded-none uppercase tracking-widest text-xs font-bold" onClick={() => router.back()}>
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
 
                 <div className="max-w-4xl mx-auto">
-                    <div className="mb-6">
-                        <h1 className="text-3xl font-bold mb-2">Booking Details</h1>
-                        <p className="text-muted-foreground">Booking ID: {booking._id}</p>
+                    <div className="mb-8 border-b border-gray-200 pb-6">
+                        <h1 className="text-3xl font-bold mb-2 text-black tracking-tight">Booking Details</h1>
+                        <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">Booking ID: <span className="font-mono text-gray-900">{booking._id}</span></p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Details */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-2 space-y-8">
                             {/* Event Info */}
-                            <Card>
-                                <CardHeader>
+                            <Card className="rounded-none shadow-sm border border-gray-200 bg-white">
+                                <CardHeader className="border-b border-gray-100">
                                     <div className="flex justify-between items-start">
-                                        <CardTitle>Event Information</CardTitle>
-                                        <Badge variant={booking.event?.type === 'ONLINE' ? 'secondary' : 'default'}>
+                                        <CardTitle className="text-black uppercase tracking-widest text-sm font-bold">Event Information</CardTitle>
+                                        <Badge variant="outline" className={`rounded-none border-2 font-bold tracking-widest text-xs px-3 py-1 uppercase ${booking.event?.type === 'ONLINE' ? 'border-blue-500 text-blue-500' : 'border-black text-black'}`}>
                                             {booking.event?.type}
                                         </Badge>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="p-6 space-y-6">
                                     <div>
-                                        <h3 className="text-xl font-bold">{booking.event?.title}</h3>
-                                        <p className="text-muted-foreground mt-1">{booking.event?.description}</p>
+                                        <h3 className="text-2xl font-bold text-black">{booking.event?.title}</h3>
+                                        <p className="text-gray-500 mt-2">{booking.event?.description}</p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex items-start gap-2">
-                                            <Calendar className="w-5 h-5 text-primary mt-0.5" />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 border border-gray-200">
+                                        <div className="flex items-start gap-3">
+                                            <Calendar className="w-5 h-5 text-gray-600 mt-0.5" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Start Date</p>
-                                                <p className="font-medium">{new Date(booking.event?.startDate).toLocaleString()}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Start Date</p>
+                                                <p className="font-semibold text-black">{new Date(booking.event?.startDate).toLocaleString()}</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-start gap-2">
-                                            <Calendar className="w-5 h-5 text-primary mt-0.5" />
+                                        <div className="flex items-start gap-3">
+                                            <Calendar className="w-5 h-5 text-gray-600 mt-0.5" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">End Date</p>
-                                                <p className="font-medium">{new Date(booking.event?.endDate).toLocaleString()}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">End Date</p>
+                                                <p className="font-semibold text-black">{new Date(booking.event?.endDate).toLocaleString()}</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {booking.event?.type === 'OFFLINE' && (
-                                        <div className="flex items-start gap-2 pt-2 border-t">
-                                            <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                                        <div className="flex items-start gap-3 pt-6 border-t border-gray-100">
+                                            <MapPin className="w-5 h-5 text-gray-600 mt-0.5" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Venue</p>
-                                                <p className="font-medium">{booking.event?.venue}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Venue</p>
+                                                <p className="font-semibold text-black">{booking.event?.venue}</p>
                                             </div>
                                         </div>
                                     )}
@@ -166,31 +158,31 @@ export default function UserBookingDetailPage() {
                             </Card>
 
                             {/* Buyer Details */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Ticket Holder Information</CardTitle>
+                            <Card className="rounded-none shadow-sm border border-gray-200 bg-white">
+                                <CardHeader className="border-b border-gray-100">
+                                    <CardTitle className="text-black uppercase tracking-widest text-sm font-bold">Ticket Holder Information</CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <User className="w-4 h-4 text-muted-foreground" />
+                                <CardContent className="p-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="flex items-center gap-3">
+                                            <User className="w-5 h-5 text-gray-400" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Name</p>
-                                                <p className="font-medium">{booking.buyerDetails.name}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Name</p>
+                                                <p className="font-semibold text-black">{booking.buyerDetails.name}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <Mail className="w-4 h-4 text-muted-foreground" />
+                                        <div className="flex items-center gap-3">
+                                            <Mail className="w-5 h-5 text-gray-400" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Email</p>
-                                                <p className="font-medium">{booking.buyerDetails.email}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Email</p>
+                                                <p className="font-semibold text-black break-all">{booking.buyerDetails.email}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <Phone className="w-4 h-4 text-muted-foreground" />
+                                        <div className="flex items-center gap-3">
+                                            <Phone className="w-5 h-5 text-gray-400" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Phone</p>
-                                                <p className="font-medium">{booking.buyerDetails.phone}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Phone</p>
+                                                <p className="font-semibold text-black">{booking.buyerDetails.phone}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -199,24 +191,24 @@ export default function UserBookingDetailPage() {
                         </div>
 
                         {/* Sidebar */}
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             {/* Payment Summary */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Payment Summary</CardTitle>
+                            <Card className="rounded-none shadow-sm border border-gray-200 bg-white">
+                                <CardHeader className="border-b border-gray-100 bg-gray-50">
+                                    <CardTitle className="text-black uppercase tracking-widest text-sm font-bold">Payment Summary</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Ticket Price</span>
-                                        <span className="font-medium">₹{booking.amountPaid.toLocaleString()}</span>
+                                <CardContent className="p-6 space-y-6">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">Ticket Price</span>
+                                        <span className="font-bold text-black">₹{booking.amountPaid.toLocaleString()}</span>
                                     </div>
-                                    <div className="border-t pt-3 flex justify-between">
-                                        <span className="font-semibold">Total Paid</span>
-                                        <span className="text-xl font-bold text-primary">₹{booking.amountPaid.toLocaleString()}</span>
+                                    <div className="border-t border-gray-200 pt-6 flex justify-between items-center">
+                                        <span className="text-xs text-gray-900 uppercase tracking-widest font-black">Total Paid</span>
+                                        <span className="text-2xl font-black text-black">₹{booking.amountPaid.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 pt-2">
-                                        <CreditCard className="w-4 h-4 text-muted-foreground" />
-                                        <Badge variant={booking.paymentStatus === 'SUCCESS' ? 'default' : 'secondary'}>
+                                    <div className="flex items-center gap-3 pt-4">
+                                        <CreditCard className="w-5 h-5 text-gray-400" />
+                                        <Badge variant="outline" className={`rounded-none border-2 font-bold tracking-widest text-xs px-3 py-1 uppercase ${booking.paymentStatus === 'SUCCESS' ? 'border-black text-black bg-white' : 'border-gray-300 text-gray-500'}`}>
                                             {booking.paymentStatus}
                                         </Badge>
                                     </div>
@@ -224,66 +216,70 @@ export default function UserBookingDetailPage() {
                             </Card>
 
                             {/* Ticket Status */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Ticket Status</CardTitle>
+                            <Card className="rounded-none shadow-sm border border-gray-200 bg-white">
+                                <CardHeader className="border-b border-gray-100">
+                                    <CardTitle className="text-black uppercase tracking-widest text-sm font-bold">Ticket Status</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span>Status</span>
-                                        <Badge variant={booking.isRedeemed ? 'secondary' : 'default'}>
+                                <CardContent className="p-6 space-y-4">
+                                    <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                                        <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">Status</span>
+                                        <Badge variant="outline" className={`rounded-none border-2 font-bold tracking-widest text-xs px-3 py-1 uppercase ${booking.isRedeemed ? 'border-gray-300 text-gray-500' : 'border-black text-black'}`}>
                                             {booking.isRedeemed ? 'Used' : 'Valid'}
                                         </Badge>
                                     </div>
                                     {booking.isRedeemed && (
-                                        <div className="text-sm text-muted-foreground">
-                                            Used on: {new Date(booking.redeemedAt).toLocaleString()}
+                                        <div>
+                                            <span className="text-xs text-gray-500 uppercase tracking-widest font-bold block mb-1">Used On</span>
+                                            <span className="text-sm font-medium text-black">{new Date(booking.redeemedAt).toLocaleString()}</span>
                                         </div>
                                     )}
-                                    <div className="text-sm text-muted-foreground">
-                                        Booked on: {new Date(booking.createdAt).toLocaleString()}
+                                    <div>
+                                        <span className="text-xs text-gray-500 uppercase tracking-widest font-bold block mb-1">Booked On</span>
+                                        <span className="text-sm font-medium text-black">{new Date(booking.createdAt).toLocaleString()}</span>
                                     </div>
                                 </CardContent>
                             </Card>
 
                             {/* Actions */}
                             {!booking.isRedeemed && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Quick Actions</CardTitle>
+                                <Card className="rounded-none shadow-sm border border-gray-200 bg-white">
+                                    <CardHeader className="border-b border-gray-100 bg-gray-50">
+                                        <CardTitle className="text-black uppercase tracking-widest text-sm font-bold">Quick Actions</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <Link href={`/user/tickets/${booking._id}`}>
-                                            <Button className="w-full mb-3" variant="outline">
-                                                <QrCode className="w-4 h-4 mr-2" /> View Ticket & QR Code
+                                    <CardContent className="p-6 space-y-4">
+                                        <Link href={`/user/tickets/${booking._id}`} className="block">
+                                            <Button className="w-full h-12 rounded-none border-2 border-black bg-white text-black hover:bg-gray-100 font-bold uppercase tracking-widest text-xs">
+                                                <QrCode className="w-4 h-4 mr-2" /> View Ticket & QR
                                             </Button>
                                         </Link>
 
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button className="w-full bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold">
+                                                <Button className="w-full h-12 rounded-none bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs">
                                                     <Send className="w-4 h-4 mr-2" /> Secure Transfer
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent>
+                                            <DialogContent className="rounded-none border-gray-200 sm:max-w-md">
                                                 <DialogHeader>
-                                                    <DialogTitle>Transfer Ticket</DialogTitle>
-                                                    <DialogDescription>
+                                                    <DialogTitle className="text-xl font-bold text-black uppercase tracking-widest">Transfer Ticket</DialogTitle>
+                                                    <DialogDescription className="text-gray-500">
                                                         Transfer this ticket to a friend securely. This action will permanently invalidate your current QR code and send a new Entry OTP & QR Code directly to their email.
                                                     </DialogDescription>
                                                 </DialogHeader>
-                                                <div className="space-y-4 py-4">
+                                                <div className="space-y-6 py-6 border-y border-gray-100 my-4">
                                                     <div className="space-y-2">
-                                                        <Label>Friend's Full Name</Label>
+                                                        <Label className="text-xs uppercase tracking-widest font-bold text-black">Friend's Full Name</Label>
                                                         <Input 
+                                                            className="rounded-none border-gray-200 h-12 focus-visible:ring-1 focus-visible:ring-black"
                                                             placeholder="John Doe" 
                                                             value={transferData.name} 
                                                             onChange={e => setTransferData({ ...transferData, name: e.target.value })} 
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label>Friend's Email</Label>
+                                                        <Label className="text-xs uppercase tracking-widest font-bold text-black">Friend's Email</Label>
                                                         <Input 
+                                                            className="rounded-none border-gray-200 h-12 focus-visible:ring-1 focus-visible:ring-black"
                                                             type="email" 
                                                             placeholder="john@example.com" 
                                                             value={transferData.email} 
@@ -291,10 +287,11 @@ export default function UserBookingDetailPage() {
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label>Friend's Phone (Optional)</Label>
+                                                        <Label className="text-xs uppercase tracking-widest font-bold text-black">Friend's Phone (Optional)</Label>
                                                         <Input 
+                                                            className="rounded-none border-gray-200 h-12 focus-visible:ring-1 focus-visible:ring-black"
                                                             type="tel" 
-                                                            placeholder="+91 9876543210" 
+                                                            placeholder="+1 234 567 8900" 
                                                             value={transferData.phone} 
                                                             onChange={e => setTransferData({ ...transferData, phone: e.target.value })} 
                                                         />
@@ -304,7 +301,7 @@ export default function UserBookingDetailPage() {
                                                     <Button 
                                                         onClick={handleTransfer} 
                                                         disabled={isTransferring} 
-                                                        className="bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold"
+                                                        className="w-full h-12 rounded-none bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs"
                                                     >
                                                         {isTransferring ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : 'Confirm Transfer'}
                                                     </Button>
@@ -318,8 +315,6 @@ export default function UserBookingDetailPage() {
                     </div>
                 </div>
             </main>
-
-            <Footer />
         </div>
     );
 }

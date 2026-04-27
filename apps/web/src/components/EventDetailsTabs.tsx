@@ -19,44 +19,44 @@ export default function EventDetailsTabs({ description, schedule, subHeadings }:
     const [activeTab, setActiveTab] = useState<'about' | 'schedule' | 'terms'>('about');
 
     return (
-        <div className="bg-black border border-[#AE8638]/20 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-none shadow-sm overflow-hidden">
             {/* Tab Buttons */}
-            <div className="flex border-b border-[#AE8638]/20 bg-black">
+            <div className="flex border-b border-gray-200 bg-gray-50">
                 <button
                     onClick={() => setActiveTab('about')}
-                    className={`flex-1 py-4 text-sm md:text-base font-bold transition-colors border-b-4 ${activeTab === 'about'
-                        ? 'border-[#AE8638] text-[#AE8638] bg-[#AE8638]/10'
-                        : 'border-transparent text-[#AE8638]/60 hover:text-[#AE8638] hover:bg-[#AE8638]/5'
+                    className={`flex-1 py-4 text-xs md:text-sm uppercase tracking-widest font-bold transition-colors border-b-2 ${activeTab === 'about'
+                        ? 'border-black text-black bg-white'
+                        : 'border-transparent text-gray-500 hover:text-black hover:bg-gray-100'
                         }`}
                 >
-                    About the Event
+                    Overview
                 </button>
                 <button
                     onClick={() => setActiveTab('schedule')}
-                    className={`flex-1 py-4 text-sm md:text-base font-bold transition-colors border-b-4 ${activeTab === 'schedule'
-                        ? 'border-[#AE8638] text-[#AE8638] bg-[#AE8638]/10'
-                        : 'border-transparent text-[#AE8638]/60 hover:text-[#AE8638] hover:bg-[#AE8638]/5'
+                    className={`flex-1 py-4 text-xs md:text-sm uppercase tracking-widest font-bold transition-colors border-b-2 ${activeTab === 'schedule'
+                        ? 'border-black text-black bg-white'
+                        : 'border-transparent text-gray-500 hover:text-black hover:bg-gray-100'
                         }`}
                 >
                     Schedule
                 </button>
                 <button
                     onClick={() => setActiveTab('terms')}
-                    className={`flex-1 py-4 text-sm md:text-base font-bold transition-colors border-b-4 ${activeTab === 'terms'
-                        ? 'border-[#AE8638] text-[#AE8638] bg-[#AE8638]/10'
-                        : 'border-transparent text-[#AE8638]/60 hover:text-[#AE8638] hover:bg-[#AE8638]/5'
+                    className={`flex-1 py-4 text-xs md:text-sm uppercase tracking-widest font-bold transition-colors border-b-2 ${activeTab === 'terms'
+                        ? 'border-black text-black bg-white'
+                        : 'border-transparent text-gray-500 hover:text-black hover:bg-gray-100'
                         }`}
                 >
-                    Terms & Condition
+                    Policies
                 </button>
             </div>
 
             {/* Content Area */}
-            <div className="p-6">
+            <div className="p-8">
                 {activeTab === 'about' && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="prose dark:prose-invert max-w-none">
-                            <p className="whitespace-pre-line leading-relaxed text-[#AE8638]/90">{description}</p>
+                        <div className="prose max-w-none">
+                            <p className="whitespace-pre-line leading-relaxed text-gray-600 font-light text-base md:text-lg">{description}</p>
                         </div>
                     </div>
                 )}
@@ -72,7 +72,7 @@ export default function EventDetailsTabs({ description, schedule, subHeadings }:
                                             const container = document.getElementById('schedule-slider');
                                             if (container) container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' });
                                         }}
-                                        className="p-2 m-2 rounded-full bg-black/80 backdrop-blur-sm border border-[#AE8638]/30 shadow-lg hover:bg-black hover:text-[#AE8638] text-[#AE8638] transition-colors"
+                                        className="p-2 m-2 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 text-black transition-colors rounded-none"
                                     >
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
@@ -83,7 +83,7 @@ export default function EventDetailsTabs({ description, schedule, subHeadings }:
                                             const container = document.getElementById('schedule-slider');
                                             if (container) container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
                                         }}
-                                        className="p-2 m-2 rounded-full bg-black/80 backdrop-blur-sm border border-[#AE8638]/30 shadow-lg hover:bg-black hover:text-[#AE8638] text-[#AE8638] transition-colors"
+                                        className="p-2 m-2 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 text-black transition-colors rounded-none"
                                     >
                                         <ChevronRight className="w-5 h-5" />
                                     </button>
@@ -92,30 +92,30 @@ export default function EventDetailsTabs({ description, schedule, subHeadings }:
                                 {/* Slider Container */}
                                 <div
                                     id="schedule-slider"
-                                    className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide rounded-lg border border-[#AE8638]/20 bg-[#AE8638]/5"
+                                    className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide border border-gray-200 bg-gray-50 rounded-none"
                                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                 >
                                     {schedule.map((img, idx) => (
                                         <div key={idx} className="flex-none w-full min-w-full snap-center relative">
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <div className="w-full cursor-pointer relative group/item h-[60vh] flex items-center justify-center bg-black/5">
+                                                    <div className="w-full cursor-pointer relative group/item h-[60vh] flex items-center justify-center bg-transparent">
                                                         <img
                                                             src={img}
                                                             alt={`Schedule ${idx + 1}`}
                                                             className="w-full h-full object-contain"
                                                         />
-                                                        <div className="absolute inset-0 bg-black/0 group-hover/item:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover/item:opacity-100">
-                                                            <Maximize2 className="text-[#AE8638] w-12 h-12 drop-shadow-lg" />
+                                                        <div className="absolute inset-0 bg-white/0 group-hover/item:bg-white/40 transition-colors flex items-center justify-center opacity-0 group-hover/item:opacity-100 backdrop-blur-[2px]">
+                                                            <Maximize2 className="text-black w-12 h-12" />
                                                         </div>
                                                     </div>
                                                 </DialogTrigger>
-                                                <DialogContent className="max-w-5xl w-full p-0 bg-transparent border-none shadow-none">
-                                                    <div className="relative w-full h-[90vh] flex items-center justify-center pointer-events-none">
+                                                <DialogContent className="max-w-5xl w-full p-0 bg-white border border-gray-200 rounded-none shadow-xl">
+                                                    <div className="relative w-full h-[90vh] flex items-center justify-center pointer-events-none p-4">
                                                         <img
                                                             src={img}
                                                             alt="Full View"
-                                                            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-auto"
+                                                            className="max-w-full max-h-full object-contain pointer-events-auto"
                                                         />
                                                     </div>
                                                 </DialogContent>
@@ -123,30 +123,30 @@ export default function EventDetailsTabs({ description, schedule, subHeadings }:
                                         </div>
                                     ))}
                                 </div>
-                                <div className="text-center text-xs text-[#AE8638]/60 mt-2 md:hidden">
-                                    Swipe to see more pages
+                                <div className="text-center text-xs text-gray-500 mt-3 md:hidden uppercase tracking-widest font-bold">
+                                    Swipe to view timeline
                                 </div>
                             </>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-12 text-[#AE8638]/60 bg-[#AE8638]/5 rounded-lg border border-dashed border-[#AE8638]/30">
-                                <CalendarClock className="w-12 h-12 mb-3 opacity-50" />
-                                <p>No schedule available yet.</p>
+                            <div className="flex flex-col items-center justify-center py-16 text-gray-400 bg-gray-50 border border-dashed border-gray-200">
+                                <CalendarClock className="w-12 h-12 mb-4 opacity-30" />
+                                <p className="font-light uppercase tracking-widest text-xs">No schedule available.</p>
                             </div>
                         )}
                     </div>
                 )}
 
                 {activeTab === 'terms' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
                         {subHeadings && subHeadings.length > 0 ? (
                             subHeadings.map((sub, idx) => (
-                                <div key={idx} className="space-y-2">
-                                    <h3 className="text-lg font-semibold text-[#AE8638]">{sub.title}</h3>
-                                    <p className="text-[#AE8638]/90 whitespace-pre-line leading-relaxed text-sm">{sub.content}</p>
+                                <div key={idx} className="space-y-3">
+                                    <h3 className="text-base font-bold uppercase tracking-widest text-black border-l-2 border-black pl-3">{sub.title}</h3>
+                                    <p className="text-gray-600 whitespace-pre-line leading-relaxed text-sm font-light pl-3">{sub.content}</p>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-gray-500 text-center py-8 italic">No specific terms or additional information provided.</p>
+                            <p className="text-gray-400 text-center py-8 font-light italic">No policy documents attached to this event.</p>
                         )}
                     </div>
                 )}

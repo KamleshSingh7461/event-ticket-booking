@@ -11,83 +11,96 @@ export default function AboutPage() {
             <Navbar />
 
             <main className="flex-1">
-                {/* Hero Section */}
-                <section className="relative bg-slate-900 text-white py-20 md:py-32 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-black to-slate-900 z-0" />
-                    <div className="container relative z-10 text-center max-w-3xl px-4">
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-                            Redefining Sports Experiences
+                {/* Corporate Hero Section */}
+                <section className="bg-white py-20 md:py-32 border-b border-gray-200">
+                    <div className="container text-center max-w-4xl px-4 mx-auto">
+                        <div className="inline-block border border-black px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-black mb-8">
+                            Corporate Overview
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-medium tracking-tight mb-6 text-black leading-tight">
+                            Redefining Event Experiences.
                         </h1>
-                        <p className="text-lg md:text-xl text-white/80 leading-relaxed mb-8">
-                            Empowering athletes, connecting fans, and creating unforgettable moments through Wyldcard Stats Private Limited.
+                        <p className="text-lg md:text-xl text-gray-600 leading-relaxed font-light">
+                            Empowering organizers, connecting audiences, and engineering flawless execution through Wyldcard Stats Private Limited.
                         </p>
                     </div>
                 </section>
 
                 {/* Mission Section */}
-                <section className="py-16 md:py-24 bg-background">
-                    <div className="container px-4">
-                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                <section className="py-20 md:py-32 bg-white">
+                    <div className="container px-4 mx-auto max-w-6xl">
+                        <div className="grid md:grid-cols-2 gap-16 items-start">
                             <div>
-                                <h2 className="text-3xl font-bold mb-6 text-primary">Our Mission</h2>
-                                <p className="text-lg text-muted-foreground mb-4">
-                                    Wyldcard Stats Private Limited is dedicated to revolutionizing the way sports events are organized, managed, and experienced.
-                                    We aim to bridge the gap between talented athletes and the opportunities they deserve.
-                                </p>
-                                <p className="text-lg text-muted-foreground">
-                                    Whether it's a local tournament or a major championship, our platform provides seamless ticketing, comprehensive event management,
-                                    and accurate statistical tracking.
-                                </p>
+                                <h2 className="text-3xl font-medium mb-8 text-black tracking-tight">Our Objective</h2>
+                                <div className="space-y-6 text-lg text-gray-600 font-light leading-relaxed">
+                                    <p>
+                                        Wyldcard Stats Private Limited is dedicated to architecting the way enterprise events are structured, managed, and executed.
+                                        We provide the infrastructure necessary for seamless operations at scale.
+                                    </p>
+                                    <p>
+                                        Whether executing a localized summit or a global corporate conference, our platform delivers robust ticketing, access control,
+                                        and definitive analytics.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="bg-muted rounded-2xl p-8 md:p-12 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
-                                <blockquote className="relative z-10 text-xl font-medium italic text-foreground">
-                                    "Sports have the power to change the world. It has the power to inspire. It has the power to unite people in a way that little else does."
+                            <div className="bg-gray-50 border border-gray-200 p-12 md:p-16 relative">
+                                <div className="absolute top-0 left-0 w-2 h-full bg-black" />
+                                <blockquote className="text-2xl font-medium text-black leading-snug">
+                                    "Precision in execution is not a luxury; it is the fundamental requirement of every successful engagement."
                                 </blockquote>
+                                <div className="mt-8 text-sm font-bold uppercase tracking-widest text-gray-500">
+                                    — Executive Board, Wyldcard
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 {/* Company Info Section */}
-                <section className="py-16 md:py-24 bg-muted/30 border-y">
-                    <div className="container px-4 text-center max-w-4xl">
-                        <h2 className="text-3xl font-bold mb-8">Who We Are</h2>
-                        <p className="text-lg text-muted-foreground mb-8">
-                            FGSN Events is a specialized module operated by <strong>WYLDCARD STATS PRIVATE LIMITED</strong>.
+                <section className="py-20 md:py-32 bg-gray-50 border-y border-gray-200">
+                    <div className="container px-4 text-center max-w-5xl mx-auto">
+                        <h2 className="text-3xl font-medium mb-6 text-black tracking-tight">Core Infrastructure</h2>
+                        <p className="text-lg text-gray-600 mb-16 font-light max-w-2xl mx-auto">
+                            The enterprise-grade architecture engineered by <strong>WYLDCARD STATS PRIVATE LIMITED</strong> rests on three pillars.
                         </p>
                         <div className="grid md:grid-cols-3 gap-8 text-left">
-                            <div className="bg-card p-6 rounded-xl border shadow-sm">
-                                <h3 className="font-bold text-xl mb-2">Innovation</h3>
-                                <p className="text-sm text-muted-foreground">Using cutting-edge technology to streamline event logistics and ticketing.</p>
+                            <div className="bg-white p-8 border border-gray-200 shadow-sm flex flex-col h-full">
+                                <div className="w-8 h-8 bg-black mb-6" />
+                                <h3 className="font-semibold text-xl mb-3 text-black">Architecture</h3>
+                                <p className="text-base text-gray-600 font-light leading-relaxed flex-1">Deploying highly-available systems to process volume effortlessly.</p>
                             </div>
-                            <div className="bg-card p-6 rounded-xl border shadow-sm">
-                                <h3 className="font-bold text-xl mb-2">Integrity</h3>
-                                <p className="text-sm text-muted-foreground">Committed to fair play, transparent transactions, and secure data handling.</p>
+                            <div className="bg-white p-8 border border-gray-200 shadow-sm flex flex-col h-full">
+                                <div className="w-8 h-8 bg-gray-300 mb-6" />
+                                <h3 className="font-semibold text-xl mb-3 text-black">Integrity</h3>
+                                <p className="text-base text-gray-600 font-light leading-relaxed flex-1">Enforcing strict transactional security and immutable data handling.</p>
                             </div>
-                            <div className="bg-card p-6 rounded-xl border shadow-sm">
-                                <h3 className="font-bold text-xl mb-2">Community</h3>
-                                <p className="text-sm text-muted-foreground">Building a vibrant ecosystem of players, coaches, fans, and organizers.</p>
+                            <div className="bg-white p-8 border border-gray-200 shadow-sm flex flex-col h-full">
+                                <div className="w-8 h-8 border border-black mb-6" />
+                                <h3 className="font-semibold text-xl mb-3 text-black">Network</h3>
+                                <p className="text-base text-gray-600 font-light leading-relaxed flex-1">Connecting premium organizers with verified global attendees.</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 {/* CTA Section */}
-                <section className="py-20 text-center">
-                    <div className="container px-4">
-                        <h2 className="text-3xl font-bold mb-4">Ready to Experience the Action?</h2>
-                        <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-                            Join thousands of sports enthusiasts. Book your next event or host your own tournament with FGSN.
+                <section className="py-32 bg-white text-center border-b border-gray-200">
+                    <div className="container px-4 max-w-3xl mx-auto">
+                        <h2 className="text-4xl font-medium mb-6 text-black tracking-tight">Deploy Your Event.</h2>
+                        <p className="text-xl text-gray-600 mb-12 font-light">
+                            Utilize the industry standard for event management and access control.
                         </p>
-                        <div className="flex justify-center gap-4">
-                            <Button size="lg" asChild>
-                                <Link href="/events">Browse Events</Link>
-                            </Button>
-                            <Button size="lg" variant="outline" asChild>
-                                <Link href="/register">Join Us</Link>
-                            </Button>
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <Link href="/events">
+                                <Button size="lg" className="h-14 px-10 bg-black text-white hover:bg-gray-800 rounded-none font-semibold text-base w-full sm:w-auto">
+                                    View Directory
+                                </Button>
+                            </Link>
+                            <Link href="/register">
+                                <Button size="lg" variant="outline" className="h-14 px-10 border-gray-300 text-black hover:bg-gray-50 rounded-none font-medium text-base w-full sm:w-auto">
+                                    Create Account
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 </section>
