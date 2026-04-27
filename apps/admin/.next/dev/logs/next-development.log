@@ -1,0 +1,18 @@
+[00:00:02.334] Server  LOG      ✓ Ready in 1849ms
+[00:00:21.258] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:09.164] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:50.866] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:23.537] Server  LOG        Reload env: .env
+[00:02:45.549] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:04:12.164] Server  LOG      ✓ Compiled in 141ms
+[00:04:42.010] Server  LOG      ✓ Compiled in 131ms
+[00:05:13.046] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:22.157] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:28.949] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:30.599] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:06:06.814] Browser LOG     📷 QR Scanner: Requesting camera access...
+[00:06:06.814] Browser LOG     🛑 QR Scanner: Stopping camera...
+[00:06:06.814] Browser LOG     📷 QR Scanner: Requesting camera access...
+[00:06:11.387] Browser LOG     🛑 QR Scanner: Stopping camera...
+[00:06:13.418] Browser LOG     ✅ QR Scanner: Camera access granted 6afab282-8009-4123-a2b3-61de3fb283ea
+[00:06:13.418] Browser LOG     ✅ QR Scanner: Camera access granted e2eb30bd-2425-43da-9290-45113ef4efad

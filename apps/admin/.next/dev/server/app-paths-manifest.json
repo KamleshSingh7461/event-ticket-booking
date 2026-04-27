@@ -1,0 +1,22 @@
+{
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/events/create/page": "app/admin/events/create/page.js",
+  "/admin/events/page": "app/admin/events/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
+  "/api/admin/invoices/route": "app/api/admin/invoices/route.js",
+  "/api/admin/users/route": "app/api/admin/users/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/events/route": "app/api/events/route.js",
+  "/api/venue-manager/coordinators/route": "app/api/venue-manager/coordinators/route.js",
+  "/api/venue-manager/events/route": "app/api/venue-manager/events/route.js",
+  "/api/venue-manager/reports/route": "app/api/venue-manager/reports/route.js",
+  "/api/venue-manager/stats/route": "app/api/venue-manager/stats/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/venue-manager/coordinators/page": "app/venue-manager/coordinators/page.js",
+  "/venue-manager/dashboard/page": "app/venue-manager/dashboard/page.js",
+  "/venue-manager/events/page": "app/venue-manager/events/page.js",
+  "/venue-manager/invoices/page": "app/venue-manager/invoices/page.js",
+  "/venue-manager/reports/page": "app/venue-manager/reports/page.js",
+  "/verify/page": "app/verify/page.js"
+}

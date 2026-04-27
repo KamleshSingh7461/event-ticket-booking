@@ -1,0 +1,10 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/venue-manager/stats/route.js")
+R.c("server/chunks/node_modules_next_da3592bb._.js")
+R.c("server/chunks/node_modules_next-auth_1810886e._.js")
+R.c("server/chunks/node_modules_openid-client_d15f72b3._.js")
+R.c("server/chunks/node_modules_jose_dist_node_cjs_bd88468e._.js")
+R.c("server/chunks/node_modules_f49efdd4._.js")
+R.c("server/chunks/[root-of-the-server]__88e6be92._.js")
+R.c("server/chunks/0da96_admin__next-internal_server_app_api_venue-manager_stats_route_actions_af5eec72.js")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/apps/admin/src/app/api/venue-manager/stats/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/apps/admin/src/app/api/venue-manager/stats/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

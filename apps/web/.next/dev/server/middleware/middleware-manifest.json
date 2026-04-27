@@ -1,0 +1,51 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/_5d4b5d0a._.js",
+        "server/edge/chunks/[root-of-the-server]__4ddc986e._.js",
+        "server/edge/chunks/turbopack-apps_web_edge-wrapper_cd2cc42e.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/admin/:path*{(\\\\.json)}?",
+          "originalSource": "/admin/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/venue-manager/:path*{(\\\\.json)}?",
+          "originalSource": "/venue-manager/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/coordinator/:path*{(\\\\.json)}?",
+          "originalSource": "/coordinator/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/user/:path*{(\\\\.json)}?",
+          "originalSource": "/user/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/verify/:path*{(\\\\.json)}?",
+          "originalSource": "/verify/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/api/admin/:path*{(\\\\.json)}?",
+          "originalSource": "/api/admin/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "FvTUssc2A55jg9I4fB+R24DsQLyqcYTJ0GHhfqXtNU0=",
+        "__NEXT_PREVIEW_MODE_ID": "e863530b110b35a5027825897172a142",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "59b947c8f097c5530f6c808f8c3a8f4226518b208edbc65b19ad827f29b0f6fa",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "99d7abcf0849d3dbedba8bdf3432eab301d292a5d0cfadcfebe7a52fd535e505"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

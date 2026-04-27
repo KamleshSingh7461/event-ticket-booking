@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/dev/event-ticket-booking/apps/web/src/components/AuthProvider.tsx"],"sourcesContent":["'use client';\r\nimport { SessionProvider } from 'next-auth/react';\r\n\r\nexport function AuthProvider({ children }: { children: React.ReactNode }) {\r\n    return <SessionProvider>{children}</SessionProvider>;\r\n}\r\n"],"names":[],"mappings":";;;;;AACA;AADA;;;AAGO,SAAS,aAAa,EAAE,QAAQ,EAAiC;IACpE,qBAAO,6LAAC,oKAAe;kBAAE;;;;;;AAC7B;KAFgB"}}]
+}
