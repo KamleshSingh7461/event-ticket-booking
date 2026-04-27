@@ -152,9 +152,22 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
         } else {
             // SUPER_ADMIN
-            const updateData: any = { ...body };
-            if (bannerUrl) {
-                updateData.banner = bannerUrl;
+            const isCompleted = new Date() > new Date(event.endDate);
+            let updateData: any = {};
+
+            if (isCompleted) {
+                // If event is completed, SUPER_ADMIN can only change dates to postpone it
+                if (body.startDate) updateData.startDate = body.startDate;
+                if (body.endDate) updateData.endDate = body.endDate;
+                
+                if (Object.keys(updateData).length === 0) {
+                     return NextResponse.json({ success: false, error: 'Event has concluded. You can only modify the Start and End Dates to postpone/reactivate it.' }, { status: 400 });
+                }
+            } else {
+                updateData = { ...body };
+                if (bannerUrl) {
+                    updateData.banner = bannerUrl;
+                }
             }
 
             await logDebug('Final Update Data:', updateData);

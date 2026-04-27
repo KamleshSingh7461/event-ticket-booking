@@ -13,7 +13,9 @@ const TicketSchema = new Schema({
         baseAmount: { type: Number }, // Price before GST (per ticket)
         gstRate: { type: Number, default: 0.18 }, // GST rate (18%)
         gstAmount: { type: Number }, // GST amount (per ticket)
-        totalAmount: { type: Number }, // Total including GST (per ticket)
+        platformFee: { type: Number, default: 0 }, // Convenience fee charged by platform
+        platformFeeGst: { type: Number, default: 0 }, // 18% GST on the convenience fee
+        totalAmount: { type: Number }, // Total including GST and fees (per ticket)
         currency: { type: String, default: 'INR' } // Currency
     },
 
@@ -23,7 +25,9 @@ const TicketSchema = new Schema({
         email: String,
         age: Number,
         gender: String,
-        contact: String
+        contact: String,
+        address: String,
+        state: String
     },
 
     // Ticket Validity

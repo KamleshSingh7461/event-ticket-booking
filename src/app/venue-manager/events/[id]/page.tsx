@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Search, Calendar, MapPin, Edit, RefreshCw, Smartphone } from 'lucide-react';
+import { ArrowLeft, Search, Calendar, MapPin, Edit, RefreshCw, Smartphone, Download, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -14,8 +14,14 @@ export default function VenueManagerEventDetailPage() {
     const params = useParams();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [data, setData] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Control States
+    const [isSoldOut, setIsSoldOut] = useState(false);
+    const [cutOffTime, setCutOffTime] = useState('');
+    const [dailyConfig, setDailyConfig] = useState<any[]>([]);
 
     useEffect(() => {
         if (params.id) {
@@ -30,6 +36,26 @@ export default function VenueManagerEventDetailPage() {
 
             if (result.success) {
                 setData(result.data);
+                setIsSoldOut(result.data.event.isSoldOut || false);
+                setCutOffTime(result.data.event.bookingCutOffTime || result.data.event.entryTime || '');
+                
+                // Initialize daily config if it exists, otherwise generate it
+                if (result.data.event.dailyConfig && result.data.event.dailyConfig.length > 0) {
+                    setDailyConfig(result.data.event.dailyConfig);
+                } else {
+                    const start = new Date(result.data.event.startDate);
+                    const end = new Date(result.data.event.endDate);
+                    const initialConfig = [];
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        initialConfig.push({
+                            date: new Date(d).toISOString(),
+                            startTime: result.data.event.entryTime || '18:00',
+                            cutoffTime: result.data.event.bookingCutOffTime || '19:00',
+                            isSoldOut: false
+                        });
+                    }
+                    setDailyConfig(initialConfig);
+                }
             } else {
                 toast.error(result.error || 'Failed to load event data');
                 router.push('/venue-manager/events');
@@ -41,6 +67,33 @@ export default function VenueManagerEventDetailPage() {
             setLoading(false);
         }
     };
+
+    const handleSaveControls = async () => {
+        setSaving(true);
+        try {
+            const res = await fetch(`/api/venue-manager/events/${params.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    isSoldOut,
+                    bookingCutOffTime: cutOffTime,
+                    dailyConfig
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                toast.success('Controls updated successfully');
+                fetchData();
+            } else {
+                toast.error(result.error || 'Failed to update controls');
+            }
+        } catch (error) {
+            toast.error('Failed to save changes');
+        } finally {
+            setSaving(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -79,11 +132,20 @@ export default function VenueManagerEventDetailPage() {
                         </h1>
                     </div>
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`/api/invoices/bulk-download?eventId=${params.id}`, '_blank')}
+                            className="border-[#AE8638]/30 text-[#AE8638] hover:bg-[#AE8638]/10"
+                        >
+                            <Download className="w-4 h-4 mr-2" /> Bulk Invoices
+                        </Button>
                         <Button onClick={fetchData} variant="outline" size="icon" className="border-[#AE8638]/30 text-[#AE8638] hover:bg-[#AE8638]/10"><RefreshCw className="w-4 h-4" /></Button>
                         <Button onClick={() => router.push('/verify')} className="bg-[#AE8638] hover:bg-[#AE8638]/90 text-black font-bold">
                             <Smartphone className="w-4 h-4 mr-2" /> Verify Tickets
                         </Button>
                     </div>
+
                 </div>
             </header>
 
@@ -180,7 +242,9 @@ export default function VenueManagerEventDetailPage() {
                                             <th className="p-4 font-medium text-[#AE8638]">Type</th>
                                             <th className="p-4 font-medium text-[#AE8638]">Status</th>
                                             <th className="p-4 font-medium text-[#AE8638] text-right">Amount</th>
+                                            <th className="p-4 font-medium text-[#AE8638] text-center">Invoice</th>
                                         </tr>
+
                                     </thead>
                                     <tbody className="divide-y divide-[#AE8638]/10 text-sm">
                                         {filteredTickets.map((ticket: any) => {
@@ -212,16 +276,42 @@ export default function VenueManagerEventDetailPage() {
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-right text-white font-mono align-top">₹{ticket.amountPaid}</td>
+                                                    <td className="p-4 text-center align-top">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-[#AE8638] hover:bg-[#AE8638]/10"
+                                                            title="Download Invoice"
+                                                            onClick={async () => {
+                                                                // Find invoice by booking ref
+                                                                try {
+                                                                    const res = await fetch(`/api/invoices/by-ref/${ticket.bookingReference}`);
+                                                                    const inv = await res.json();
+                                                                    if (inv.success && inv.invoice?._id) {
+                                                                        window.open(`/api/invoices/download/${inv.invoice._id}`, '_blank');
+                                                                    } else {
+                                                                        toast.error('Invoice not found');
+                                                                    }
+                                                                } catch (err) {
+                                                                    toast.error('Error fetching invoice');
+                                                                }
+                                                            }}
+                                                        >
+                                                            <FileText className="w-4 h-4" />
+                                                        </Button>
+                                                    </td>
                                                 </tr>
+
                                             );
                                         })}
                                         {filteredTickets.length === 0 && (
                                             <tr>
-                                                <td colSpan={5} className="p-8 text-center text-gray-500">
+                                                <td colSpan={6} className="p-8 text-center text-gray-500">
                                                     No bookings found matching your search.
                                                 </td>
                                             </tr>
                                         )}
+
                                     </tbody>
                                 </table>
                             </div>
@@ -230,6 +320,111 @@ export default function VenueManagerEventDetailPage() {
 
                     {/* Sidebar Info */}
                     <div className="space-y-6">
+                        <Card className="bg-black border border-[#AE8638]/30">
+                            <CardHeader>
+                                <CardTitle className="text-[#AE8638] text-sm">Event Controls</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <fieldset disabled={new Date() > new Date(event.endDate)}>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-xs text-gray-400">Sold Out Status</label>
+                                        <Badge className={isSoldOut ? 'bg-red-900/50 text-red-400' : 'bg-green-900/50 text-green-400'}>
+                                            {isSoldOut ? 'SOLD OUT' : 'AVAILABLE'}
+                                        </Badge>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className={`w-full ${isSoldOut ? 'border-green-500/50 text-green-400 hover:bg-green-500/10' : 'border-red-500/50 text-red-400 hover:bg-red-500/10'}`}
+                                        onClick={() => setIsSoldOut(!isSoldOut)}
+                                    >
+                                        {isSoldOut ? 'Mark as Available' : 'Mark as Sold Out'}
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-2 border-t border-[#AE8638]/10 pt-4">
+                                    <label className="text-xs text-gray-400">Daily Booking Cut-off</label>
+                                    <Input
+                                        type="time"
+                                        value={cutOffTime}
+                                        onChange={(e) => setCutOffTime(e.target.value)}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                    />
+                                    <p className="text-[10px] text-gray-500 italic">Bookings for the current day will stop after this time.</p>
+                                </div>
+
+                                <Button
+                                    className="w-full bg-[#AE8638] hover:bg-[#AE8638]/90 text-black font-bold mt-2"
+                                    disabled={saving}
+                                    onClick={handleSaveControls}
+                                >
+                                    {saving ? 'Saving...' : 'Save Controls'}
+                                </Button>
+                                </fieldset>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="bg-black border border-[#AE8638]/30">
+                            <CardHeader>
+                                <CardTitle className="text-[#AE8638] text-sm">Daily Overrides</CardTitle>
+                                <p className="text-[10px] text-gray-500 italic">Set specific times or mark sold out per day.</p>
+                            </CardHeader>
+                            <CardContent className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#AE8638]/20">
+                                <fieldset disabled={new Date() > new Date(event.endDate)}>
+                                {dailyConfig.map((config, idx) => (
+                                    <div key={idx} className="p-3 border border-[#AE8638]/10 rounded-lg space-y-3 bg-[#AE8638]/5">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-bold text-white">
+                                                {new Date(config.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
+                                            </span>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className={`h-6 text-[10px] px-2 ${config.isSoldOut ? 'bg-red-900/50 text-red-400 hover:bg-red-900/60' : 'bg-green-900/50 text-green-400 hover:bg-green-900/60'}`}
+                                                onClick={() => {
+                                                    const newConfig = [...dailyConfig];
+                                                    newConfig[idx].isSoldOut = !newConfig[idx].isSoldOut;
+                                                    setDailyConfig(newConfig);
+                                                }}
+                                            >
+                                                {config.isSoldOut ? 'SOLD OUT' : 'AVAILABLE'}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] text-gray-500">Start Time</label>
+                                                <Input
+                                                    type="time"
+                                                    value={config.startTime}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...dailyConfig];
+                                                        newConfig[idx].startTime = e.target.value;
+                                                        setDailyConfig(newConfig);
+                                                    }}
+                                                    className="h-7 text-xs bg-black border-[#AE8638]/20 text-white p-1"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] text-gray-500">Cut-off</label>
+                                                <Input
+                                                    type="time"
+                                                    value={config.cutoffTime}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...dailyConfig];
+                                                        newConfig[idx].cutoffTime = e.target.value;
+                                                        setDailyConfig(newConfig);
+                                                    }}
+                                                    className="h-7 text-xs bg-black border-[#AE8638]/20 text-white p-1"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                </fieldset>
+                            </CardContent>
+                        </Card>
+
                         <Card className="bg-black border border-[#AE8638]/30">
                             <CardHeader>
                                 <CardTitle className="text-[#AE8638] text-sm">Event Details</CardTitle>
@@ -242,6 +437,11 @@ export default function VenueManagerEventDetailPage() {
                                         <span>{new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</span>
                                     </div>
                                 </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">Current Entry Time</p>
+                                    <p className="text-white font-medium">{event.entryTime || 'Not Set'}</p>
+                                </div>
+
                                 {event.venue && (
                                     <div>
                                         <p className="text-xs text-gray-500">Venue</p>

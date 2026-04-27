@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Ticket, Calendar, Download, QrCode, Search, Loader2, TrendingUp, ExternalLink, MapPin, Clock } from 'lucide-react';
+import { Ticket, Calendar, Download, QrCode, Search, Loader2, TrendingUp, ExternalLink, MapPin, Clock, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function UserDashboard() {
@@ -230,14 +230,34 @@ export default function UserDashboard() {
                                                 </div>
                                             </div>
 
-                                            {/* Action Button */}
-                                            <div className="mt-auto">
-                                                <Link href={`/user/tickets/${booking._id}`} className="block">
+                                            {/* Action Buttons */}
+                                            <div className="mt-auto grid grid-cols-2 gap-4">
+                                                <Link href={`/user/tickets/${booking._id}`}>
                                                     <Button className="w-full bg-white text-black font-bold h-12 hover:bg-[#D4AF37] transition-colors border-2 border-transparent">
-                                                        <QrCode className="w-4 h-4 mr-2" /> View Ticket Code
+                                                        <QrCode className="w-4 h-4 mr-2" /> Ticket
                                                     </Button>
                                                 </Link>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full border-[#D4AF37] text-[#D4AF37] h-12 hover:bg-[#D4AF37] hover:text-black transition-colors"
+                                                    onClick={async () => {
+                                                        try {
+                                                            const res = await fetch(`/api/invoices/by-ref/${booking.bookingReference}`);
+                                                            const inv = await res.json();
+                                                            if (inv.success && inv.invoice?._id) {
+                                                                window.open(`/api/invoices/download/${inv.invoice._id}`, '_blank');
+                                                            } else {
+                                                                toast.error('Invoice not found');
+                                                            }
+                                                        } catch (err) {
+                                                            toast.error('Error fetching invoice');
+                                                        }
+                                                    }}
+                                                >
+                                                    <FileText className="w-4 h-4 mr-2" /> Invoice
+                                                </Button>
                                             </div>
+
                                         </div>
 
                                         {/* Background Texture */}

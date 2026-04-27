@@ -4,6 +4,7 @@ import Ticket from '@/models/Ticket';
 import Event from '@/models/Event'; // Ensure Event is registered
 import { verifyResponseHash } from '@/lib/payu';
 import { sendBookingConfirmation } from '@/lib/email';
+import { createInvoiceForBooking } from '@/lib/invoice-service';
 import QRCode from 'qrcode'; // Need to install this
 
 export async function POST(req: NextRequest) {
@@ -24,19 +25,32 @@ export async function POST(req: NextRequest) {
             const tickets = await Ticket.find({ bookingReference: data.txnid }).populate('event');
 
             if (tickets.length > 0) {
-                // Update all tickets to SUCCESS
-                await Ticket.updateMany(
-                    { bookingReference: data.txnid },
-                    {
-                        paymentStatus: 'SUCCESS',
-                        payuTransactionId: data.mihpayid
-                    }
-                );
+                // Check Idempotency: If tickets are already SUCCESS, it was handled by the Webhook or a previous refresh
+                const isAlreadySuccess = tickets.every(t => t.paymentStatus === 'SUCCESS');
 
-                // Send Emails
-                for (const ticket of tickets) {
-                    // Avoid sending duplicate emails if already success (idempotency)
-                    if (ticket.paymentStatus !== 'SUCCESS') {
+                if (!isAlreadySuccess) {
+                    // Update all tickets to SUCCESS
+                    await Ticket.updateMany(
+                        { bookingReference: data.txnid },
+                        {
+                            paymentStatus: 'SUCCESS',
+                            payuTransactionId: data.mihpayid
+                        }
+                    );
+
+                    // Generate Invoice
+                    let invoiceUrl = undefined;
+                    try {
+                        const invoice = await createInvoiceForBooking(data.txnid);
+                        if (invoice && invoice.pdfUrl) {
+                            invoiceUrl = invoice.pdfUrl;
+                        }
+                    } catch (invErr) {
+                        console.error('Invoice generation failed', invErr);
+                    }
+
+                    // Send Emails
+                    for (const ticket of tickets) {
                         try {
                             await sendBookingConfirmation({
                                 email: ticket.buyerDetails.email,
@@ -45,7 +59,8 @@ export async function POST(req: NextRequest) {
                                 eventTitle: ticket.event.title,
                                 ticketType: ticket.ticketType,
                                 bookingReference: ticket.bookingReference,
-                                quantity: tickets.length // Total quantity in this order
+                                quantity: tickets.length, // Total quantity in this order
+                                invoiceUrl: invoiceUrl
                             });
                         } catch (emailErr) {
                             console.error('Email failed', emailErr);

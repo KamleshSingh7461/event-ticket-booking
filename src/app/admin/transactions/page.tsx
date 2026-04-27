@@ -10,7 +10,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface Transaction {
@@ -56,7 +57,15 @@ export default function AdminTransactionsPage() {
 
     return (
         <div className="space-y-6 p-6">
-            <h1 className="text-3xl font-bold">Transaction History</h1>
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Transaction History</h1>
+                <Button
+                    onClick={() => window.open('/api/invoices/bulk-download', '_blank')}
+                    variant="outline"
+                >
+                    <Download className="w-4 h-4 mr-2" /> Download All Invoices
+                </Button>
+            </div>
 
             <Card>
                 <CardHeader>
@@ -74,7 +83,9 @@ export default function AdminTransactionsPage() {
                                     <TableHead>Amount</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>PayU ID</TableHead>
+                                    <TableHead className="text-center">Invoice</TableHead>
                                 </TableRow>
+
                             </TableHeader>
                             <TableBody>
                                 {transactions.length === 0 ? (
@@ -102,7 +113,31 @@ export default function AdminTransactionsPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="font-mono text-xs whitespace-nowrap">{txn.payuTransactionId || '-'}</TableCell>
+                                            <TableCell className="text-center">
+                                                {txn.paymentStatus === 'SUCCESS' && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={async () => {
+                                                            try {
+                                                                const res = await fetch(`/api/invoices/by-ref/${txn.bookingReference}`);
+                                                                const inv = await res.json();
+                                                                if (inv.success && inv.invoice?._id) {
+                                                                    window.open(`/api/invoices/download/${inv.invoice._id}`, '_blank');
+                                                                } else {
+                                                                    toast.error('Invoice not found');
+                                                                }
+                                                            } catch (err) {
+                                                                toast.error('Error fetching invoice');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                            </TableCell>
                                         </TableRow>
+
                                     ))
                                 )}
                             </TableBody>

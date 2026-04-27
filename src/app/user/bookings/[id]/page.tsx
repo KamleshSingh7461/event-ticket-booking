@@ -7,7 +7,10 @@ import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, User, Mail, Phone, CreditCard, ArrowLeft, QrCode, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Calendar, MapPin, User, Mail, Phone, CreditCard, ArrowLeft, QrCode, Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function UserBookingDetailPage() {
@@ -15,6 +18,37 @@ export default function UserBookingDetailPage() {
     const router = useRouter();
     const [booking, setBooking] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isTransferring, setIsTransferring] = useState(false);
+    const [transferData, setTransferData] = useState({ name: '', email: '', phone: '' });
+
+    const handleTransfer = async () => {
+        if (!transferData.name || !transferData.email) {
+            toast.error('Name and Email are required to transfer.');
+            return;
+        }
+        setIsTransferring(true);
+        try {
+            const res = await fetch('/api/tickets/transfer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ticketId: booking._id,
+                    newBuyerDetails: transferData
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success('Ticket Transferred Successfully! The new owner will receive an email shortly.');
+                router.push('/user/dashboard');
+            } else {
+                toast.error(data.error || 'Failed to transfer ticket');
+            }
+        } catch (error) {
+            toast.error('An error occurred while transferring');
+        } finally {
+            setIsTransferring(false);
+        }
+    };
 
     useEffect(() => {
         if (params.id) {
@@ -220,10 +254,63 @@ export default function UserBookingDetailPage() {
                                     </CardHeader>
                                     <CardContent className="space-y-3">
                                         <Link href={`/user/tickets/${booking._id}`}>
-                                            <Button className="w-full">
+                                            <Button className="w-full mb-3" variant="outline">
                                                 <QrCode className="w-4 h-4 mr-2" /> View Ticket & QR Code
                                             </Button>
                                         </Link>
+
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button className="w-full bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold">
+                                                    <Send className="w-4 h-4 mr-2" /> Secure Transfer
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Transfer Ticket</DialogTitle>
+                                                    <DialogDescription>
+                                                        Transfer this ticket to a friend securely. This action will permanently invalidate your current QR code and send a new Entry OTP & QR Code directly to their email.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="space-y-4 py-4">
+                                                    <div className="space-y-2">
+                                                        <Label>Friend's Full Name</Label>
+                                                        <Input 
+                                                            placeholder="John Doe" 
+                                                            value={transferData.name} 
+                                                            onChange={e => setTransferData({ ...transferData, name: e.target.value })} 
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Friend's Email</Label>
+                                                        <Input 
+                                                            type="email" 
+                                                            placeholder="john@example.com" 
+                                                            value={transferData.email} 
+                                                            onChange={e => setTransferData({ ...transferData, email: e.target.value })} 
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Friend's Phone (Optional)</Label>
+                                                        <Input 
+                                                            type="tel" 
+                                                            placeholder="+91 9876543210" 
+                                                            value={transferData.phone} 
+                                                            onChange={e => setTransferData({ ...transferData, phone: e.target.value })} 
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button 
+                                                        onClick={handleTransfer} 
+                                                        disabled={isTransferring} 
+                                                        className="bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold"
+                                                    >
+                                                        {isTransferring ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : 'Confirm Transfer'}
+                                                    </Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
                                     </CardContent>
                                 </Card>
                             )}

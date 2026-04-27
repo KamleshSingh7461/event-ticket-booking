@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Trash2, UserPlus, Users } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Users, Landmark } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CreateEventPage() {
@@ -24,7 +24,8 @@ export default function CreateEventPage() {
         description: '',
         type: 'OFFLINE',
         venue: '',
-        banner: '', // Added banner
+        banner: '', // Desktop banner
+        mobileBanner: '', // Mobile banner
         startDate: '',
         endDate: '',
         ticketConfig: {
@@ -35,7 +36,16 @@ export default function CreateEventPage() {
         },
         subHeadings: [],
         gallery: [],
-        schedule: []
+        schedule: [],
+        taxInfo: {
+            companyName: '',
+            address: '',
+            gstin: '',
+            pan: '',
+            cin: '',
+            hsnCode: '998599'
+        },
+        dailyConfig: []
     });
 
     // ...
@@ -101,6 +111,48 @@ export default function CreateEventPage() {
             ...formData,
             ticketConfig: { ...formData.ticketConfig, [name]: value }
         });
+    };
+
+    // Auto-generate Daily Configs when dates change
+    useEffect(() => {
+        if (formData.startDate && formData.endDate) {
+            const start = new Date(formData.startDate);
+            const end = new Date(formData.endDate);
+            
+            if (start <= end) {
+                const days: any[] = [];
+                let current = new Date(start);
+                
+                // Keep existing overrides if they match the date
+                const existingConfigs = formData.dailyConfig || [];
+
+                while (current <= end) {
+                    const dateStr = current.toISOString();
+                    const existing = existingConfigs.find((c: any) => 
+                        new Date(c.date).toDateString() === new Date(dateStr).toDateString()
+                    );
+
+                    days.push({
+                        date: dateStr,
+                        startTime: existing?.startTime || '',
+                        cutoffTime: existing?.cutoffTime || '',
+                        isSoldOut: existing?.isSoldOut || false,
+                        capacity: existing?.capacity || '',
+                        price: existing?.price || ''
+                    });
+
+                    current.setDate(current.getDate() + 1);
+                }
+
+                setFormData((prev: any) => ({ ...prev, dailyConfig: days }));
+            }
+        }
+    }, [formData.startDate, formData.endDate]);
+
+    const handleDailyConfigChange = (index: number, field: string, value: any) => {
+        const newDailyConfig = [...formData.dailyConfig];
+        newDailyConfig[index] = { ...newDailyConfig[index], [field]: value };
+        setFormData({ ...formData, dailyConfig: newDailyConfig });
     };
 
     // Offers Management
@@ -187,6 +239,7 @@ export default function CreateEventPage() {
         // Append complex fields
         data.append('ticketConfig', JSON.stringify(formData.ticketConfig));
         data.append('subHeadings', JSON.stringify(formData.subHeadings));
+        data.append('dailyConfig', JSON.stringify(formData.dailyConfig));
         data.append('gallery', JSON.stringify(formData.gallery));
         data.append('scheduleImage', formData.scheduleImage);
 
@@ -205,6 +258,9 @@ export default function CreateEventPage() {
             };
             data.append('venueManagerDetails', JSON.stringify(managerData));
         }
+
+        // Attach Tax Info
+        data.append('taxInfo', JSON.stringify(formData.taxInfo));
 
         try {
             const res = await fetch('/api/events', {
@@ -259,29 +315,54 @@ export default function CreateEventPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Banner Image URL</Label>
-                            <Input
-                                type="url"
-                                name="banner"
-                                value={formData.banner}
-                                onChange={handleInputChange}
-                                placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
-                            />
-                            {formData.banner && (
-                                <div className="mt-2 relative h-48 w-full rounded-lg overflow-hidden border">
-                                    <img
-                                        src={formData.banner}
-                                        alt="Banner Preview"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = '';
-                                            e.currentTarget.alt = 'Invalid image URL';
-                                        }}
-                                    />
-                                </div>
-                            )}
-                            <p className="text-xs text-muted-foreground">Enter the Cloudinary URL for the event banner.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label>Desktop Banner Image URL (1920x1080)</Label>
+                                <Input
+                                    type="url"
+                                    name="banner"
+                                    value={formData.banner}
+                                    onChange={handleInputChange}
+                                    placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
+                                />
+                                {formData.banner && (
+                                    <div className="mt-2 relative h-32 w-full rounded-lg overflow-hidden border">
+                                        <img
+                                            src={formData.banner}
+                                            alt="Desktop Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                                <p className="text-[10px] text-muted-foreground leading-tight">Enter the Cloudinary URL. Recommended size: 1920x1080 (16:9). Used for desktop screens.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Mobile Banner Image URL (1080x1920)</Label>
+                                <Input
+                                    type="url"
+                                    name="mobileBanner"
+                                    value={formData.mobileBanner || ''}
+                                    onChange={handleInputChange}
+                                    placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
+                                />
+                                {formData.mobileBanner && (
+                                    <div className="mt-2 relative h-32 w-[18%] mx-auto rounded-lg overflow-hidden border">
+                                        <img
+                                            src={formData.mobileBanner}
+                                            alt="Mobile Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                                <p className="text-[10px] text-muted-foreground leading-tight">Enter the Cloudinary URL. Recommended size: 1080x1920 (9:16). Used for mobile screens.</p>
+                            </div>
                         </div>
 
                         <div className="space-y-2">
@@ -447,6 +528,69 @@ export default function CreateEventPage() {
                     </CardContent>
                 </Card>
 
+                {/* Daily Configuration Overrides */}
+                {formData.dailyConfig && formData.dailyConfig.length > 0 && (
+                    <Card className="border-secondary/50">
+                        <CardHeader className="bg-secondary/5">
+                            <CardTitle>Daily Configuration Overrides</CardTitle>
+                            <CardDescription>
+                                Override the base price, capacity, and operational settings for specific days.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-4">
+                            {formData.dailyConfig.map((day: any, idx: number) => {
+                                const d = new Date(day.date);
+                                return (
+                                    <div key={idx} className="border rounded-md p-4 space-y-4 bg-muted/20">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="font-semibold text-lg flex items-center gap-2">
+                                                {d.toDateString()}
+                                            </h4>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Price Override</Label>
+                                                <Input 
+                                                    type="number" 
+                                                    value={day.price} 
+                                                    onChange={(e) => handleDailyConfigChange(idx, 'price', e.target.value)}
+                                                    placeholder={`Base: ${formData.ticketConfig.price || 0}`}
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Capacity Override</Label>
+                                                <Input 
+                                                    type="number" 
+                                                    value={day.capacity} 
+                                                    onChange={(e) => handleDailyConfigChange(idx, 'capacity', e.target.value)}
+                                                    placeholder={`Base: ${formData.ticketConfig.quantity || 100}`}
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Start Time (Optional)</Label>
+                                                <Input 
+                                                    type="time" 
+                                                    value={day.startTime} 
+                                                    onChange={(e) => handleDailyConfigChange(idx, 'startTime', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Cutoff Time (Optional)</Label>
+                                                <Input 
+                                                    type="time" 
+                                                    value={day.cutoffTime} 
+                                                    onChange={(e) => handleDailyConfigChange(idx, 'cutoffTime', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* Media & Visuals (Schedule & Gallery) */}
                 <Card>
                     <CardHeader>
@@ -550,6 +694,71 @@ export default function CreateEventPage() {
                                     />
                                 </div>
                             ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Tax & Billing Overrides */}
+                <Card className="border-[#AE8638]/30 shadow-lg">
+                    <CardHeader className="bg-[#AE8638]/5 border-b border-[#AE8638]/10">
+                        <div className="flex items-center gap-2">
+                            <Landmark className="w-5 h-5 text-[#AE8638]" />
+                            <CardTitle>Tax & Billing Overrides</CardTitle>
+                        </div>
+                        <CardDescription>Override global billing settings for this specific event.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Company Name (Override)</Label>
+                                <Input
+                                    value={formData.taxInfo?.companyName || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, companyName: e.target.value } })}
+                                    placeholder="Leave empty to use global"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>GSTIN (Override)</Label>
+                                <Input
+                                    value={formData.taxInfo?.gstin || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, gstin: e.target.value } })}
+                                    placeholder="e.g. 36AAAAA0000A1Z5"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Registered Address (Override)</Label>
+                            <Textarea
+                                value={formData.taxInfo?.address || ''}
+                                onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, address: e.target.value } })}
+                                className="min-h-[80px]"
+                                placeholder="Enter full address for invoice"
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <Label>PAN</Label>
+                                <Input
+                                    value={formData.taxInfo?.pan || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, pan: e.target.value } })}
+                                    placeholder="ABCDE1234F"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>CIN</Label>
+                                <Input
+                                    value={formData.taxInfo?.cin || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, cin: e.target.value } })}
+                                    placeholder="Corporate ID"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>HSN Code</Label>
+                                <Input
+                                    value={formData.taxInfo?.hsnCode || '998599'}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, hsnCode: e.target.value } })}
+                                />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

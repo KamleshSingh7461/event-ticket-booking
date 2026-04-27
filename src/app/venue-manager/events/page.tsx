@@ -107,12 +107,19 @@ export default function VenueManagerEventsPage() {
                                         Manage & Stats
                                     </Button>
                                 </Link>
-                                <Link href={`/venue-manager/events/${event._id}/edit`} className="w-full">
-                                    <Button variant="outline" className="w-full border-[#AE8638]/30 text-gray-300 hover:text-white hover:bg-[#AE8638]/10 text-xs">
+                                {new Date() > new Date(event.endDate) ? (
+                                    <Button disabled variant="outline" className="w-full border-red-900/30 text-red-900/50 bg-red-900/10 text-xs cursor-not-allowed">
                                         <Settings className="w-3 h-3 mr-2" />
-                                        Config
+                                        Locked
                                     </Button>
-                                </Link>
+                                ) : (
+                                    <Link href={`/venue-manager/events/${event._id}/edit`} className="w-full">
+                                        <Button variant="outline" className="w-full border-[#AE8638]/30 text-gray-300 hover:text-white hover:bg-[#AE8638]/10 text-xs">
+                                            <Settings className="w-3 h-3 mr-2" />
+                                            Config
+                                        </Button>
+                                    </Link>
+                                )}
                             </CardFooter>
                         </Card>
                     ))}

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X, Smartphone, BarChart3, ScanLine } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X, Smartphone, BarChart3, ScanLine, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -11,8 +11,9 @@ const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Events', icon: Calendar },
     { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/invoices', label: 'Invoices', icon: CreditCard },
     { href: '/verify', label: 'Ticket Scanner', icon: Smartphone },
-    // { href: '/admin/settings', label: 'Settings', icon: Settings }, // Enable if needed
+    { href: '/admin/settings/billing', label: 'Settings', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -48,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         `}
             >
                 <div className="p-4 md:p-6 border-b border-[#AE8638]/20 flex items-center gap-3">
-                    <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png" alt="Logo" className="h-8 w-8 object-contain" />
+                    <img src="https://res.cloudinary.com/desdbjzzt/image/upload/v1777203252/logo_yswfeg.png" alt="Logo" className="h-8 w-8 object-contain" />
                     <h1 className="text-sm md:text-base font-bold text-[#AE8638] leading-tight flex flex-col">
                         <span>WYLDCARD STATS</span>
                         <span className="text-[10px] text-gray-500 font-normal">ADMINISTRATION</span>

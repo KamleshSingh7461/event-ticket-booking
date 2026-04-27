@@ -35,6 +35,8 @@ export default function CheckoutPage() {
         phone: '',
         age: '',
         gender: 'male',
+        address: '',
+        state: '',
     });
 
     const [payuParams, setPayuParams] = useState<any>(null);
@@ -75,7 +77,52 @@ export default function CheckoutPage() {
         });
     }, [eventId, status, session, router]);
 
+    const isDateDisabled = (date: Date) => {
+        if (!event) return false;
+
+        const now = new Date();
+        const d = new Date(date);
+        
+        // Reset times for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const compareDate = new Date(d);
+        compareDate.setHours(0, 0, 0, 0);
+
+        // 1. Past Dates
+        if (compareDate < today) return true;
+
+        // Find daily config for this date
+        const config = event.dailyConfig?.find((c: any) => {
+            const configDate = new Date(c.date);
+            return configDate.toDateString() === d.toDateString();
+        });
+
+        // 2. Manual Sold Out (Global or Daily)
+        if (event.isSoldOut) return true;
+        if (config?.isSoldOut) return true;
+
+        // 3. Cutoff Time (If date is today)
+        if (compareDate.getTime() === today.getTime()) {
+            const cutoff = config?.cutoffTime || event.bookingCutOffTime;
+            if (cutoff) {
+                const [hours, minutes] = cutoff.split(':').map(Number);
+                const cutoffDate = new Date();
+                cutoffDate.setHours(hours, minutes, 0, 0);
+                if (now > cutoffDate) return true;
+            }
+        }
+
+        return false;
+    };
+
     const toggleDate = (dateIso: string) => {
+        const date = new Date(dateIso);
+        if (isDateDisabled(date)) {
+            toast.error('This date is no longer available for booking.');
+            return;
+        }
+
         if (selectedDates.includes(dateIso)) {
             setSelectedDates(selectedDates.filter(d => d !== dateIso));
         } else {
@@ -88,14 +135,20 @@ export default function CheckoutPage() {
         if (selectedDates.length === availableDates.length) {
             setSelectedDates([]); // Deselect All
         } else {
-            setSelectedDates(availableDates.map(d => d.toISOString()));
+            // Only select dates that are NOT disabled
+            const validDates = availableDates.filter(d => !isDateDisabled(d)).map(d => d.toISOString());
+            setSelectedDates(validDates);
         }
     };
 
     // Effect to handle booking type changes (Auto select all dates for ALL_DAY)
     useEffect(() => {
         if (bookingType === 'ALL_DAY' && availableDates.length > 0) {
-            setSelectedDates(availableDates.map(d => d.toISOString()));
+            // For All Day, we only select valid dates, but wait, usually all day implies all?
+            // If some dates are sold out, maybe Season Pass shouldn't be available or should exclude them.
+            // Requirement says "all day combined ticket", let's select only valid ones.
+            const validDates = availableDates.filter(d => !isDateDisabled(d)).map(d => d.toISOString());
+            setSelectedDates(validDates);
         } else if (bookingType === 'DAILY') {
             setSelectedDates([]); // Reset or keep? Resetting is safer to avoid confusion
         }
@@ -209,31 +262,39 @@ export default function CheckoutPage() {
                                 {event.ticketConfig?.allDayPrice && (
                                     <div className="mb-6 bg-[#AE8638]/10 p-4 rounded-lg border border-[#AE8638]/20">
                                         <Label className="text-[#AE8638] mb-3 block text-base font-semibold">Select Access Type:</Label>
-                                        <RadioGroup
-                                            value={bookingType}
-                                            onValueChange={(v: any) => setBookingType(v)}
-                                            className="grid grid-cols-2 gap-4"
-                                        >
-                                            <div className={`
-                                                    flex items-center space-x-2 border rounded-md p-3 cursor-pointer transition-all
-                                                    ${bookingType === 'DAILY' ? 'border-[#AE8638] bg-[#AE8638]/20' : 'border-[#AE8638]/10 hover:border-[#AE8638]/30'}
-                                                `}>
-                                                <RadioGroupItem value="DAILY" id="daily" className="text-[#AE8638] border-[#AE8638]" />
-                                                <Label htmlFor="daily" className="cursor-pointer text-white">Daily Pass</Label>
-                                            </div>
-                                            <div className={`
-                                                    flex items-center space-x-2 border rounded-md p-3 cursor-pointer transition-all
-                                                    ${bookingType === 'ALL_DAY' ? 'border-[#AE8638] bg-[#AE8638]/20' : 'border-[#AE8638]/10 hover:border-[#AE8638]/30'}
-                                                `}>
-                                                <RadioGroupItem value="ALL_DAY" id="allday" className="text-[#AE8638] border-[#AE8638]" />
-                                                <Label htmlFor="allday" className="cursor-pointer text-white">
-                                                    Season Pass (For all 9 days)
-                                                    <span className="block text-xs text-[#AE8638]/80 font-normal">
-                                                        {event.ticketConfig.currency} {event.ticketConfig.allDayPrice}
-                                                    </span>
-                                                </Label>
-                                            </div>
-                                        </RadioGroup>
+                                                <RadioGroup
+                                                    value={bookingType}
+                                                    onValueChange={(v: any) => setBookingType(v)}
+                                                    className="grid grid-cols-2 gap-4"
+                                                >
+                                                    <div className={`
+                                                            flex items-center space-x-2 border rounded-md p-3 cursor-pointer transition-all
+                                                            ${bookingType === 'DAILY' ? 'border-[#AE8638] bg-[#AE8638]/20' : 'border-[#AE8638]/10 hover:border-[#AE8638]/30'}
+                                                        `}>
+                                                        <RadioGroupItem value="DAILY" id="daily" className="text-[#AE8638] border-[#AE8638]" />
+                                                        <Label htmlFor="daily" className="cursor-pointer text-white">Daily Pass</Label>
+                                                    </div>
+                                                    <div className={`
+                                                            flex items-center space-x-2 border rounded-md p-3 transition-all relative
+                                                            ${availableDates.some(d => isDateDisabled(d)) ? 'opacity-40 cursor-not-allowed border-gray-800' : 'cursor-pointer ' + (bookingType === 'ALL_DAY' ? 'border-[#AE8638] bg-[#AE8638]/20' : 'border-[#AE8638]/10 hover:border-[#AE8638]/30')}
+                                                        `}>
+                                                        <RadioGroupItem 
+                                                            value="ALL_DAY" 
+                                                            id="allday" 
+                                                            disabled={availableDates.some(d => isDateDisabled(d))}
+                                                            className="text-[#AE8638] border-[#AE8638]" 
+                                                        />
+                                                        <Label htmlFor="allday" className={`text-white ${availableDates.some(d => isDateDisabled(d)) ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                            Season Pass (Full Event)
+                                                            <span className="block text-xs text-[#AE8638]/80 font-normal">
+                                                                {event.ticketConfig.currency} {event.ticketConfig.allDayPrice}
+                                                            </span>
+                                                        </Label>
+                                                        {availableDates.some(d => isDateDisabled(d)) && (
+                                                            <span className="absolute -bottom-4 left-0 text-[8px] text-red-500 font-bold uppercase whitespace-nowrap">Unavailable: Daily Sold Out</span>
+                                                        )}
+                                                    </div>
+                                                </RadioGroup>
                                     </div>
                                 )}
 
@@ -257,20 +318,39 @@ export default function CheckoutPage() {
                                         {availableDates.map((date) => {
                                             const iso = date.toISOString();
                                             const isSelected = selectedDates.includes(iso);
+                                            const disabled = isDateDisabled(date);
+                                            
+                                            // Determine reason for being disabled
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0);
+                                            const compareDate = new Date(date);
+                                            compareDate.setHours(0, 0, 0, 0);
+                                            const isPast = compareDate < today;
+
                                             return (
                                                 <div
                                                     key={iso}
-                                                    onClick={() => toggleDate(iso)}
+                                                    onClick={() => !disabled && toggleDate(iso)}
                                                     className={`
-                                                        cursor-pointer rounded-md border px-3 py-2 text-center text-sm font-medium transition-all
-                                                        ${isSelected
-                                                            ? 'bg-[#AE8638] text-black border-[#AE8638] shadow-sm font-bold'
-                                                            : 'bg-white/5 hover:bg-white/10 text-gray-300 border-[#AE8638]/20 hover:border-[#AE8638]/50'
+                                                        relative rounded-md border px-3 py-2 text-center text-sm font-medium transition-all
+                                                        ${isPast
+                                                            ? 'bg-black/50 text-gray-700 border-gray-900 cursor-not-allowed opacity-50'
+                                                            : disabled 
+                                                                ? 'bg-gray-900/50 text-gray-600 border-gray-800 cursor-not-allowed grayscale' 
+                                                                : isSelected
+                                                                    ? 'bg-[#AE8638] text-black border-[#AE8638] shadow-sm font-bold cursor-pointer'
+                                                                    : 'bg-white/5 hover:bg-white/10 text-gray-300 border-[#AE8638]/20 hover:border-[#AE8638]/50 cursor-pointer'
                                                         }
                                                     `}
                                                 >
                                                     {date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                                     <div className="text-xs opacity-80">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                                                    
+                                                    {isPast ? (
+                                                        <span className="absolute -top-1 -right-1 bg-gray-800 text-[8px] text-gray-400 px-1 rounded uppercase font-bold border border-gray-700">Locked</span>
+                                                    ) : disabled && (
+                                                        <span className="absolute -top-1 -right-1 bg-red-600 text-[8px] text-white px-1 rounded uppercase font-bold">Sold Out</span>
+                                                    )}
                                                 </div>
                                             );
                                         })}
@@ -279,11 +359,13 @@ export default function CheckoutPage() {
                                         <p className="text-xs text-[#AE8638] mt-2 italic">* All dates are included in the Season Pass.</p>
                                     )}
                                     {bookingType === 'DAILY' && selectedDates.length === 0 && (
-                                        <p className="text-xs text-red-500 mt-2">Please select at least one date.</p>
+                                        <p className="text-xs text-[#AE8638] mt-2 italic">Please select at least one date to continue.</p>
                                     )}
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-between">
+                                {selectedDates.length > 0 && (
+                                    <>
+                                        <div className="mt-6 flex items-center justify-between">
                                     <Label className="text-base font-semibold text-[#AE8638]">Tickets:</Label>
                                     <div className="flex items-center gap-2">
                                         <Button
@@ -328,18 +410,25 @@ export default function CheckoutPage() {
                                         <span className="text-white">{event.ticketConfig?.currency} {totalPrice.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-400">
+                                        <span>Convenience Fee (3%):</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {(totalPrice * 0.03).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm text-gray-400">
                                         <span>GST (18%):</span>
-                                        <span className="text-white">{event.ticketConfig?.currency} {(totalPrice * 0.18).toFixed(2)}</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 0.18).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between font-bold text-xl pt-2 border-t border-dashed border-[#AE8638]/30 text-[#AE8638]">
                                         <span>Total:</span>
-                                        <span>{event.ticketConfig?.currency} {(totalPrice * 1.18).toFixed(2)}</span>
+                                        <span>{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}</span>
                                     </div>
                                 </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        {event && selectedDates.length > 0 && (
+                            <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name" className="text-gray-300">Full Name</Label>
                                 <Input
@@ -406,10 +495,48 @@ export default function CheckoutPage() {
                                 />
                             </div>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="address" className="text-gray-300">Address (for Invoice)</Label>
+                                <Input
+                                    id="address"
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    required
+                                    placeholder="Apartment, Street, Area"
+                                    className="bg-white/5 border-[#AE8638]/20 text-white placeholder:text-gray-500 focus:border-[#AE8638]"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="state" className="text-gray-300">State</Label>
+                                <Select onValueChange={(v) => setFormData({ ...formData, state: v })} required>
+                                    <SelectTrigger className="bg-white/5 border-[#AE8638]/20 text-white focus:border-[#AE8638]">
+                                        <SelectValue placeholder="Select State" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-black border-[#AE8638]/20 text-white max-h-[300px]">
+                                        {[
+                                            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+                                            "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", 
+                                            "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", 
+                                            "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", 
+                                            "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", 
+                                            "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", 
+                                            "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", 
+                                            "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+                                        ].map(state => (
+                                            <SelectItem key={state} value={state} className="focus:bg-[#AE8638]/20 focus:text-[#AE8638]">
+                                                {state}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             <Button type="submit" className="w-full mt-2 bg-[#AE8638] text-black hover:bg-[#AE8638]/90 font-bold" size="lg" disabled={loading || selectedDates.length === 0}>
-                                {loading ? 'Processing...' : `Pay ${event?.ticketConfig?.currency} ${(totalPrice * 1.18).toFixed(2)}`}
+                                {loading ? 'Processing...' : `Pay ${event?.ticketConfig?.currency} ${((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}`}
                             </Button>
                         </form>
+                        )}
                     </CardContent>
                     <CardFooter className="justify-center text-xs text-gray-500 bg-white/5 py-3 border-t border-[#AE8638]/10 h-10">
                         By clicking proceed, you agree to our Terms & Conditions.

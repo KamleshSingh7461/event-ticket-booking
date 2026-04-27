@@ -111,11 +111,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         await connectDB();
 
         const body = await req.json();
-        const { ticketConfig, assignedCoordinators } = body;
-
-        if (!ticketConfig) {
-            return NextResponse.json({ success: false, error: 'No ticket configuration provided' }, { status: 400 });
-        }
+        const { ticketConfig, assignedCoordinators, isSoldOut, bookingCutOffTime, dailyConfig } = body;
 
         // Verify ownership
         const event = await Event.findOne({ _id: id, venueManager: session.user.id });
@@ -123,18 +119,30 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             return NextResponse.json({ success: false, error: 'Event not found or unauthorized' }, { status: 404 });
         }
 
-        // Validate basic rules (optional: check if new quantity < sold quantity)
-        // For now, we trust the Venue Manager but we could add safety checks here.
+        // Lock editing if the event is already completed
+        const eventEndDate = new Date(event.endDate);
+        if (new Date() > eventEndDate) {
+            return NextResponse.json({ success: false, error: 'Event has already concluded. Modifications are locked.' }, { status: 403 });
+        }
 
         const updateData: any = {
-            'ticketConfig.price': ticketConfig.price,
-            'ticketConfig.quantity': ticketConfig.quantity,
-            'ticketConfig.dateSpecificCapacities': ticketConfig.dateSpecificCapacities || {}
+            isSoldOut: isSoldOut !== undefined ? isSoldOut : event.isSoldOut,
+            bookingCutOffTime: bookingCutOffTime !== undefined ? bookingCutOffTime : event.bookingCutOffTime
         };
+
+        if (ticketConfig) {
+            updateData['ticketConfig.price'] = ticketConfig.price;
+            updateData['ticketConfig.quantity'] = ticketConfig.quantity;
+            updateData['ticketConfig.dateSpecificCapacities'] = ticketConfig.dateSpecificCapacities || {};
+        }
 
         // Add assignedCoordinators if provided
         if (assignedCoordinators !== undefined) {
             updateData.assignedCoordinators = assignedCoordinators;
+        }
+
+        if (dailyConfig !== undefined) {
+            updateData.dailyConfig = dailyConfig;
         }
 
         const updatedEvent = await Event.findByIdAndUpdate(

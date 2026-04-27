@@ -33,17 +33,35 @@ export async function GET(req: NextRequest) {
         const myEvents = events.length;
 
         // Calculate Revenue and Detailed Stats
-        let totalRevenue = 0;
+        let totalRevenue = 0; // Base
+        let totalReceived = 0; // Inclusive of GST
         let totalBookings = 0;
 
         const eventStats = await Promise.all(events.map(async (event) => {
-            const tickets = await Ticket.find({ event: event._id, paymentStatus: 'SUCCESS' });
+            const tickets = await Ticket.find({ event: event._id, paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } }).lean();
             const soldCount = tickets.length;
-            const eventRevenue = tickets.reduce((sum: number, t: any) => sum + t.amountPaid, 0);
+            
+            let eventBaseRevenue = 0;
+            let eventTotalReceived = 0;
+
+            tickets.forEach((ticket: any) => {
+                if (ticket.pricing && ticket.pricing.baseAmount) {
+                    eventBaseRevenue += ticket.pricing.baseAmount;
+                    eventTotalReceived += ticket.pricing.totalAmount;
+                } else {
+                    const total = ticket.amountPaid;
+                    const base = total / 1.18;
+                    eventBaseRevenue += base;
+                    eventTotalReceived += total;
+                }
+            });
+
             const totalCapacity = event.ticketConfig.quantity || 500;
 
-            totalRevenue += eventRevenue;
+            totalRevenue += eventBaseRevenue;
+            totalReceived += eventTotalReceived;
             totalBookings += soldCount;
+
 
             // Daily Breakdown Calculation
             const dailyBreakdown: Record<string, number> = {};
@@ -80,7 +98,8 @@ export async function GET(req: NextRequest) {
                 peakDay,
                 remaining: totalCapacity - peakDay.count,
                 percentage: Math.min((peakDay.count / totalCapacity) * 100, 100),
-                revenue: eventRevenue,
+                revenue: Math.round(eventBaseRevenue * 100) / 100,
+                totalReceived: Math.round(eventTotalReceived * 100) / 100,
                 isActive: event.isActive,
                 type: event.type
             };
@@ -96,7 +115,8 @@ export async function GET(req: NextRequest) {
             data: {
                 myEvents,
                 totalTicketsSold: totalBookings,
-                totalRevenue,
+                totalRevenue: Math.round(totalRevenue * 100) / 100,
+                totalReceived: Math.round(totalReceived * 100) / 100,
                 upcomingEvents,
                 activeCoordinators,
                 eventStats // New Field

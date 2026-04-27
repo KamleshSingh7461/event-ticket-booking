@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session || session.user.role !== 'ADMIN') {
+        if (!session || session.user.role !== 'SUPER_ADMIN') {
             return NextResponse.json(
                 { success: false, error: 'Unauthorized' },
                 { status: 401 }
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         const endDate = searchParams.get('endDate');
 
         // Build query
-        const query: any = { paymentStatus: 'SUCCESS' };
+        const query: any = { paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } };
 
         if (eventId) {
             query.event = eventId;

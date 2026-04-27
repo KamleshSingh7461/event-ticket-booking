@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { LayoutDashboard, Calendar, Users, BarChart3, Settings, LogOut, Menu, X, Smartphone } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, BarChart3, Settings, LogOut, Menu, X, Smartphone, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -11,6 +11,7 @@ const navItems = [
     { href: '/venue-manager/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/venue-manager/events', label: 'My Events', icon: Calendar },
     { href: '/venue-manager/coordinators', label: 'Coordinators', icon: Users },
+    { href: '/venue-manager/invoices', label: 'Invoices', icon: CreditCard },
     { href: '/venue-manager/reports', label: 'Reports', icon: BarChart3 },
     { href: '/verify', label: 'Ticket Scanner', icon: Smartphone },
 ];
@@ -48,7 +49,7 @@ export default function VenueManagerLayout({ children }: { children: React.React
         `}
             >
                 <div className="p-4 md:p-6 border-b border-[#AE8638]/20 flex items-center gap-3">
-                    <img src="https://res.cloudinary.com/dxgx75kwb/image/upload/v1765407837/logo_lxeacy.png" alt="Logo" className="h-8 w-8 object-contain" />
+                    <img src="https://res.cloudinary.com/desdbjzzt/image/upload/v1777203252/logo_yswfeg.png" alt="Logo" className="h-8 w-8 object-contain" />
                     <h1 className="text-sm md:text-base font-bold text-[#AE8638] leading-tight line-clamp-2">
                         VENUE MANAGER
                     </h1>

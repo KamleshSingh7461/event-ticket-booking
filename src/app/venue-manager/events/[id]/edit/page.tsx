@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Info, RotateCcw, UserPlus, X } from 'lucide-react';
+import { ArrowLeft, Save, Info, RotateCcw, UserPlus, X, AlertTriangle } from 'lucide-react';
 
 export default function EditEventPage() {
     const router = useNextRouter();
@@ -21,8 +21,7 @@ export default function EditEventPage() {
     // Form State
     const [price, setPrice] = useState<number>(0);
     const [quantity, setQuantity] = useState<number>(0);
-    const [dateOverrides, setDateOverrides] = useState<Record<string, number>>({});
-    const [dateRange, setDateRange] = useState<string[]>([]);
+    const [dailyConfig, setDailyConfig] = useState<any[]>([]);
     const [availableCoordinators, setAvailableCoordinators] = useState<any[]>([]);
     const [assignedCoordinators, setAssignedCoordinators] = useState<string[]>([]);
 
@@ -44,18 +43,25 @@ export default function EditEventPage() {
                 setStats(data.data.stats);
                 setPrice(evt.ticketConfig.price);
                 setQuantity(evt.ticketConfig.quantity);
-                setDateOverrides(evt.ticketConfig.dateSpecificCapacities || {});
                 setAssignedCoordinators(evt.assignedCoordinators?.map((c: any) => c._id || c) || []);
 
-                // Generate date range
-                const dates = [];
-                let d = new Date(evt.startDate);
-                const end = new Date(evt.endDate);
-                while (d <= end) {
-                    dates.push(d.toDateString());
-                    d.setDate(d.getDate() + 1);
+                // Initialize daily config
+                if (evt.dailyConfig && evt.dailyConfig.length > 0) {
+                    setDailyConfig(evt.dailyConfig);
+                } else {
+                    const start = new Date(evt.startDate);
+                    const end = new Date(evt.endDate);
+                    const initialConfig = [];
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        initialConfig.push({
+                            date: new Date(d).toISOString(),
+                            startTime: evt.entryTime || '18:00',
+                            cutoffTime: evt.bookingCutOffTime || '19:00',
+                            isSoldOut: false
+                        });
+                    }
+                    setDailyConfig(initialConfig);
                 }
-                setDateRange(dates);
 
             } else {
                 toast.error('Failed to load event');
@@ -91,21 +97,6 @@ export default function EditEventPage() {
         });
     };
 
-    const handleOverrideChange = (date: string, val: string) => {
-        const num = parseInt(val);
-        if (isNaN(num)) return; // Handle empty/invalid
-        setDateOverrides(prev => ({
-            ...prev,
-            [date]: num
-        }));
-    };
-
-    const clearOverride = (date: string) => {
-        const newOverrides = { ...dateOverrides };
-        delete newOverrides[date];
-        setDateOverrides(newOverrides);
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -116,9 +107,9 @@ export default function EditEventPage() {
                 body: JSON.stringify({
                     ticketConfig: {
                         price: Number(price), // VM can now update price
-                        quantity: Number(quantity),
-                        dateSpecificCapacities: dateOverrides
+                        quantity: Number(quantity)
                     },
+                    dailyConfig,
                     assignedCoordinators
                 })
             });
@@ -185,7 +176,7 @@ export default function EditEventPage() {
                         </Button>
                         <Button
                             onClick={handleSubmit}
-                            disabled={saving}
+                            disabled={saving || (event?.endDate && new Date() > new Date(event.endDate))}
                             className="bg-gradient-to-r from-[#AE8638] to-[#8B6B20] hover:from-[#BF953F] hover:to-[#9E7C2B] text-black font-bold shadow-[0_0_20px_rgba(174,134,56,0.3)] transition-all hover:scale-105"
                         >
                             {saving ? (
@@ -197,6 +188,16 @@ export default function EditEventPage() {
                     </div>
                 </div>
 
+                {event?.endDate && new Date() > new Date(event.endDate) && (
+                    <div className="p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-200 shadow-lg backdrop-blur-md">
+                        <h3 className="font-bold flex items-center gap-2 text-red-400">
+                            <AlertTriangle className="w-5 h-5" /> Event Concluded
+                        </h3>
+                        <p className="text-sm mt-1">This event has already ended. Editing is permanently locked. If you need to postpone the event, please contact the Super Admin.</p>
+                    </div>
+                )}
+
+                <fieldset disabled={event?.endDate && new Date() > new Date(event.endDate)}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Column - Stats & Global Settings */}
                     <div className="lg:col-span-1 space-y-6">
@@ -344,26 +345,26 @@ export default function EditEventPage() {
                             </CardHeader>
                             <CardContent className="flex-1 p-6 relative">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {dateRange.map((dateStr) => {
-                                        const hasOverride = dateOverrides.hasOwnProperty(dateStr);
-                                        const val = hasOverride ? dateOverrides[dateStr] : '';
+                                    {dailyConfig.map((config, idx) => {
+                                        const dateStr = new Date(config.date).toDateString();
                                         const usage = stats?.dailyBreakdown?.[dateStr] || 0;
-                                        const currentCap = hasOverride ? (val as number) : quantity;
+                                        const currentCap = config.capacity || quantity;
                                         const remaining = currentCap - usage;
                                         const isLow = remaining < 50; // Low stock warning
+                                        const isSoldOut = config.isSoldOut;
 
                                         return (
                                             <div
-                                                key={dateStr}
+                                                key={idx}
                                                 className={`
                                                     group p-4 rounded-xl border transition-all duration-300
-                                                    ${hasOverride
-                                                        ? 'bg-[#AE8638]/10 border-[#AE8638]/50 shadow-[0_0_15px_rgba(174,134,56,0.1)]'
-                                                        : 'bg-white/5 border-white/5 hover:border-[#AE8638]/30 hover:bg-white/10'
+                                                    ${isSoldOut
+                                                        ? 'bg-red-900/10 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                                                        : 'bg-white/5 border-white/5 hover:border-[#AE8638]/30 hover:bg-[#AE8638]/10'
                                                     }
                                                 `}
                                             >
-                                                <div className="flex justify-between items-start mb-3">
+                                                <div className="flex justify-between items-start mb-3 border-b border-white/10 pb-3">
                                                     <div>
                                                         <h4 className="text-white font-bold text-lg">
                                                             {new Date(dateStr).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
@@ -372,41 +373,97 @@ export default function EditEventPage() {
                                                             {new Date(dateStr).toLocaleDateString(undefined, { weekday: 'long' })}
                                                         </p>
                                                     </div>
-                                                    {hasOverride && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-6 w-6 text-[#AE8638] hover:bg-[#AE8638]/20 rounded-full"
-                                                            onClick={() => clearOverride(dateStr)}
-                                                            title="Remove Override (Use Default)"
-                                                        >
-                                                            <RotateCcw className="w-3 h-3" />
-                                                        </Button>
-                                                    )}
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className={`h-7 text-[10px] ${isSoldOut ? 'border-green-500/50 text-green-400 hover:bg-green-500/10' : 'border-red-500/50 text-red-400 hover:bg-red-500/10'}`}
+                                                        onClick={() => {
+                                                            const newConfig = [...dailyConfig];
+                                                            newConfig[idx].isSoldOut = !newConfig[idx].isSoldOut;
+                                                            setDailyConfig(newConfig);
+                                                        }}
+                                                    >
+                                                        {isSoldOut ? 'Mark Available' : 'Mark Sold Out'}
+                                                    </Button>
                                                 </div>
 
                                                 <div className="space-y-3">
-                                                    <div className="relative">
-                                                        <Input
-                                                            type="number"
-                                                            placeholder={`Default: ${quantity}`}
-                                                            value={val}
-                                                            onChange={(e) => handleOverrideChange(dateStr, e.target.value)}
-                                                            className={`
-                                                                bg-black/50 text-white font-medium border-0 focus:ring-1 
-                                                                ${hasOverride ? 'focus:ring-[#AE8638] text-[#AE8638]' : 'focus:ring-gray-500'}
-                                                                placeholder:text-gray-600
-                                                            `}
-                                                        />
-                                                        {!hasOverride && (
-                                                            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                                                                <span className="text-[10px] text-gray-600 uppercase">Auto</span>
-                                                            </div>
-                                                        )}
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="space-y-1">
+                                                            <Label className="text-[10px] text-gray-500 uppercase">Start Time</Label>
+                                                            <Input
+                                                                type="time"
+                                                                value={config.startTime || ''}
+                                                                onChange={(e) => {
+                                                                    const newConfig = [...dailyConfig];
+                                                                    newConfig[idx].startTime = e.target.value;
+                                                                    setDailyConfig(newConfig);
+                                                                }}
+                                                                className="h-8 text-xs bg-black/50 border-[#AE8638]/30 text-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <Label className="text-[10px] text-gray-500 uppercase">Cutoff Time</Label>
+                                                            <Input
+                                                                type="time"
+                                                                value={config.cutoffTime || ''}
+                                                                onChange={(e) => {
+                                                                    const newConfig = [...dailyConfig];
+                                                                    newConfig[idx].cutoffTime = e.target.value;
+                                                                    setDailyConfig(newConfig);
+                                                                }}
+                                                                className="h-8 text-xs bg-black/50 border-[#AE8638]/30 text-white"
+                                                            />
+                                                        </div>
                                                     </div>
 
-                                                    <div className="flex items-center justify-between text-xs bg-black/30 p-2 rounded">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="space-y-1">
+                                                            <Label className="text-[10px] text-gray-500 uppercase">Capacity Override</Label>
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="number"
+                                                                    placeholder={`Auto: ${quantity}`}
+                                                                    value={config.capacity || ''}
+                                                                    onChange={(e) => {
+                                                                        const newConfig = [...dailyConfig];
+                                                                        newConfig[idx].capacity = e.target.value ? parseInt(e.target.value) : undefined;
+                                                                        setDailyConfig(newConfig);
+                                                                    }}
+                                                                    className="h-8 text-xs bg-black/50 border-[#AE8638]/30 text-white pr-10"
+                                                                />
+                                                                {!config.capacity && (
+                                                                    <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+                                                                        <span className="text-[9px] text-gray-500">AUTO</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <Label className="text-[10px] text-gray-500 uppercase">Price Override</Label>
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="number"
+                                                                    placeholder={`Auto: ${price}`}
+                                                                    value={config.price || ''}
+                                                                    onChange={(e) => {
+                                                                        const newConfig = [...dailyConfig];
+                                                                        newConfig[idx].price = e.target.value ? parseFloat(e.target.value) : undefined;
+                                                                        setDailyConfig(newConfig);
+                                                                    }}
+                                                                    className="h-8 text-xs bg-black/50 border-[#AE8638]/30 text-white pr-10"
+                                                                />
+                                                                {!config.price && (
+                                                                    <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+                                                                        <span className="text-[9px] text-gray-500">AUTO</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between text-xs bg-black/30 p-2 rounded mt-2 border border-white/5">
                                                         <div className="flex flex-col">
                                                             <span className="text-gray-500">Sold</span>
                                                             <span className="text-white font-bold">{usage}</span>
@@ -414,8 +471,8 @@ export default function EditEventPage() {
                                                         <div className="h-6 w-px bg-white/10" />
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-gray-500">Available</span>
-                                                            <span className={`font-bold ${isLow ? 'text-red-400' : 'text-green-400'}`}>
-                                                                {remaining}
+                                                            <span className={`font-bold ${isSoldOut ? 'text-red-500' : isLow ? 'text-yellow-500' : 'text-green-400'}`}>
+                                                                {isSoldOut ? 'SOLD OUT' : remaining}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -429,6 +486,7 @@ export default function EditEventPage() {
                         </Card>
                     </div>
                 </div>
+                </fieldset>
             </div>
         </div>
     );

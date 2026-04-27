@@ -1,24 +1,39 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Users, Ticket, IndianRupee } from 'lucide-react';
+import { BarChart3, Users, Ticket, IndianRupee, FileText } from 'lucide-react';
 import dbConnect from '@/lib/db';
 import TicketModel from '@/models/Ticket';
 import EventModel from '@/models/Event';
 import UserModel from '@/models/User';
 import Link from 'next/link';
+import AdminDashboardFilters from '@/components/AdminDashboardFilters';
 
 // Disable caching for real-time data
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-async function getStats() {
+async function getStats(filters: any = {}) {
     await dbConnect();
     const totalUsers = await UserModel.countDocuments();
     const totalEvents = await EventModel.countDocuments();
-    const totalTicketsSold = await TicketModel.countDocuments({ paymentStatus: 'SUCCESS' });
+
+    let ticketQuery: any = { paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } };
+
+    if (filters.from && filters.to) {
+        ticketQuery.createdAt = {
+            $gte: new Date(filters.from),
+            $lte: new Date(filters.to)
+        };
+    }
+
+    if (filters.eventId && filters.eventId !== 'ALL') {
+        ticketQuery.event = filters.eventId;
+    }
+
+    const totalTicketsSold = await TicketModel.countDocuments(ticketQuery);
 
     // Calculate Detailed Financial Stats
-    const successfulTickets = await TicketModel.find({ paymentStatus: 'SUCCESS' }).lean();
+    const successfulTickets = await TicketModel.find(ticketQuery).lean();
 
     let totalRevenue = 0; // Base amount before GST
     let totalGST = 0;
@@ -48,9 +63,21 @@ async function getStats() {
     totalReceived = Math.round(totalReceived * 100) / 100;
 
     // Detailed Event Stats
-    const events = await EventModel.find({ isActive: true }).sort({ startDate: 1 });
+    let eventQuery: any = { isActive: true };
+    if (filters.eventId && filters.eventId !== 'ALL') {
+        eventQuery._id = filters.eventId;
+    }
+    
+    const events = await EventModel.find(eventQuery).sort({ startDate: 1 });
     const eventStats = await Promise.all(events.map(async (event) => {
-        const tickets = await TicketModel.find({ event: event._id, paymentStatus: 'SUCCESS' });
+        let eventTicketQuery: any = { event: event._id, paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } };
+        if (filters.from && filters.to) {
+            eventTicketQuery.createdAt = {
+                $gte: new Date(filters.from),
+                $lte: new Date(filters.to)
+            };
+        }
+        const tickets = await TicketModel.find(eventTicketQuery);
         const soldCount = tickets.length;
         const totalCapacity = event.ticketConfig.quantity || 500; // Use default 500 as per new logic
 
@@ -118,17 +145,29 @@ async function getStats() {
     };
 }
 
-export default async function AdminDashboard() {
-    const stats = await getStats();
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
+    const params = await searchParams;
+    const stats = await getStats(params);
+    
+    await dbConnect();
+    const allEvents = await EventModel.find({}, { title: 1 }).lean();
+    const filterOptions = allEvents.map(e => ({ id: e._id.toString(), title: e.title }));
 
     return (
         <div className="flex flex-col bg-black min-h-screen">
             <div className="py-2 flex-1 p-6">
                 <h1 className="text-3xl font-bold mb-8 text-white border-b border-[#AE8638]/20 pb-4">Admin Dashboard</h1>
 
+                <AdminDashboardFilters events={filterOptions} />
+
                 {/* Financial Overview Section */}
                 <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-[#AE8638] mb-4">Financial Overview</h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-[#AE8638]">Financial Overview</h2>
+                        <Link href="/admin/invoices" className="text-xs text-[#AE8638] hover:underline flex items-center gap-1">
+                            <FileText className="w-3 h-3" /> View Detailed Billing
+                        </Link>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <Card className="bg-gradient-to-br from-green-500/10 to-black border border-green-500/30 shadow-xl">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

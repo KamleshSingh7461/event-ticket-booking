@@ -107,9 +107,12 @@ export async function POST(req: NextRequest) {
             entryTime: formData.get('entryTime'),
             ticketConfig: formData.get('ticketConfig'), // Will be parsed below
             subHeadings: formData.get('subHeadings'),   // Will be parsed below
+            dailyConfig: formData.get('dailyConfig'),   // Will be parsed below
             banner: bannerUrl,
+            mobileBanner: formData.get('mobileBanner') || '',
             gallery: gallery,
             schedule: schedule,
+            taxInfo: formData.get('taxInfo'), // Will be parsed below
             venueManager: venueManagerId,
             createdBy: session.user.id,
             isActive: true
@@ -121,6 +124,12 @@ export async function POST(req: NextRequest) {
         }
         if (typeof eventData.subHeadings === 'string') {
             try { eventData.subHeadings = JSON.parse(eventData.subHeadings); } catch { }
+        }
+        if (typeof eventData.dailyConfig === 'string') {
+            try { eventData.dailyConfig = JSON.parse(eventData.dailyConfig); } catch { }
+        }
+        if (typeof eventData.taxInfo === 'string') {
+            try { eventData.taxInfo = JSON.parse(eventData.taxInfo); } catch { }
         }
 
         const event = await Event.create(eventData);

@@ -6,7 +6,10 @@ export function Footer() {
             <div className="container py-8 md:py-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-black">WYLDCARD STATS PRIVATE LIMITED</h3>
+                        <Link href="/" className="flex items-center space-x-2 mb-4">
+                            <img src="https://res.cloudinary.com/desdbjzzt/image/upload/v1777203252/logo_yswfeg.png" alt="WYLDCARD STATS Logo" className="h-12 w-auto object-contain" />
+                            <span className="text-sm md:text-xl font-black italic tracking-widest text-black uppercase drop-shadow-[1px_1px_0_rgba(255,255,255,0.5)] transform -skew-x-12">WYLDCARD STATS</span>
+                        </Link>
                         <p className="text-sm text-black/80 font-medium">
                             Your premium platform for booking events, online and offline.
                         </p>

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Trash2, ArrowLeft, RefreshCw, Save, Image as ImageIcon, Calendar, CreditCard, MapPin, Type } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, RefreshCw, Save, Image as ImageIcon, Calendar, CreditCard, MapPin, Type, Landmark, AlertTriangle } from 'lucide-react';
 
 export default function EditEventPage() {
     const router = useRouter();
@@ -41,7 +41,16 @@ export default function EditEventPage() {
         },
         subHeadings: [],
         gallery: [],
-        schedule: []
+        schedule: [],
+        dailyConfig: [],
+        taxInfo: {
+            companyName: '',
+            address: '',
+            gstin: '',
+            pan: '',
+            cin: '',
+            hsnCode: '998599'
+        }
     });
 
     useEffect(() => {
@@ -89,8 +98,33 @@ export default function EditEventPage() {
                     },
                     subHeadings: event.subHeadings || [],
                     gallery: event.gallery || [],
-                    schedule: event.schedule || []
+                    schedule: event.schedule || [],
+                    dailyConfig: event.dailyConfig || [],
+                    taxInfo: event.taxInfo || {
+                        companyName: '',
+                        address: '',
+                        gstin: '',
+                        pan: '',
+                        cin: '',
+                        hsnCode: '998599'
+                    }
                 });
+                
+                // Initialize daily config if empty
+                if (!event.dailyConfig || event.dailyConfig.length === 0) {
+                    const start = new Date(event.startDate);
+                    const end = new Date(event.endDate);
+                    const initialConfig = [];
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        initialConfig.push({
+                            date: new Date(d).toISOString(),
+                            startTime: event.entryTime || '18:00',
+                            cutoffTime: event.bookingCutOffTime || '19:00',
+                            isSoldOut: false
+                        });
+                    }
+                    setFormData((prev: any) => ({ ...prev, dailyConfig: initialConfig }));
+                }
             } else {
                 toast.error('Event not found');
                 router.push('/admin/events');
@@ -240,6 +274,8 @@ export default function EditEventPage() {
         data.append('subHeadings', JSON.stringify(formData.subHeadings));
         data.append('gallery', JSON.stringify(formData.gallery));
         data.append('schedule', JSON.stringify(formData.schedule));
+        data.append('dailyConfig', JSON.stringify(formData.dailyConfig));
+        data.append('taxInfo', JSON.stringify(formData.taxInfo));
 
         if (formData.banner instanceof File) {
             data.append('banner', formData.banner);
@@ -313,6 +349,15 @@ export default function EditEventPage() {
                         </Button>
                     </div>
                 </div>
+
+                {formData.endDate && new Date() > new Date(formData.endDate) && (
+                    <div className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-200 shadow-lg backdrop-blur-md">
+                        <h3 className="font-bold flex items-center gap-2 text-red-400">
+                            <AlertTriangle className="w-5 h-5" /> Event Concluded
+                        </h3>
+                        <p className="text-sm mt-1">This event has already ended. As a Super Admin, you may only modify the <strong>Start and End dates</strong> below (to postpone or reactivate it). All other edits will be ignored.</p>
+                    </div>
+                )}
 
                 <form className="space-y-8">
                     {/* Basic Details */}
@@ -390,26 +435,52 @@ export default function EditEventPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-[#AE8638]">Banner URL</Label>
-                                <Input
-                                    type="url"
-                                    name="banner"
-                                    value={formData.banner}
-                                    onChange={handleInputChange}
-                                    className="bg-black border-[#AE8638]/30 focus:border-[#AE8638] focus:ring-[#AE8638]/20"
-                                    placeholder="https://"
-                                />
-                                {formData.banner && (
-                                    <div className="mt-3 relative h-48 w-full rounded-lg overflow-hidden border border-[#AE8638]/20 group">
-                                        <img
-                                            src={formData.banner}
-                                            alt="Preview"
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            onError={(e) => { e.currentTarget.style.display = 'none' }}
-                                        />
-                                    </div>
-                                )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">Desktop Banner URL (1920x1080)</Label>
+                                    <Input
+                                        type="url"
+                                        name="banner"
+                                        value={formData.banner}
+                                        onChange={handleInputChange}
+                                        className="bg-black border-[#AE8638]/30 focus:border-[#AE8638] focus:ring-[#AE8638]/20"
+                                        placeholder="https://"
+                                    />
+                                    {formData.banner && (
+                                        <div className="mt-3 relative h-32 w-full rounded-lg overflow-hidden border border-[#AE8638]/20 group">
+                                            <img
+                                                src={formData.banner}
+                                                alt="Desktop Preview"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                            />
+                                        </div>
+                                    )}
+                                    <p className="text-[10px] text-gray-500 leading-tight mt-1">Recommended size: 1920x1080 (16:9). Used for desktop screens.</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">Mobile Banner URL (1080x1920)</Label>
+                                    <Input
+                                        type="url"
+                                        name="mobileBanner"
+                                        value={formData.mobileBanner || ''}
+                                        onChange={handleInputChange}
+                                        className="bg-black border-[#AE8638]/30 focus:border-[#AE8638] focus:ring-[#AE8638]/20"
+                                        placeholder="https://"
+                                    />
+                                    {formData.mobileBanner && (
+                                        <div className="mt-3 relative h-32 w-[18%] mx-auto rounded-lg overflow-hidden border border-[#AE8638]/20 group">
+                                            <img
+                                                src={formData.mobileBanner}
+                                                alt="Mobile Preview"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                            />
+                                        </div>
+                                    )}
+                                    <p className="text-[10px] text-gray-500 leading-tight mt-1">Recommended size: 1080x1920 (9:16). Used for mobile screens.</p>
+                                </div>
                             </div>
 
                             <div className="space-y-2">
@@ -478,6 +549,100 @@ export default function EditEventPage() {
                                     </div>
                                 </div>
                             )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Daily Config */}
+                    <Card className="bg-neutral-900/50 border border-[#AE8638]/20 shadow-xl">
+                        <CardHeader className="border-b border-[#AE8638]/10">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-[#AE8638]" />
+                                <CardTitle className="text-white">Daily Configuration Overrides</CardTitle>
+                            </div>
+                            <CardDescription className="text-gray-400">Set per-day start times, cutoffs, and sold-out status.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {formData.dailyConfig && formData.dailyConfig.map((config: any, idx: number) => (
+                                    <div key={idx} className="p-4 border border-[#AE8638]/10 rounded-lg space-y-4 bg-black/40">
+                                        <div className="flex justify-between items-center pb-2 border-b border-[#AE8638]/10">
+                                            <span className="text-sm font-bold text-[#AE8638]">
+                                                {new Date(config.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className={`h-7 text-[10px] ${config.isSoldOut ? 'border-red-500/50 text-red-400 hover:bg-red-500/10' : 'border-green-500/50 text-green-400 hover:bg-green-500/10'}`}
+                                                onClick={() => {
+                                                    const newConfig = [...formData.dailyConfig];
+                                                    newConfig[idx].isSoldOut = !newConfig[idx].isSoldOut;
+                                                    setFormData({ ...formData, dailyConfig: newConfig });
+                                                }}
+                                            >
+                                                {config.isSoldOut ? 'Mark Available' : 'Mark Sold Out'}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] text-gray-500 uppercase">Start Time</Label>
+                                                <Input
+                                                    type="time"
+                                                    value={config.startTime}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...formData.dailyConfig];
+                                                        newConfig[idx].startTime = e.target.value;
+                                                        setFormData({ ...formData, dailyConfig: newConfig });
+                                                    }}
+                                                    className="h-8 text-xs bg-black border-[#AE8638]/30 text-white"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] text-gray-500 uppercase">Booking Cutoff</Label>
+                                                <Input
+                                                    type="time"
+                                                    value={config.cutoffTime}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...formData.dailyConfig];
+                                                        newConfig[idx].cutoffTime = e.target.value;
+                                                        setFormData({ ...formData, dailyConfig: newConfig });
+                                                    }}
+                                                    className="h-8 text-xs bg-black border-[#AE8638]/30 text-white"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] text-gray-500 uppercase">Price Override</Label>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Global"
+                                                    value={config.price || ''}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...formData.dailyConfig];
+                                                        newConfig[idx].price = e.target.value ? parseFloat(e.target.value) : undefined;
+                                                        setFormData({ ...formData, dailyConfig: newConfig });
+                                                    }}
+                                                    className="h-8 text-xs bg-black border-[#AE8638]/30 text-white"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] text-gray-500 uppercase">Capacity Override</Label>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Global"
+                                                    value={config.capacity || ''}
+                                                    onChange={(e) => {
+                                                        const newConfig = [...formData.dailyConfig];
+                                                        newConfig[idx].capacity = e.target.value ? parseInt(e.target.value) : undefined;
+                                                        setFormData({ ...formData, dailyConfig: newConfig });
+                                                    }}
+                                                    className="h-8 text-xs bg-black border-[#AE8638]/30 text-white"
+                                                />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -637,6 +802,72 @@ export default function EditEventPage() {
                                     />
                                 </div>
                             ))}
+                        </CardContent>
+                    </Card>
+
+                    {/* Tax & Billing Overrides */}
+                    <Card className="bg-neutral-900/50 border border-[#AE8638]/20 shadow-xl">
+                        <CardHeader className="border-b border-[#AE8638]/10">
+                            <div className="flex items-center gap-2">
+                                <Landmark className="w-5 h-5 text-[#AE8638]" />
+                                <CardTitle className="text-white">Tax & Billing Overrides</CardTitle>
+                            </div>
+                            <CardDescription className="text-gray-400">Override global billing settings for this specific event.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">Company Name (Override)</Label>
+                                    <Input
+                                        value={formData.taxInfo?.companyName || ''}
+                                        onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, companyName: e.target.value } })}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                        placeholder="Leave empty to use global"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">GSTIN (Override)</Label>
+                                    <Input
+                                        value={formData.taxInfo?.gstin || ''}
+                                        onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, gstin: e.target.value } })}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[#AE8638]">Registered Address (Override)</Label>
+                                <Textarea
+                                    value={formData.taxInfo?.address || ''}
+                                    onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, address: e.target.value } })}
+                                    className="bg-black border-[#AE8638]/30 text-white min-h-[80px]"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">PAN</Label>
+                                    <Input
+                                        value={formData.taxInfo?.pan || ''}
+                                        onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, pan: e.target.value } })}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">CIN</Label>
+                                    <Input
+                                        value={formData.taxInfo?.cin || ''}
+                                        onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, cin: e.target.value } })}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[#AE8638]">HSN Code</Label>
+                                    <Input
+                                        value={formData.taxInfo?.hsnCode || '998599'}
+                                        onChange={(e) => setFormData({ ...formData, taxInfo: { ...formData.taxInfo, hsnCode: e.target.value } })}
+                                        className="bg-black border-[#AE8638]/30 text-white"
+                                    />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 

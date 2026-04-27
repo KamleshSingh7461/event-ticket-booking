@@ -37,6 +37,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     const serializedEvent = {
         ...event,
         _id: event._id.toString(),
+        banner: event.banner || null,
+        mobileBanner: event.mobileBanner || null,
         startDate: event.startDate.toISOString(),
         endDate: event.endDate.toISOString(),
         venueManager: event.venueManager?.toString(),
@@ -60,13 +62,18 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                 <div className="absolute top-24 left-4 z-30 md:top-28">
                     <BackButton className="text-[#AE8638] hover:text-[#AE8638]/80 bg-black/40 hover:bg-black/60 p-2 rounded-full transition-colors backdrop-blur-sm border border-[#AE8638]/20" />
                 </div>
-                {serializedEvent.banner ? (
+                {serializedEvent.banner || serializedEvent.mobileBanner ? (
                     <div className="absolute inset-0 z-0">
-                        <img
-                            src={serializedEvent.banner}
-                            alt={serializedEvent.title}
-                            className="w-full h-full object-cover opacity-60"
-                        />
+                        <picture>
+                            {serializedEvent.mobileBanner && (
+                                <source media="(max-width: 768px)" srcSet={serializedEvent.mobileBanner} />
+                            )}
+                            <img
+                                src={serializedEvent.banner || serializedEvent.mobileBanner}
+                                alt={serializedEvent.title}
+                                className="w-full h-full object-cover opacity-60"
+                            />
+                        </picture>
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     </div>
                 ) : (

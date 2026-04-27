@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, LogIn } from 'lucide-react';
+import { Loader2, LogIn, Eye, EyeOff } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 
 export default function LoginPage() {
@@ -18,6 +18,8 @@ export default function LoginPage() {
         email: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -114,16 +116,26 @@ export default function LoginPage() {
                                     Forgot password?
                                 </Link>
                             </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                required
-                                disabled={loading}
-                                className="bg-white/5 border-[#AE8638]/20 text-white placeholder:text-gray-600 focus:border-[#AE8638]"
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    required
+                                    disabled={loading}
+                                    className="bg-white/5 border-[#AE8638]/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#AE8638] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
+
                         </div>
                         <Button
                             type="submit"

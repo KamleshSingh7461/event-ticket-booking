@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
         // Get total counts
         const totalUsers = await User.countDocuments();
         const totalEvents = await Event.countDocuments();
-        const totalBookings = await Ticket.countDocuments();
+        const totalBookings = await Ticket.countDocuments({ paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } });
 
         // Get users by role
         const usersByRole = await User.aggregate([
@@ -42,6 +42,12 @@ export async function GET(req: NextRequest) {
         // Calculate total revenue
         const revenueData = await Ticket.aggregate([
             {
+                $match: {
+                    paymentStatus: 'SUCCESS',
+                    amountPaid: { $gt: 1.18 }
+                }
+            },
+            {
                 $group: {
                     _id: null,
                     total: { $sum: '$amountPaid' }
@@ -52,7 +58,7 @@ export async function GET(req: NextRequest) {
         const totalRevenue = revenueData.length > 0 ? revenueData[0].total : 0;
 
         // Get recent bookings
-        const recentBookings = await Ticket.find()
+        const recentBookings = await Ticket.find({ paymentStatus: 'SUCCESS', amountPaid: { $gt: 1.18 } })
             .sort({ createdAt: -1 })
             .limit(5)
             .populate('event', 'title')

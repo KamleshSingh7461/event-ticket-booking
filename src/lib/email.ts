@@ -11,31 +11,28 @@ const transporter = nodemailer.createTransport({
 });
 
 const getEmailHeader = () => `
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
+    <div style="background-color: #000000; padding: 40px 20px; text-align: center; border-bottom: 2px solid #AE8638;">
         <div style="max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: 1px;">
-                WYLDCARD STATS PRIVATE LIMITED
+            <h1 style="color: #AE8638; font-size: 28px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: 2px; text-transform: uppercase;">
+                WYLDCARD STATS
             </h1>
-            <p style="color: #ffffff; font-size: 14px; margin: 0; opacity: 0.95; letter-spacing: 0.5px;">
-                WYLDCARD STATS PRIVATE LIMITED
+            <p style="color: #ffffff; font-size: 14px; margin: 0; opacity: 0.8; letter-spacing: 1px;">
+                PREMIUM TICKETING PLATFORM
             </p>
         </div>
     </div>
 `;
 
 const getEmailFooter = () => `
-    <div style="background-color: #f8f9fa; padding: 30px 20px; text-align: center; border-top: 3px solid #667eea;">
-        <p style="color: #6c757d; font-size: 14px; margin: 0 0 10px 0;">
-            <strong>Wyldcard Stats Private Limited</strong>
+    <div style="background-color: #000000; padding: 30px 20px; text-align: center; border-top: 3px solid #AE8638;">
+        <p style="color: #AE8638; font-size: 14px; margin: 0 0 10px 0; font-weight: bold; letter-spacing: 1px;">
+            WYLDCARD STATS PRIVATE LIMITED
         </p>
-        <p style="color: #6c757d; font-size: 12px; margin: 0 0 5px 0;">
-            Operated by WYLDCARD STATS PRIVATE LIMITED
+        <p style="color: #aaaaaa; font-size: 12px; margin: 0 0 15px 0;">
+            For support, contact us at <a href="mailto:supports@wildcardstat.com" style="color: #AE8638; text-decoration: none;">supports@wildcardstat.com</a>
         </p>
-        <p style="color: #6c757d; font-size: 12px; margin: 0 0 15px 0;">
-            For support, contact us at <a href="mailto:supports@wildcardstat.com" style="color: #667eea; text-decoration: none;">supports@wildcardstat.com</a>
-        </p>
-        <div style="border-top: 1px solid #dee2e6; padding-top: 15px; margin-top: 15px;">
-            <p style="color: #adb5bd; font-size: 11px; margin: 0;">
+        <div style="border-top: 1px solid #333333; padding-top: 15px; margin-top: 15px;">
+            <p style="color: #666666; font-size: 11px; margin: 0;">
                 © ${new Date().getFullYear()} WYLDCARD STATS PRIVATE LIMITED. All rights reserved.
             </p>
         </div>
@@ -143,6 +140,7 @@ export const sendBookingConfirmation = async (params: {
     ticketType: string;
     bookingReference: string;
     quantity: number;
+    invoiceUrl?: string;
 }) => {
     try {
         const mailOptions = {
@@ -171,8 +169,8 @@ export const sendBookingConfirmation = async (params: {
                                     <!-- Success Banner -->
                                     <tr>
                                         <td style="padding: 30px 30px 0 30px; text-align: center;">
-                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                                                <h2 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 700;">
+                                            <div style="background-color: #000000; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #AE8638;">
+                                                <h2 style="color: #AE8638; font-size: 28px; margin: 0; font-weight: 700;">
                                                     ✓ Booking Confirmed!
                                                 </h2>
                                             </div>
@@ -187,22 +185,22 @@ export const sendBookingConfirmation = async (params: {
                                             </p>
                                             
                                             <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-                                                Thank you for choosing <strong>Wyldcard Stats Private Limited</strong>! Your booking for <strong>${params.eventTitle}</strong> has been successfully confirmed.
+                                                Thank you for choosing <strong>Wyldcard Stats</strong>! Your booking for <strong>${params.eventTitle}</strong> has been successfully confirmed.
                                             </p>
                                             
                                             <!-- Booking Details Card -->
-                                            <div style="background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; padding: 25px; margin: 25px 0;">
-                                                <h3 style="color: #667eea; font-size: 18px; margin: 0 0 20px 0; font-weight: 600; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                                            <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #AE8638; border-radius: 8px; padding: 25px; margin: 25px 0;">
+                                                <h3 style="color: #000000; font-size: 18px; margin: 0 0 20px 0; font-weight: 600; border-bottom: 1px solid #e9ecef; padding-bottom: 10px;">
                                                     📋 Booking Details
                                                 </h3>
                                                 <table style="width: 100%;">
                                                     <tr>
                                                         <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600; width: 40%;">Booking ID:</td>
-                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 14px; font-family: 'Courier New', monospace;">${params.bookingReference}</td>
+                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 14px; font-family: 'Courier New', monospace; font-weight: bold;">${params.bookingReference}</td>
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600;">Event:</td>
-                                                        <td style="padding: 10px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">${params.eventTitle}</td>
+                                                        <td style="padding: 10px 0; color: #AE8638; font-size: 14px; font-weight: 700;">${params.eventTitle}</td>
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 10px 0; color: #6c757d; font-size: 14px; font-weight: 600;">Ticket Type:</td>
@@ -213,26 +211,33 @@ export const sendBookingConfirmation = async (params: {
                                                         <td style="padding: 10px 0; color: #2c3e50; font-size: 14px;">${params.quantity} ticket(s)</td>
                                                     </tr>
                                                 </table>
+                                                ${params.invoiceUrl ? `
+                                                <div style="margin-top: 20px; text-align: center;">
+                                                    <a href="${params.invoiceUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #000000; color: #AE8638; text-decoration: none; border-radius: 4px; font-weight: bold; border: 1px solid #AE8638; font-size: 14px;">
+                                                        ⬇ Download Tax Invoice
+                                                    </a>
+                                                </div>
+                                                ` : ''}
                                             </div>
                                             
                                             <!-- OTP Card -->
-                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 8px; text-align: center; margin: 25px 0;">
-                                                <p style="color: #ffffff; font-size: 14px; margin: 0 0 10px 0; opacity: 0.95; text-transform: uppercase; letter-spacing: 1px;">
-                                                    Your Entry OTP
+                                            <div style="background-color: #000000; border: 2px dashed #AE8638; padding: 25px; border-radius: 8px; text-align: center; margin: 25px 0;">
+                                                <p style="color: #AE8638; font-size: 14px; margin: 0 0 10px 0; opacity: 0.95; text-transform: uppercase; letter-spacing: 1px;">
+                                                    Your Entry Ticket OTP
                                                 </p>
-                                                <div style="background-color: #ffffff; padding: 15px 25px; border-radius: 6px; display: inline-block; margin: 10px 0;">
-                                                    <p style="color: #667eea; font-size: 32px; font-weight: 700; margin: 0; font-family: 'Courier New', monospace; letter-spacing: 4px;">
+                                                <div style="background-color: #111111; padding: 15px 25px; border-radius: 6px; display: inline-block; margin: 10px 0; border: 1px solid #333333;">
+                                                    <p style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; font-family: 'Courier New', monospace; letter-spacing: 6px;">
                                                         ${params.otp}
                                                     </p>
                                                 </div>
-                                                <p style="color: #ffffff; font-size: 13px; margin: 10px 0 0 0; opacity: 0.9;">
+                                                <p style="color: #888888; font-size: 13px; margin: 10px 0 0 0;">
                                                     Present this OTP at the venue for entry verification
                                                 </p>
                                             </div>
                                             
-                                            <div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; border-radius: 4px; margin: 25px 0;">
-                                                <p style="color: #004085; font-size: 14px; margin: 0; line-height: 1.6;">
-                                                    <strong>💡 Pro Tip:</strong> Save this email or take a screenshot of your OTP for quick access at the venue.
+                                            <div style="background-color: #fff9eb; border-left: 4px solid #AE8638; padding: 15px; border-radius: 4px; margin: 25px 0;">
+                                                <p style="color: #6a4f10; font-size: 14px; margin: 0; line-height: 1.6;">
+                                                    <strong>💡 Pro Tip:</strong> Save this email or take a screenshot of your OTP for quick access at the venue. You will also receive an invoice shortly.
                                                 </p>
                                             </div>
                                             

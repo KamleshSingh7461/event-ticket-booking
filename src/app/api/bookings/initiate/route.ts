@@ -18,6 +18,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 });
         }
 
+        // Check if event is manually marked as Sold Out
+        if (event.isSoldOut) {
+            return NextResponse.json({ success: false, error: 'This event is currently sold out.' }, { status: 400 });
+        }
+
+
         // Validate quantity
         if (ticketQty < 1 || ticketQty > 10) {
             return NextResponse.json({ success: false, error: 'Invalid quantity (1-10 allowed)' }, { status: 400 });
@@ -38,7 +44,33 @@ export async function POST(req: NextRequest) {
 
             const start = new Date(event.startDate);
             const end = new Date(event.endDate);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const config = event.dailyConfig?.find((c: any) => {
+                    const configDate = new Date(c.date);
+                    return configDate.toDateString() === d.toDateString();
+                });
+
+                if (config?.isSoldOut) {
+                    return NextResponse.json({ success: false, error: `Season Pass unavailable: ${d.toDateString()} is sold out.` }, { status: 400 });
+                }
+
+                // Cutoff check for today if it's part of the range
+                const bookingDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                if (bookingDate.getTime() === today.getTime()) {
+                    const cutOffTimeStr = config?.cutoffTime || event.bookingCutOffTime || event.entryTime;
+                    if (cutOffTimeStr) {
+                        const [cutHour, cutMin] = cutOffTimeStr.split(':').map(Number);
+                        const cutOffDateTime = new Date(today);
+                        cutOffDateTime.setHours(cutHour, cutMin, 0, 0);
+                        if (now > cutOffDateTime) {
+                             return NextResponse.json({ success: false, error: `Season Pass unavailable: Bookings for today already closed.` }, { status: 400 });
+                        }
+                    }
+                }
+
                 requestedDates.push(d.toDateString());
                 validDates.push(new Date(d));
             }
@@ -55,17 +87,63 @@ export async function POST(req: NextRequest) {
 
             const start = new Date(event.startDate);
             const end = new Date(event.endDate);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            let totalDailyPriceSum = 0; // NEW: Keep track of sum
 
             for (const dateStr of selectedDates) {
                 const d = new Date(dateStr);
+                const bookingDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+                // Find daily config for this date
+                const config = event.dailyConfig?.find((c: any) => {
+                    const configDate = new Date(c.date);
+                    return configDate.toDateString() === d.toDateString();
+                });
+
+                // 1. Check if date is outside event range
                 if (d < start || d > end) {
                     return NextResponse.json({ success: false, error: `Date ${dateStr} is outside event range.` }, { status: 400 });
                 }
+
+                // 2. Prevent Back-dated Bookings
+                if (bookingDate < today) {
+                    return NextResponse.json({ success: false, error: 'Cannot book tickets for a date that has already passed.' }, { status: 400 });
+                }
+
+                // 3. Daily Sold Out Check
+                if (config?.isSoldOut) {
+                    return NextResponse.json({ success: false, error: `Tickets for ${d.toDateString()} are sold out.` }, { status: 400 });
+                }
+
+                // 4. Same-day Cut-off Check (Respect Daily Override)
+                if (bookingDate.getTime() === today.getTime()) {
+                    const cutOffTimeStr = config?.cutoffTime || event.bookingCutOffTime || event.entryTime;
+                    if (cutOffTimeStr) {
+                        const [cutHour, cutMin] = cutOffTimeStr.split(':').map(Number);
+                        const cutOffDateTime = new Date(today);
+                        cutOffDateTime.setHours(cutHour, cutMin, 0, 0);
+
+                        if (now > cutOffDateTime) {
+                            return NextResponse.json({
+                                success: false,
+                                error: `Bookings for today closed at ${cutOffTimeStr}.`
+                            }, { status: 400 });
+                        }
+                    }
+                }
+
+                // Add to sum using daily override price or base price
+                const dayPrice = config?.price || event.ticketConfig.price;
+                totalDailyPriceSum += dayPrice;
+
                 requestedDates.push(d.toDateString());
                 validDates.push(d);
             }
+
             totalDays = validDates.length;
-            baseAmount = event.ticketConfig.price * ticketQty * totalDays;
+            baseAmount = totalDailyPriceSum * ticketQty;
             productinfo = `${event.title} (${ticketQty} tickets, ${totalDays} days)`;
         }
 
@@ -74,20 +152,34 @@ export async function POST(req: NextRequest) {
         const dailyCapacity = event.ticketConfig.quantity || 500; // Default to 500 if not set
 
         for (const dateStr of requestedDates) {
+            // Find daily config for this date to check for capacity override
+            const d = new Date(dateStr);
+            const config = event.dailyConfig?.find((c: any) => {
+                const configDate = new Date(c.date);
+                return configDate.toDateString() === d.toDateString();
+            });
+
+            const currentCapacity = config?.capacity || event.ticketConfig.quantity || 500;
+
             // Count existing tickets that cover this specific date (Check 'selectedDates' array for match)
-            // Payment status must be SUCCESS
+            // Payment status must be SUCCESS or PENDING within the last 15 minutes
+            const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+            
             const existingCount = await Ticket.countDocuments({
                 event: event._id,
-                paymentStatus: 'SUCCESS',
+                $or: [
+                    { paymentStatus: 'SUCCESS' },
+                    { paymentStatus: 'PENDING', createdAt: { $gte: fifteenMinsAgo } }
+                ],
                 selectedDates: {
                     $elemMatch: { $gte: new Date(dateStr), $lt: new Date(new Date(dateStr).getTime() + 86400000) }
                 }
             });
 
-            if (existingCount + ticketQty > dailyCapacity) {
+            if (existingCount + ticketQty > currentCapacity) {
                 return NextResponse.json({
                     success: false,
-                    error: `Sold Out for date: ${dateStr}. Only ${dailyCapacity - existingCount} tickets remaining.`
+                    error: `Sold Out for date: ${dateStr}. Only ${currentCapacity - existingCount} tickets remaining.`
                 }, { status: 400 });
             }
         }
@@ -106,11 +198,9 @@ export async function POST(req: NextRequest) {
 
         // Transaction Setup
         const txnid = `TXN${Date.now()}${crypto.randomBytes(2).toString('hex')}`;
-        // const unitPrice = event.ticketConfig.price; // Not used directly in generic formula anymore
-        // const totalDays = validDates.length; // Already calculated
-        // const baseAmount = unitPrice * ticketQty * totalDays; // Already calculated based on type
-        const gstAmount = baseAmount * 0.18;
-        const totalAmount = baseAmount + gstAmount;
+        const platformFee = baseAmount * 0.03;
+        const gstAmount = (baseAmount + platformFee) * 0.18;
+        const totalAmount = baseAmount + platformFee + gstAmount;
 
         // Create Tickets Loop
         const tickets = [];
@@ -120,7 +210,9 @@ export async function POST(req: NextRequest) {
 
             // Calculate amount per ticket with detailed breakdown
             const baseAmountPerTicket = baseAmount / ticketQty;
+            const platformFeePerTicket = platformFee / ticketQty;
             const gstAmountPerTicket = gstAmount / ticketQty;
+            const platformFeeGstPerTicket = platformFeePerTicket * 0.18;
             const totalAmountPerTicket = totalAmount / ticketQty;
 
             tickets.push({
@@ -132,6 +224,8 @@ export async function POST(req: NextRequest) {
                     baseAmount: baseAmountPerTicket,
                     gstRate: 0.18,
                     gstAmount: gstAmountPerTicket,
+                    platformFee: platformFeePerTicket,
+                    platformFeeGst: platformFeeGstPerTicket,
                     totalAmount: totalAmountPerTicket,
                     currency: event.ticketConfig.currency || 'INR'
                 },
@@ -141,7 +235,9 @@ export async function POST(req: NextRequest) {
                     email: user.email,
                     age: parseInt(user.age),
                     gender: user.gender,
-                    contact: user.phone
+                    contact: user.phone,
+                    address: user.address,
+                    state: user.state
                 },
                 // ticketType: 'MULTI_DAY', // Use default from model or derived
                 selectedDates: validDates, // Array of Dates

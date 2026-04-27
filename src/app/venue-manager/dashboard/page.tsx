@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, Ticket, IndianRupee, Plus, Eye, BarChart3, RefreshCw } from 'lucide-react';
+import { Calendar, Users, Ticket, IndianRupee, Plus, Eye, BarChart3, RefreshCw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function VenueManagerDashboard() {
@@ -97,12 +97,28 @@ export default function VenueManagerDashboard() {
 
                     <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-[#AE8638]">Revenue</CardTitle>
+                            <CardTitle className="text-sm font-medium text-[#AE8638]">Base Revenue</CardTitle>
                             <IndianRupee className="h-4 w-4 text-[#AE8638]/60" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-white">₹{stats.totalRevenue.toLocaleString()}</div>
-                            <p className="text-xs text-gray-400">Total earnings generated</p>
+                            <p className="text-xs text-gray-400">Net earnings before tax</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-black border border-[#AE8638]/30 shadow-[0_0_15px_rgba(174,134,56,0.1)]">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <div className="flex flex-col">
+                                <CardTitle className="text-sm font-medium text-[#AE8638]">Total Received</CardTitle>
+                                <Link href="/venue-manager/invoices" className="text-[10px] text-[#AE8638] hover:underline flex items-center gap-1 mt-1">
+                                    <FileText className="w-2.5 h-2.5" /> Detailed Billing
+                                </Link>
+                            </div>
+                            <IndianRupee className="h-4 w-4 text-[#AE8638]/60" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-white">₹{stats.totalReceived?.toLocaleString() || '0'}</div>
+                            <p className="text-xs text-gray-400">Total collection (Incl. GST)</p>
                         </CardContent>
                     </Card>
 
@@ -116,6 +132,7 @@ export default function VenueManagerDashboard() {
                             <p className="text-xs text-gray-400">Active team members</p>
                         </CardContent>
                     </Card>
+
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -205,6 +222,9 @@ export default function VenueManagerDashboard() {
                         <CardContent className="grid grid-cols-1 gap-4">
                             <Link href="/venue-manager/coordinators" className="p-4 border rounded hover:bg-[#AE8638]/10 cursor-pointer transition text-center bg-[#AE8638]/5 border-[#AE8638]/20 text-white font-medium">
                                 Manage Coordinators
+                            </Link>
+                            <Link href="/venue-manager/invoices" className="p-4 border rounded hover:bg-[#AE8638]/10 cursor-pointer transition text-center bg-[#AE8638]/5 border-[#AE8638]/20 text-white font-medium">
+                                View Sales Invoices
                             </Link>
                             <Link href="/venue-manager/reports" className="p-4 border rounded hover:bg-[#AE8638]/10 cursor-pointer transition text-center bg-[#AE8638]/5 border-[#AE8638]/20 text-white font-medium">
                                 Download Reports
