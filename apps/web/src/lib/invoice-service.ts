@@ -95,8 +95,12 @@ export async function createInvoiceForBooking(txnid: string) {
     };
 
     try {
+        // Generate a unique invoice number
+        const invoiceNumber = `INV-${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
         // Save Invoice (No PDF generation needed, we rely on dynamic HTML invoices)
         const invoice = await Invoice.create({
+            invoiceNumber: invoiceNumber,
             bookingReference: txnid,
             user: user,
             event: event._id,
