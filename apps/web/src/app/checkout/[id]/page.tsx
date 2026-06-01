@@ -279,7 +279,7 @@ export default function CheckoutPage() {
                         {event && (
                             <div className="mb-8">
                                 {/* Booking Type Selection */}
-                                {event.ticketConfig?.allDayPrice && (
+                                {event.ticketConfig && event.ticketConfig.allDayPrice !== null && event.ticketConfig.allDayPrice !== undefined && event.ticketConfig.allDayPrice !== '' && (
                                     <div className="mb-8 bg-black/30 p-6 border border-white/10 rounded-xl">
                                         <Label className="text-[#AE8638] mb-4 block text-xs uppercase tracking-widest font-bold">Select Access Type</Label>
                                                 <RadioGroup
@@ -433,16 +433,12 @@ export default function CheckoutPage() {
                                         <span className="text-white">{event.ticketConfig?.currency} {totalPrice.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-400 font-medium">
-                                        <span>Convenience Fee (3%):</span>
-                                        <span className="text-white">{event.ticketConfig?.currency} {(totalPrice * 0.03).toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>GST (18%):</span>
-                                        <span className="text-white">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 0.18).toFixed(2)}</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {(totalPrice * 0.18).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between font-bold text-2xl pt-5 border-t border-white/20 mt-3 text-white">
                                         <span>Total:</span>
-                                        <span className="text-[#AE8638]">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}</span>
+                                        <span className="text-[#AE8638]">{event.ticketConfig?.currency} {(totalPrice * 1.18).toFixed(2)}</span>
                                     </div>
                                 </div>
                                     </>

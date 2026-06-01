@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
         // Detect all requested dates for this booking
         let requestedDates: string[] = [];
         if (bookingType === 'ALL_DAY') {
-            // Validate that All Day Price exists
-            if (!event.ticketConfig.allDayPrice) {
+            // Validate that All Day Price exists (allow 0)
+            if (event.ticketConfig.allDayPrice === null || event.ticketConfig.allDayPrice === undefined || event.ticketConfig.allDayPrice === '') {
                 return NextResponse.json({ success: false, error: 'All Day Subscription not available for this event.' }, { status: 400 });
             }
 
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
 
         // Transaction Setup
         const txnid = `TXN${Date.now()}${crypto.randomBytes(2).toString('hex')}`;
-        const platformFee = baseAmount * 0.03;
+        const platformFee = 0; // Convenience fee removed
         const gstAmount = (baseAmount + platformFee) * 0.18;
         const totalAmount = baseAmount + platformFee + gstAmount;
 
