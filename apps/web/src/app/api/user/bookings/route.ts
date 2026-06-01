@@ -44,7 +44,8 @@ export async function GET(req: NextRequest) {
                 isRedeemed: t.isRedeemed,
                 redeemedAt: t.redeemedAt,
                 qrCodeHash: t.qrCodeHash,
-                createdAt: t.createdAt
+                createdAt: t.createdAt,
+                bookingReference: t.bookingReference
             }))
         });
     } catch (error: any) {

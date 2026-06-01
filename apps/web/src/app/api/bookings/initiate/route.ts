@@ -57,19 +57,9 @@ export async function POST(req: NextRequest) {
                     return NextResponse.json({ success: false, error: `Season Pass unavailable: ${d.toDateString()} is sold out.` }, { status: 400 });
                 }
 
-                // Cutoff and Start Time check for today if it's part of the range
+                // Cutoff check for today if it's part of the range
                 const bookingDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
                 if (bookingDate.getTime() === today.getTime()) {
-                    const startTimeStr = config?.startTime;
-                    if (startTimeStr) {
-                        const [startHour, startMin] = startTimeStr.split(':').map(Number);
-                        const startDateTime = new Date(today);
-                        startDateTime.setHours(startHour, startMin, 0, 0);
-                        if (now < startDateTime) {
-                            return NextResponse.json({ success: false, error: `Season Pass unavailable: Bookings for today have not started yet.` }, { status: 400 });
-                        }
-                    }
-
                     const cutOffTimeStr = config?.cutoffTime || event.bookingCutOffTime || event.entryTime;
                     if (cutOffTimeStr) {
                         const [cutHour, cutMin] = cutOffTimeStr.split(':').map(Number);
@@ -127,18 +117,8 @@ export async function POST(req: NextRequest) {
                     return NextResponse.json({ success: false, error: `Tickets for ${d.toDateString()} are sold out.` }, { status: 400 });
                 }
 
-                // 4. Same-day Start / Cut-off Check (Respect Daily Override)
+                // 4. Same-day Cut-off Check (Respect Daily Override)
                 if (bookingDate.getTime() === today.getTime()) {
-                    const startTimeStr = config?.startTime;
-                    if (startTimeStr) {
-                        const [startHour, startMin] = startTimeStr.split(':').map(Number);
-                        const startDateTime = new Date(today);
-                        startDateTime.setHours(startHour, startMin, 0, 0);
-                        if (now < startDateTime) {
-                            return NextResponse.json({ success: false, error: `Bookings for today have not started yet.` }, { status: 400 });
-                        }
-                    }
-
                     const cutOffTimeStr = config?.cutoffTime || event.bookingCutOffTime || event.entryTime;
                     if (cutOffTimeStr) {
                         const [cutHour, cutMin] = cutOffTimeStr.split(':').map(Number);

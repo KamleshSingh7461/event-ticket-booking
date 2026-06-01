@@ -105,12 +105,7 @@ export default function CheckoutPage() {
         // 3. Start / Cutoff Time (If date is today)
         if (compareDate.getTime() === today.getTime()) {
             const startTime = config?.startTime;
-            if (startTime) {
-                const [hours, minutes] = startTime.split(':').map(Number);
-                const startDate = new Date();
-                startDate.setHours(hours, minutes, 0, 0);
-                if (now < startDate) return true; // Booking hasn't started yet
-            }
+            // Booking should be allowed BEFORE the event starts, so we don't block if (now < startDate).
 
             const cutoff = config?.cutoffTime || event.bookingCutOffTime;
             if (cutoff) {
