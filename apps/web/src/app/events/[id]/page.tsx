@@ -123,7 +123,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-400 font-medium">Standard Access</span>
                                 <span className="text-4xl font-bold text-white">
-                                    {serializedEvent.ticketConfig.currency || '₹'} {serializedEvent.ticketConfig.price.toLocaleString()}
+                                    {serializedEvent.ticketConfig.currency || '₹'} {
+                                        serializedEvent.ticketConfig.price === 0 && serializedEvent.dailyConfig?.some((c: any) => c.price !== undefined && c.price !== null && c.price > 0)
+                                            ? 'Prices Vary'
+                                            : serializedEvent.ticketConfig.price.toLocaleString()
+                                    }
                                 </span>
                             </div>
                             {serializedEvent.ticketConfig.allDayPrice && (

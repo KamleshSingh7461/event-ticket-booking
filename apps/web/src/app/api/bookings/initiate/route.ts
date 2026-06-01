@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 // Add to sum using daily override price or base price
-                const dayPrice = config?.price || event.ticketConfig.price;
+                const dayPrice = Number(config?.price || event.ticketConfig.price || 0);
                 totalDailyPriceSum += dayPrice;
 
                 requestedDates.push(d.toDateString());

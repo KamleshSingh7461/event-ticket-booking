@@ -170,7 +170,12 @@ export default function EditEventPage() {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            ticketConfig: { ...formData.ticketConfig, [name]: value }
+            ticketConfig: { 
+                ...formData.ticketConfig, 
+                [name]: (name === 'price' || name === 'allDayPrice' || name === 'quantity') 
+                        ? (value === '' ? '' : Number(value)) 
+                        : value 
+            }
         });
     };
 

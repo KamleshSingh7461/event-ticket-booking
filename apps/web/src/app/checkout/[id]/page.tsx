@@ -216,10 +216,26 @@ export default function CheckoutPage() {
         );
     }
 
+    const calculateDailyTotal = () => {
+        if (!event || !event.ticketConfig) return 0;
+        let sum = 0;
+        for (const dateIso of selectedDates) {
+            const d = new Date(dateIso);
+            const config = event.dailyConfig?.find((c: any) => {
+                const configDate = new Date(c.date);
+                return configDate.toDateString() === d.toDateString();
+            });
+            sum += (config?.price !== undefined && config?.price !== null && config?.price !== "") 
+                    ? Number(config.price) 
+                    : Number(event.ticketConfig.price);
+        }
+        return sum * quantity;
+    };
+
     const totalPrice = event
         ? (bookingType === 'ALL_DAY' && event.ticketConfig?.allDayPrice
-            ? event.ticketConfig.allDayPrice * quantity
-            : event.ticketConfig?.price * quantity * selectedDates.length)
+            ? Number(event.ticketConfig.allDayPrice) * quantity
+            : calculateDailyTotal())
         : 0;
 
     return (
