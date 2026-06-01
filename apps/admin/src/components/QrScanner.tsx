@@ -25,6 +25,9 @@ export default function QrScanner({ onResult }: QrScannerProps) {
     const startCamera = async () => {
         console.log('📷 QR Scanner: Requesting camera access...');
         try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Camera access is not supported by your browser or connection (insecure context). Please upload a QR code image instead.');
+            }
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'environment' }
             });

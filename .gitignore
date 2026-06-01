@@ -14,8 +14,9 @@
 /coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
+.turbo/
 
 # production
 /build
@@ -32,6 +33,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!apps/web/.env.example
+!apps/admin/.env.example
 
 # vercel
 .vercel

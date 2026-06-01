@@ -4,11 +4,12 @@ import Invoice from '@/models/Invoice';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { ref: string } }
+    { params }: { params: Promise<{ ref: string }> }
 ) {
     try {
+        const { ref } = await params;
         await dbConnect();
-        const invoice = await Invoice.findOne({ bookingReference: params.ref }).lean();
+        const invoice = await Invoice.findOne({ bookingReference: ref }).lean();
 
         if (!invoice) {
             return NextResponse.json({ success: false, error: 'Invoice not found' }, { status: 404 });

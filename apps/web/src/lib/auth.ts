@@ -1,11 +1,16 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 
 export const authOptions: NextAuthOptions = {
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID || '',
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+        }),
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
@@ -44,12 +49,43 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async signIn({ user, account }) {
+            if (account?.provider === 'google') {
+                try {
+                    await dbConnect();
+                    let dbUser = await User.findOne({ email: user.email });
+                    if (!dbUser) {
+                        dbUser = await User.create({
+                            name: user.name,
+                            email: user.email,
+                            role: 'USER',
+                        });
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error in Google signIn callback:', error);
+                    return false;
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, account }) {
             if (user) {
-                token.id = user.id;
-                token.role = user.role;
-                token.name = user.name;
-                token.email = user.email;
+                if (account?.provider === 'google') {
+                    await dbConnect();
+                    const dbUser = await User.findOne({ email: user.email });
+                    if (dbUser) {
+                        token.id = dbUser._id.toString();
+                        token.role = dbUser.role;
+                        token.name = dbUser.name;
+                        token.email = dbUser.email;
+                    }
+                } else {
+                    token.id = user.id;
+                    token.role = user.role;
+                    token.name = user.name;
+                    token.email = user.email;
+                }
             }
             return token;
         },
@@ -72,4 +108,5 @@ export const authOptions: NextAuthOptions = {
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     secret: process.env.NEXTAUTH_SECRET,
+    debug: true,
 };

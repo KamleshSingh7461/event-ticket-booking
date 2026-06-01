@@ -36,7 +36,7 @@ export function Footer() {
                     <div>
                         <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-6">Contact</h4>
                         <ul className="space-y-4 text-sm text-gray-600 font-medium">
-                            <li><a href="mailto:supports@wildcardstat.com" className="hover:text-black transition-colors">supports@wildcardstat.com</a></li>
+                            <li><a href="mailto:support@wildcardstat.com" className="hover:text-black transition-colors">supports@wildcardstat.com</a></li>
                         </ul>
                     </div>
                 </div>
