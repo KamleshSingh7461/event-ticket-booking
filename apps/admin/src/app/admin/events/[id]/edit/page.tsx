@@ -278,7 +278,7 @@ export default function EditEventPage() {
         data.append('ticketConfig', JSON.stringify(formData.ticketConfig));
         data.append('subHeadings', JSON.stringify(formData.subHeadings));
         data.append('gallery', JSON.stringify(formData.gallery));
-        data.append('schedule', JSON.stringify(formData.schedule));
+        data.append('schedule', JSON.stringify(formData.schedule.filter((url: string) => url.trim() !== '')));
         data.append('dailyConfig', JSON.stringify(formData.dailyConfig));
         data.append('taxInfo', JSON.stringify(formData.taxInfo));
 

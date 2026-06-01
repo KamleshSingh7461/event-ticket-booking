@@ -245,8 +245,8 @@ export default function CreateEventPage() {
         data.append('ticketConfig', JSON.stringify(formData.ticketConfig));
         data.append('subHeadings', JSON.stringify(formData.subHeadings));
         data.append('dailyConfig', JSON.stringify(formData.dailyConfig));
-        data.append('gallery', JSON.stringify(formData.gallery));
-        data.append('scheduleImage', formData.scheduleImage);
+        data.append('gallery', JSON.stringify(formData.gallery.filter((url: string) => url.trim() !== '')));
+        data.append('schedule', JSON.stringify(formData.schedule.filter((url: string) => url.trim() !== '')));
 
         // Append Banner File if exists
         if (formData.banner instanceof File) {
