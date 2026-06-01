@@ -3,7 +3,8 @@ import dbConnect from '@/lib/db';
 import Ticket from '@/models/Ticket';
 import Event from '@/models/Event';
 import { verifyResponseHash } from '@/lib/payu';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation, sendTicketEmail, sendInvoiceEmail } from '@/lib/email';
+import QRCode from 'qrcode';
 import { createInvoiceForBooking } from '@/lib/invoice-service';
 
 export async function POST(req: NextRequest) {
@@ -59,31 +60,73 @@ export async function POST(req: NextRequest) {
 
         // 6. Generate Invoice
         let invoiceUrl = undefined;
+        let invoiceDoc: any = null;
         try {
-            const invoice = await createInvoiceForBooking(data.txnid);
-            if (invoice && invoice.pdfUrl) {
-                invoiceUrl = invoice.pdfUrl;
+            invoiceDoc = await createInvoiceForBooking(data.txnid);
+            if (invoiceDoc && invoiceDoc.pdfUrl) {
+                invoiceUrl = invoiceDoc.pdfUrl;
             }
         } catch (invErr) {
             console.error('Webhook: Invoice generation failed', invErr);
         }
 
         // 7. Send Emails (only for tickets that were pending)
-        for (const ticket of tickets) {
-            if (ticket.paymentStatus !== 'SUCCESS') {
+        
+        // 7a. Send Invoice Email (Once per transaction)
+        if (invoiceDoc && invoiceUrl) {
+            try {
+                let pdfBuffer: Buffer | undefined;
                 try {
-                    await sendBookingConfirmation({
+                    const pdfRes = await fetch(invoiceUrl);
+                    const arrayBuffer = await pdfRes.arrayBuffer();
+                    pdfBuffer = Buffer.from(arrayBuffer);
+                } catch (e) {
+                    console.error('Failed to download PDF buffer', e);
+                }
+                
+                await sendInvoiceEmail({
+                    email: tickets[0].buyerDetails.email,
+                    name: tickets[0].buyerDetails.name,
+                    invoiceNumber: invoiceDoc._id.toString().slice(-6).toUpperCase(), // Using ID as number if not present
+                    eventTitle: tickets[0].event.title,
+                    totalAmount: invoiceDoc.totalAmount,
+                    currency: invoiceDoc.currency,
+                    pdfBuffer: pdfBuffer
+                });
+            } catch (err) {
+                console.error('Webhook: Invoice Email failed', err);
+            }
+        }
+
+        // 7b. Send Ticket Emails (One for each ticket)
+        for (const ticket of tickets) {
+            if (ticket.paymentStatus !== 'SUCCESS') { // Using the in-memory state before it was updated
+                try {
+                    const qrData = JSON.stringify({
+                        t: ticket._id,
+                        e: ticket.event._id,
+                        o: ticket.otp
+                    });
+                    const qrCodeDataUrl = await QRCode.toDataURL(qrData);
+                    
+                    const eventDate = ticket.selectedDates && ticket.selectedDates.length > 0 
+                        ? new Date(ticket.selectedDates[0]).toDateString() + (ticket.selectedDates.length > 1 ? ` (+${ticket.selectedDates.length - 1} days)` : '')
+                        : new Date(ticket.event.startDate).toDateString();
+
+                    await sendTicketEmail({
                         email: ticket.buyerDetails.email,
                         name: ticket.buyerDetails.name,
-                        otp: ticket.otp,
                         eventTitle: ticket.event.title,
-                        ticketType: ticket.ticketType,
-                        bookingReference: ticket.bookingReference,
-                        quantity: tickets.length,
-                        invoiceUrl: invoiceUrl
+                        eventDate: eventDate,
+                        venue: ticket.event.venue,
+                        ticketCode: ticket._id.toString().slice(-6).toUpperCase(),
+                        qrCodeDataUrl: qrCodeDataUrl,
+                        bookingId: ticket.bookingReference,
+                        amountPaid: ticket.amountPaid,
+                        ticketLink: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/user/tickets/${ticket._id}`
                     });
                 } catch (emailErr) {
-                    console.error(`Webhook: Email failed for ticket ${ticket._id}`, emailErr);
+                    console.error(`Webhook: Ticket Email failed for ticket ${ticket._id}`, emailErr);
                 }
             }
         }

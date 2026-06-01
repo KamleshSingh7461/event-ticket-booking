@@ -3,7 +3,7 @@ import dbConnect from '@/lib/db';
 import Ticket from '@/models/Ticket';
 import Event from '@/models/Event'; // Ensure Event is registered
 import { verifyResponseHash } from '@/lib/payu';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation, sendTicketEmail, sendInvoiceEmail } from '@/lib/email';
 import { createInvoiceForBooking } from '@/lib/invoice-service';
 import QRCode from 'qrcode'; // Need to install this
 
@@ -40,30 +40,73 @@ export async function POST(req: NextRequest) {
 
                     // Generate Invoice
                     let invoiceUrl = undefined;
+                    let invoiceDoc: any = null;
                     try {
-                        const invoice = await createInvoiceForBooking(data.txnid);
-                        if (invoice && invoice.pdfUrl) {
-                            invoiceUrl = invoice.pdfUrl;
+                        invoiceDoc = await createInvoiceForBooking(data.txnid);
+                        if (invoiceDoc && invoiceDoc.pdfUrl) {
+                            invoiceUrl = invoiceDoc.pdfUrl;
                         }
                     } catch (invErr) {
                         console.error('Invoice generation failed', invErr);
                     }
 
                     // Send Emails
+                    
+                    // 1. Send Invoice Email (Once per transaction)
+                    if (invoiceDoc && invoiceUrl) {
+                        try {
+                            let pdfBuffer: Buffer | undefined;
+                            try {
+                                const pdfRes = await fetch(invoiceUrl);
+                                const arrayBuffer = await pdfRes.arrayBuffer();
+                                pdfBuffer = Buffer.from(arrayBuffer);
+                            } catch (e) {
+                                console.error('Failed to download PDF buffer', e);
+                            }
+                            
+                            await sendInvoiceEmail({
+                                email: tickets[0].buyerDetails.email,
+                                name: tickets[0].buyerDetails.name,
+                                invoiceNumber: invoiceDoc._id.toString().slice(-6).toUpperCase(), // Using ID as number if not present
+                                eventTitle: tickets[0].event.title,
+                                totalAmount: invoiceDoc.totalAmount,
+                                currency: invoiceDoc.currency,
+                                pdfBuffer: pdfBuffer
+                            });
+                        } catch (err) {
+                            console.error('Invoice Email failed', err);
+                        }
+                    }
+
+                    // 2. Send Ticket Emails (One for each ticket)
                     for (const ticket of tickets) {
                         try {
-                            await sendBookingConfirmation({
+                            // Generate QR Code data URL
+                            const qrData = JSON.stringify({
+                                t: ticket._id,
+                                e: ticket.event._id,
+                                o: ticket.otp
+                            });
+                            const qrCodeDataUrl = await QRCode.toDataURL(qrData);
+                            
+                            const eventDate = ticket.selectedDates && ticket.selectedDates.length > 0 
+                                ? new Date(ticket.selectedDates[0]).toDateString() + (ticket.selectedDates.length > 1 ? ` (+${ticket.selectedDates.length - 1} days)` : '')
+                                : new Date(ticket.event.startDate).toDateString();
+
+                            await sendTicketEmail({
                                 email: ticket.buyerDetails.email,
                                 name: ticket.buyerDetails.name,
-                                otp: ticket.otp,
                                 eventTitle: ticket.event.title,
-                                ticketType: ticket.ticketType,
-                                bookingReference: ticket.bookingReference,
-                                quantity: tickets.length, // Total quantity in this order
-                                invoiceUrl: invoiceUrl
+                                eventDate: eventDate,
+                                venue: ticket.event.venue,
+                                ticketCode: ticket._id.toString().slice(-6).toUpperCase(),
+                                qrCodeDataUrl: qrCodeDataUrl,
+                                bookingId: ticket.bookingReference,
+                                amountPaid: ticket.amountPaid,
+                                ticketLink: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/user/tickets/${ticket._id}`
                             });
                         } catch (emailErr) {
-                            console.error('Email failed', emailErr);
+                            console.error('Ticket Email failed', emailErr);
                         }
                     }
                 }
