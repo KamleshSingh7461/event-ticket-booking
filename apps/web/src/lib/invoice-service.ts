@@ -4,8 +4,6 @@ import Ticket from '@/models/Ticket';
 import Event from '@/models/Event';
 import GlobalSettings from '@/models/GlobalSettings';
 import { generateInvoicePDF } from './pdf-generator';
-import { uploadToCloudinary } from './cloudinary-upload';
-
 export async function createInvoiceForBooking(txnid: string) {
     await dbConnect();
 
@@ -126,11 +124,27 @@ export async function createInvoiceForBooking(txnid: string) {
 
     let uploadResult = { secure_url: '' };
     try {
-        const fileStr = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
-        uploadResult = await uploadToCloudinary(fileStr, 'invoices');
+        const fs = require('fs');
+        const path = require('path');
+        const invoicesDir = path.join(process.cwd(), 'public', 'uploads', 'invoices');
+        
+        // Ensure directory exists
+        if (!fs.existsSync(invoicesDir)) {
+            fs.mkdirSync(invoicesDir, { recursive: true });
+        }
+        
+        const fileName = `INV-${txnid}-${Date.now()}.pdf`;
+        const filePath = path.join(invoicesDir, fileName);
+        
+        // Write buffer to file
+        fs.writeFileSync(filePath, pdfBuffer);
+        
+        // Construct public URL
+        uploadResult.secure_url = `/uploads/invoices/${fileName}`;
+        console.log(`Successfully saved invoice locally: ${uploadResult.secure_url}`);
     } catch (e) {
-        console.error('Error uploading Invoice PDF to Cloudinary:', e);
-        // We will continue even if upload fails so the invoice document is saved!
+        console.error('Error saving Invoice PDF to local storage:', e);
+        // We will continue even if save fails so the invoice document is saved!
     }
 
     try {
