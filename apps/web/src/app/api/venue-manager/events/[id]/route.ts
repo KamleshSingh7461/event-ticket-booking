@@ -134,6 +134,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             updateData['ticketConfig.price'] = ticketConfig.price;
             updateData['ticketConfig.quantity'] = ticketConfig.quantity;
             updateData['ticketConfig.dateSpecificCapacities'] = ticketConfig.dateSpecificCapacities || {};
+            if (ticketConfig.allDayPrice !== undefined) {
+                updateData['ticketConfig.allDayPrice'] = ticketConfig.allDayPrice;
+            }
         }
 
         // Add assignedCoordinators if provided
