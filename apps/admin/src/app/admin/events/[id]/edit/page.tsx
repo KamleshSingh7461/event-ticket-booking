@@ -74,7 +74,7 @@ export default function EditEventPage() {
 
     const fetchEventDetails = async () => {
         try {
-            const res = await fetch(`/api/events/${params.id}`);
+            const res = await fetch(`/api/events/${params.id}?t=${Date.now()}`);
             const data = await res.json();
             if (data.success) {
                 const event = data.data;

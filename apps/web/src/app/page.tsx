@@ -133,7 +133,15 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.map((event) => (
+              {events.map((event) => {
+                const getDisplayPrice = (evt: any) => {
+                  if (evt.ticketConfig?.price === 0 && evt.dailyConfig?.some((c: any) => c.price !== undefined && c.price !== null && c.price > 0)) {
+                    return 'Starts from ₹' + Math.min(...evt.dailyConfig.filter((c: any) => c.price > 0).map((c: any) => c.price)).toLocaleString();
+                  }
+                  return '₹' + (evt.ticketConfig?.price || 0).toLocaleString();
+                };
+
+                return (
                 <Link key={event._id} href={event.isSoldOut ? '#' : `/events/${event._id}`} className={event.isSoldOut ? 'cursor-not-allowed opacity-60' : 'group'}>
                   <Card className="h-full bg-[#111111] border border-white/10 hover:border-[#AE8638]/50 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-[0_10px_40px_rgba(174,134,56,0.15)] flex flex-col hover:-translate-y-2">
                     <div className="relative h-64 overflow-hidden bg-black">
@@ -188,7 +196,7 @@ export default function HomePage() {
                         
                         <div className="flex justify-between items-center pt-4">
                           <span className="text-2xl font-bold text-white">
-                            ₹{event.ticketConfig?.price?.toLocaleString()}
+                            {getDisplayPrice(event)}
                           </span>
                           {!event.isSoldOut && (
                              <div className="w-10 h-10 rounded-full border border-[#AE8638]/30 flex items-center justify-center group-hover:bg-[#AE8638] group-hover:text-black transition-colors">
@@ -200,7 +208,8 @@ export default function HomePage() {
                     </CardContent>
                   </Card>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
