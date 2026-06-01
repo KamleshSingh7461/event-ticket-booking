@@ -249,6 +249,20 @@ export async function POST(req: NextRequest) {
 
         await Ticket.insertMany(tickets);
 
+        // Bypass PayU if event is FREE (totalAmount is 0)
+        if (totalAmount <= 0) {
+            await Ticket.updateMany({ bookingReference: txnid }, { $set: { paymentStatus: 'SUCCESS', amountPaid: 0 } });
+            
+            // Note: We don't need to generate the invoice here, because the user dashboard will auto-generate it!
+            
+            return NextResponse.json({
+                success: true,
+                freeBooking: true,
+                txnid: txnid,
+                redirectUrl: `/payment/success?txnid=${txnid}`
+            });
+        }
+
         // PayU Params (Use totalAmount)
         const payuConfig = {
             key: process.env.PAYU_KEY || 'JPM7Fg',

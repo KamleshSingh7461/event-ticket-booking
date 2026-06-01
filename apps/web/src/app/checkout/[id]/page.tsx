@@ -180,7 +180,11 @@ export default function CheckoutPage() {
             const data = await res.json();
 
             if (data.success) {
-                setPayuParams(data.payuParams);
+                if (data.freeBooking) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    setPayuParams(data.payuParams);
+                }
             } else {
                 toast.error('Booking failed: ' + data.error);
                 setLoading(false);
