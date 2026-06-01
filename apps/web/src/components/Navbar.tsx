@@ -43,21 +43,27 @@ export function Navbar() {
 
     return (
         <>
-            <nav className="border-b border-white/5 bg-[#0A0A0A]/80 backdrop-blur-xl text-white sticky top-0 z-50">
-                <div className="container flex h-20 items-center justify-between">
+            <nav className="border-b border-white/5 bg-[#0A0A0A]/70 backdrop-blur-2xl text-white sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+                <div className="container flex h-16 md:h-20 items-center justify-between px-4 md:px-8">
                     <div className="flex items-center gap-2">
-                        <Link href="/" className="flex items-center space-x-3 group z-50 relative">
-                            <img src="https://res.cloudinary.com/desdbjzzt/image/upload/v1777203252/logo_yswfeg.png" alt="WYLDCARD Logo" className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
-                            <div className="hidden sm:flex flex-col">
-                                <span className="text-base font-black tracking-widest text-white uppercase leading-none">WYLDCARD</span>
-                                <span className="text-[10px] font-semibold tracking-[0.3em] text-[#AE8638] uppercase">Stats</span>
+                        <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group z-50 relative">
+                            <img src="https://res.cloudinary.com/desdbjzzt/image/upload/v1777203252/logo_yswfeg.png" alt="WYLDCARD Logo" className="h-8 md:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
+                            <div className="flex flex-col">
+                                <span className="text-sm md:text-base font-black tracking-widest text-white uppercase leading-none">WYLDCARD</span>
+                                <span className="text-[8px] md:text-[10px] font-semibold tracking-[0.3em] text-[#AE8638] uppercase mt-0.5">Stats</span>
                             </div>
                         </Link>
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <button className="md:hidden p-2 text-white hover:text-[#AE8638] transition-colors z-50 relative" onClick={toggleMenu}>
-                        {isMenuOpen ? <X className="h-8 w-8" /> : <Menu className="h-8 w-8" />}
+                    {/* Modern Animated Mobile Menu Button */}
+                    <button 
+                        className="md:hidden p-2 flex flex-col justify-center items-center w-10 h-10 gap-1.5 z-50 relative group outline-none" 
+                        onClick={toggleMenu}
+                        aria-label="Toggle Menu"
+                    >
+                        <span className={`block w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-2 bg-[#AE8638]' : ''}`} />
+                        <span className={`block w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-0 translate-x-2' : ''}`} />
+                        <span className={`block w-6 h-0.5 bg-white rounded-full transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 -translate-y-2 bg-[#AE8638]' : ''}`} />
                     </button>
 
                     {/* Desktop Menu */}
@@ -111,20 +117,26 @@ export function Navbar() {
                 </div>
             </nav>
 
-            {/* Mobile Menu Full Screen Overlay */}
-            <div className={`md:hidden fixed inset-0 z-40 bg-[#0A0A0A] text-white transition-all duration-500 ease-in-out ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-                <div className="flex flex-col h-full pt-28 pb-10 px-6 overflow-y-auto">
-                    <div className="flex flex-col space-y-8 flex-grow">
-                        <Link href="/events" className="text-4xl font-black text-white hover:text-[#AE8638] transition-colors uppercase tracking-widest flex items-center justify-between group" onClick={toggleMenu}>
+            {/* Mobile Menu Sleek Overlay */}
+            <div 
+                className={`md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-md transition-all duration-500 ease-in-out ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} 
+                onClick={toggleMenu} 
+            />
+            <div 
+                className={`md:hidden fixed top-0 right-0 h-full w-[85vw] max-w-sm z-50 bg-[#0A0A0A]/95 backdrop-blur-3xl border-l border-white/10 text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+            >
+                <div className="flex flex-col h-full pt-24 pb-10 px-8 overflow-y-auto">
+                    <div className="flex flex-col space-y-6 flex-grow">
+                        <Link href="/events" className="text-3xl font-black text-white hover:text-[#AE8638] transition-colors uppercase tracking-widest flex items-center justify-between group" onClick={toggleMenu}>
                             <span>Directory</span>
-                            <ArrowRight className="w-8 h-8 text-[#AE8638] opacity-50 group-hover:opacity-100 transition-opacity" />
+                            <ArrowRight className="w-6 h-6 text-[#AE8638] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                         </Link>
-                        <div className="w-full h-px bg-white/10" />
-                        <Link href="/about" className="text-4xl font-black text-white hover:text-[#AE8638] transition-colors uppercase tracking-widest flex items-center justify-between group" onClick={toggleMenu}>
+                        <div className="w-full h-px bg-gradient-to-r from-white/10 to-transparent" />
+                        <Link href="/about" className="text-3xl font-black text-white hover:text-[#AE8638] transition-colors uppercase tracking-widest flex items-center justify-between group" onClick={toggleMenu}>
                             <span>Company</span>
-                            <ArrowRight className="w-8 h-8 text-[#AE8638] opacity-50 group-hover:opacity-100 transition-opacity" />
+                            <ArrowRight className="w-6 h-6 text-[#AE8638] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                         </Link>
-                        <div className="w-full h-px bg-white/10" />
+                        <div className="w-full h-px bg-gradient-to-r from-white/10 to-transparent" />
                     </div>
 
                     <div className="pt-8">
@@ -133,21 +145,21 @@ export function Navbar() {
                         ) : session ? (
                             <div className="flex flex-col gap-4">
                                 <div className="mb-4">
-                                    <p className="text-[#AE8638] text-xs font-bold uppercase tracking-widest mb-2">Signed in as</p>
-                                    <div className="flex items-center gap-4 border border-white/10 rounded-xl p-4 bg-white/5">
-                                        <Avatar className="h-10 w-10 rounded-full border border-[#AE8638]">
-                                            <AvatarFallback className="bg-transparent text-[#AE8638] font-bold">
+                                    <p className="text-[#AE8638] text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Signed in as</p>
+                                    <div className="flex items-center gap-4 border border-white/10 rounded-2xl p-4 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-lg">
+                                        <Avatar className="h-12 w-12 rounded-full border border-[#AE8638] shadow-[0_0_15px_rgba(174,134,56,0.3)]">
+                                            <AvatarFallback className="bg-black text-[#AE8638] font-bold text-lg">
                                                 {session.user.name?.charAt(0).toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-bold text-lg">{session.user.name}</div>
-                                            <div className="text-[10px] text-gray-400 uppercase tracking-widest">{session.user.role}</div>
+                                            <div className="font-bold text-lg tracking-wide">{session.user.name}</div>
+                                            <div className="text-[10px] text-[#AE8638] uppercase tracking-[0.1em]">{session.user.role}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <a href={getDashboardLink()} onClick={toggleMenu}>
-                                    <Button size="lg" className="w-full justify-center bg-[#AE8638] text-black hover:bg-[#F7EF8A] rounded-xl uppercase tracking-widest text-sm font-black h-16 shadow-[0_0_20px_rgba(174,134,56,0.3)]">
+                                    <Button size="lg" className="w-full justify-center bg-[#AE8638] text-black hover:bg-[#F7EF8A] rounded-xl uppercase tracking-widest text-xs font-black h-14 shadow-[0_4px_20px_rgba(174,134,56,0.25)] transition-all active:scale-95">
                                         Go to Dashboard
                                     </Button>
                                 </a>
@@ -158,7 +170,7 @@ export function Navbar() {
                                         signOut({ callbackUrl: '/' });
                                         toggleMenu();
                                     }}
-                                    className="w-full justify-center gap-2 border-white/20 text-red-400 bg-transparent hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/50 rounded-xl uppercase tracking-widest text-xs font-bold h-14 mt-4"
+                                    className="w-full justify-center gap-2 border-white/10 text-red-400 bg-black/40 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/30 rounded-xl uppercase tracking-widest text-xs font-bold h-12 mt-2 transition-all active:scale-95"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     <span>Logout</span>
@@ -167,12 +179,12 @@ export function Navbar() {
                         ) : (
                             <div className="flex flex-col gap-4">
                                 <Link href="/login" onClick={toggleMenu} className="w-full">
-                                    <Button variant="outline" size="lg" className="w-full rounded-xl border-white/20 text-white bg-transparent hover:bg-white/10 uppercase tracking-widest text-sm font-bold h-16">
+                                    <Button variant="outline" size="lg" className="w-full rounded-xl border-white/20 text-white bg-black/40 backdrop-blur-md hover:bg-white/10 uppercase tracking-widest text-xs font-bold h-14 transition-all active:scale-95">
                                         Sign In
                                     </Button>
                                 </Link>
                                 <Link href="/register" onClick={toggleMenu} className="w-full">
-                                    <Button size="lg" className="w-full rounded-xl bg-[#AE8638] text-black hover:bg-[#F7EF8A] uppercase tracking-widest text-sm font-black h-16 shadow-[0_0_20px_rgba(174,134,56,0.3)]">
+                                    <Button size="lg" className="w-full rounded-xl bg-[#AE8638] text-black hover:bg-[#F7EF8A] uppercase tracking-widest text-xs font-black h-14 shadow-[0_4px_20px_rgba(174,134,56,0.25)] transition-all active:scale-95">
                                         Get Started
                                     </Button>
                                 </Link>
