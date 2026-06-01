@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        await Ticket.insertMany(tickets);
+        const insertedTickets = await Ticket.insertMany(tickets);
 
         // Bypass PayU if event is FREE (totalAmount is 0)
         if (totalAmount <= 0) {
@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
                 success: true,
                 freeBooking: true,
                 txnid: txnid,
-                redirectUrl: `/booking/confirmation?id=${tickets[0]._id}`
+                redirectUrl: `/booking/confirmation?id=${insertedTickets[0]._id}`
             });
         }
 
