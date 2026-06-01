@@ -94,61 +94,8 @@ export async function createInvoiceForBooking(txnid: string) {
         gstRate: 18
     };
 
-    // Generate PDF
-    let pdfBuffer: Buffer;
     try {
-        pdfBuffer = await generateInvoicePDF({
-            invoiceNumber: '', // Handled by pre-save
-            invoiceDate: new Date(),
-            bookingReference: txnid,
-            seller,
-            customer,
-            event: {
-                title: event.title,
-                dates: firstTicket.selectedDates?.map((d: Date) => new Date(d).toLocaleDateString()) || [],
-                hsnCode: event.taxInfo?.hsnCode || '998599'
-            },
-            items,
-            subtotal,
-            gstAmount: gstTotal,
-            taxBreakdown,
-            totalAmount: grandTotal,
-            currency: event.ticketConfig?.currency || 'INR',
-            paymentMethod: 'PayU',
-            transactionId: firstTicket.payuTransactionId
-        });
-    } catch (e) {
-        console.error('Error generating Invoice PDF buffer:', e);
-        throw e;
-    }
-
-    let uploadResult = { secure_url: '' };
-    try {
-        const fs = require('fs');
-        const path = require('path');
-        const invoicesDir = path.join(process.cwd(), 'public', 'uploads', 'invoices');
-        
-        // Ensure directory exists
-        if (!fs.existsSync(invoicesDir)) {
-            fs.mkdirSync(invoicesDir, { recursive: true });
-        }
-        
-        const fileName = `INV-${txnid}-${Date.now()}.pdf`;
-        const filePath = path.join(invoicesDir, fileName);
-        
-        // Write buffer to file
-        fs.writeFileSync(filePath, pdfBuffer);
-        
-        // Construct public URL
-        uploadResult.secure_url = `/uploads/invoices/${fileName}`;
-        console.log(`Successfully saved invoice locally: ${uploadResult.secure_url}`);
-    } catch (e) {
-        console.error('Error saving Invoice PDF to local storage:', e);
-        // We will continue even if save fails so the invoice document is saved!
-    }
-
-    try {
-        // Save Invoice
+        // Save Invoice (No PDF generation needed, we rely on dynamic HTML invoices)
         const invoice = await Invoice.create({
             bookingReference: txnid,
             user: user,
@@ -163,7 +110,6 @@ export async function createInvoiceForBooking(txnid: string) {
             customerInfo: customer,
             paymentMethod: 'PayU',
             payuTransactionId: firstTicket.payuTransactionId,
-            pdfUrl: uploadResult.secure_url || undefined,
             status: 'PAID'
         });
 
