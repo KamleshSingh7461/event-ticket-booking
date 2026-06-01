@@ -102,8 +102,16 @@ export default function CheckoutPage() {
         if (event.isSoldOut) return true;
         if (config?.isSoldOut) return true;
 
-        // 3. Cutoff Time (If date is today)
+        // 3. Start / Cutoff Time (If date is today)
         if (compareDate.getTime() === today.getTime()) {
+            const startTime = config?.startTime;
+            if (startTime) {
+                const [hours, minutes] = startTime.split(':').map(Number);
+                const startDate = new Date();
+                startDate.setHours(hours, minutes, 0, 0);
+                if (now < startDate) return true; // Booking hasn't started yet
+            }
+
             const cutoff = config?.cutoffTime || event.bookingCutOffTime;
             if (cutoff) {
                 const [hours, minutes] = cutoff.split(':').map(Number);
@@ -144,13 +152,10 @@ export default function CheckoutPage() {
     // Effect to handle booking type changes (Auto select all dates for ALL_DAY)
     useEffect(() => {
         if (bookingType === 'ALL_DAY' && availableDates.length > 0) {
-            // For All Day, we only select valid dates, but wait, usually all day implies all?
-            // If some dates are sold out, maybe Season Pass shouldn't be available or should exclude them.
-            // Requirement says "all day combined ticket", let's select only valid ones.
             const validDates = availableDates.filter(d => !isDateDisabled(d)).map(d => d.toISOString());
             setSelectedDates(validDates);
         } else if (bookingType === 'DAILY') {
-            setSelectedDates([]); // Reset or keep? Resetting is safer to avoid confusion
+            setSelectedDates([]);
         }
     }, [bookingType, availableDates]);
 
@@ -193,18 +198,18 @@ export default function CheckoutPage() {
 
     if (status === 'loading') {
         return (
-            <div className="flex h-screen items-center justify-center bg-gray-50">
-                <div className="animate-spin h-8 w-8 border-4 border-black border-t-transparent rounded-full"></div>
+            <div className="flex h-screen items-center justify-center bg-[#0A0A0A]">
+                <div className="animate-spin h-8 w-8 border-4 border-[#AE8638] border-t-transparent rounded-full"></div>
             </div>
         );
     }
 
     if (payuParams) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <p className="text-lg mb-4">Redirecting to Payment Gateway...</p>
-                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <div className="flex h-screen items-center justify-center bg-[#0A0A0A] text-white">
+                <div className="text-center bg-[#111] p-12 border border-white/10 rounded-2xl shadow-[0_0_30px_rgba(174,134,56,0.15)]">
+                    <p className="text-xl font-bold mb-6 text-[#AE8638]">Redirecting to Secure Payment Gateway</p>
+                    <div className="animate-spin h-10 w-10 border-4 border-[#AE8638] border-t-transparent rounded-full mx-auto"></div>
                 </div>
                 <PayUForm action={payuParams.action} params={payuParams.params} />
             </div>
@@ -218,80 +223,84 @@ export default function CheckoutPage() {
         : 0;
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-white selection:bg-[#AE8638] selection:text-black">
             <Navbar />
 
             {event && (
-                <div className="relative h-56 md:h-80 w-full overflow-hidden bg-gray-900 text-white">
+                <div className="relative h-64 md:h-[400px] w-full overflow-hidden bg-black">
                     {/* Background Image */}
                     {event.banner ? (
                         <div
-                            className="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-80"
+                            className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-screen"
                             style={{ backgroundImage: `url(${event.banner})` }}
                         />
                     ) : (
-                        <div className="absolute inset-0 bg-gray-200" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/50 to-transparent" />
 
                     {/* Overlay Content */}
-                    <div className="absolute inset-0 flex flex-col justify-end pb-8 md:pb-12">
+                    <div className="absolute inset-0 flex flex-col justify-end pb-12 pt-24 z-10">
                         <div className="container px-4">
-                            <div className="mb-4">
-                                <BackButton className="text-black hover:text-gray-600 bg-white hover:bg-gray-50 p-2 rounded-none transition-colors border border-gray-200 shadow-sm" />
+                            <div className="mb-6">
+                                <BackButton className="text-white hover:text-black bg-white/10 backdrop-blur-md hover:bg-[#AE8638] p-2 rounded-full transition-colors border border-white/20 shadow-lg" />
                             </div>
-                            <h1 className="text-3xl md:text-5xl font-medium mb-2 tracking-tight drop-shadow-md leading-tight">{event.title}</h1>
-                            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-white/90 text-sm md:text-base font-light">
+                            <span className="bg-[#AE8638]/20 text-[#AE8638] border border-[#AE8638]/50 backdrop-blur-md w-fit px-3 py-1 rounded-full text-[10px] font-bold mb-4 uppercase tracking-widest block">
+                                Checkout
+                            </span>
+                            <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tighter drop-shadow-md leading-tight text-white">{event.title}</h1>
+                            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-gray-300 text-sm md:text-base font-medium">
                                 <span>{new Date(event.startDate).toDateString()} - {new Date(event.endDate).toDateString()}</span>
-                                {event.venue && <span className="hidden md:inline">• {event.venue}</span>}
-                                {event.venue && <span className="md:hidden text-white/80">{event.venue}</span>}
+                                {event.venue && <span className="hidden md:inline text-[#AE8638]">• {event.venue}</span>}
+                                {event.venue && <span className="md:hidden text-[#AE8638]">{event.venue}</span>}
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            <main className="container px-4 py-8 md:py-16 flex flex-col items-center -mt-8 md:-mt-12 relative z-10">
-                <Card className="w-full max-w-xl shadow-sm border border-gray-200 bg-white rounded-none">
-                    <CardHeader className="border-b border-gray-100 pb-6 text-center">
-                        <CardTitle className="text-2xl font-semibold text-black tracking-tight">Complete Registration</CardTitle>
+            <main className="container px-4 py-8 md:py-16 flex flex-col items-center -mt-12 relative z-20">
+                <Card className="w-full max-w-xl bg-[#111111] border border-white/10 shadow-[0_0_40px_rgba(174,134,56,0.1)] rounded-2xl overflow-hidden backdrop-blur-xl">
+                    <CardHeader className="border-b border-white/10 bg-black/40 pb-6 pt-8 text-center">
+                        <CardTitle className="text-2xl font-bold text-white tracking-tight">Complete Registration</CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-8">
+                    <CardContent className="pt-8 px-6 md:px-10">
                         {event && (
                             <div className="mb-8">
                                 {/* Booking Type Selection */}
                                 {event.ticketConfig?.allDayPrice && (
-                                    <div className="mb-8 bg-gray-50 p-6 border border-gray-200">
-                                        <Label className="text-black mb-4 block text-xs uppercase tracking-widest font-bold">Select Access Type</Label>
+                                    <div className="mb-8 bg-black/30 p-6 border border-white/10 rounded-xl">
+                                        <Label className="text-[#AE8638] mb-4 block text-xs uppercase tracking-widest font-bold">Select Access Type</Label>
                                                 <RadioGroup
                                                     value={bookingType}
                                                     onValueChange={(v: any) => setBookingType(v)}
                                                     className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                                                 >
                                                     <div className={`
-                                                            flex items-center space-x-3 border rounded-none p-4 cursor-pointer transition-all
-                                                            ${bookingType === 'DAILY' ? 'border-black bg-white shadow-sm ring-1 ring-black' : 'border-gray-200 bg-white hover:border-gray-300'}
+                                                            flex items-center space-x-3 border rounded-xl p-4 cursor-pointer transition-all
+                                                            ${bookingType === 'DAILY' ? 'border-[#AE8638] bg-[#AE8638]/10 shadow-[0_0_15px_rgba(174,134,56,0.2)] ring-1 ring-[#AE8638]' : 'border-white/20 bg-black/50 hover:border-white/40'}
                                                         `}>
-                                                        <RadioGroupItem value="DAILY" id="daily" className="text-black border-gray-300" />
-                                                        <Label htmlFor="daily" className="cursor-pointer text-black font-semibold">Daily Pass</Label>
+                                                        <RadioGroupItem value="DAILY" id="daily" className={`border-white/40 ${bookingType === 'DAILY' ? 'text-[#AE8638] border-[#AE8638]' : ''}`} />
+                                                        <Label htmlFor="daily" className="cursor-pointer text-white font-bold">Daily Pass</Label>
                                                     </div>
                                                     <div className={`
-                                                            flex items-center space-x-3 border rounded-none p-4 transition-all relative
-                                                            ${availableDates.some(d => isDateDisabled(d)) ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50' : 'cursor-pointer ' + (bookingType === 'ALL_DAY' ? 'border-black bg-white shadow-sm ring-1 ring-black' : 'border-gray-200 bg-white hover:border-gray-300')}
+                                                            flex items-center space-x-3 border rounded-xl p-4 transition-all relative
+                                                            ${availableDates.some(d => isDateDisabled(d)) ? 'opacity-50 cursor-not-allowed border-white/10 bg-black' : 'cursor-pointer ' + (bookingType === 'ALL_DAY' ? 'border-[#AE8638] bg-[#AE8638]/10 shadow-[0_0_15px_rgba(174,134,56,0.2)] ring-1 ring-[#AE8638]' : 'border-white/20 bg-black/50 hover:border-white/40')}
                                                         `}>
                                                         <RadioGroupItem 
                                                             value="ALL_DAY" 
                                                             id="allday" 
                                                             disabled={availableDates.some(d => isDateDisabled(d))}
-                                                            className="text-black border-gray-300" 
+                                                            className={`border-white/40 ${bookingType === 'ALL_DAY' ? 'text-[#AE8638] border-[#AE8638]' : ''}`} 
                                                         />
-                                                        <Label htmlFor="allday" className={`text-black font-semibold ${availableDates.some(d => isDateDisabled(d)) ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                        <Label htmlFor="allday" className={`text-white font-bold ${availableDates.some(d => isDateDisabled(d)) ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                                                             Season Pass
-                                                            <span className="block text-sm text-gray-500 font-normal mt-1">
+                                                            <span className="block text-sm text-[#AE8638] font-medium mt-1">
                                                                 {event.ticketConfig.currency} {event.ticketConfig.allDayPrice}
                                                             </span>
                                                         </Label>
                                                         {availableDates.some(d => isDateDisabled(d)) && (
-                                                            <span className="absolute -bottom-2.5 right-2 bg-red-100 text-red-600 px-2 py-0.5 text-[10px] font-bold uppercase whitespace-nowrap border border-red-200">Unavailable</span>
+                                                            <span className="absolute -top-3 -right-3 bg-red-950/80 text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border border-red-500/50 backdrop-blur-md">Unavailable</span>
                                                         )}
                                                     </div>
                                                 </RadioGroup>
@@ -299,22 +308,22 @@ export default function CheckoutPage() {
                                 )}
 
                                 {/* Date Selection Grid */}
-                                <div className="mt-4">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <Label className="text-black text-xs uppercase tracking-widest font-bold">Select Dates</Label>
+                                <div className="mt-6">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <Label className="text-[#AE8638] text-xs uppercase tracking-widest font-bold">Select Dates</Label>
                                         {bookingType === 'DAILY' && (
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={selectAllDates}
-                                                className="text-black hover:bg-gray-100 h-8 px-3 rounded-none border border-gray-200 text-xs font-semibold"
+                                                className="text-white hover:text-black hover:bg-[#AE8638] h-8 px-4 rounded-lg border border-white/20 text-xs font-bold transition-colors"
                                             >
                                                 {selectedDates.length === availableDates.length ? 'Clear All' : 'Select All'}
                                             </Button>
                                         )}
                                     </div>
 
-                                    <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${bookingType === 'ALL_DAY' ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${bookingType === 'ALL_DAY' ? 'opacity-60 pointer-events-none' : ''}`}>
                                         {availableDates.map((date) => {
                                             const iso = date.toISOString();
                                             const isSelected = selectedDates.includes(iso);
@@ -332,94 +341,97 @@ export default function CheckoutPage() {
                                                     key={iso}
                                                     onClick={() => !disabled && toggleDate(iso)}
                                                     className={`
-                                                        relative rounded-none border p-3 text-center transition-all
+                                                        relative rounded-xl border p-4 text-center transition-all duration-300
                                                         ${isPast
-                                                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                            ? 'bg-black/50 text-gray-600 border-white/5 cursor-not-allowed'
                                                             : disabled 
-                                                                ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed grayscale' 
+                                                                ? 'bg-black/50 text-gray-600 border-white/5 cursor-not-allowed' 
                                                                 : isSelected
-                                                                    ? 'bg-black text-white border-black shadow-sm font-bold cursor-pointer ring-1 ring-black'
-                                                                    : 'bg-white hover:bg-gray-50 text-black border-gray-200 hover:border-gray-300 cursor-pointer'
+                                                                    ? 'bg-[#AE8638] text-black border-[#AE8638] shadow-[0_0_15px_rgba(174,134,56,0.4)] font-bold cursor-pointer'
+                                                                    : 'bg-black/40 hover:bg-white/10 text-white border-white/10 hover:border-[#AE8638]/50 cursor-pointer'
                                                         }
                                                     `}
                                                 >
-                                                    <div className="text-lg leading-none mb-1">{date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
-                                                    <div className="text-xs font-normal uppercase tracking-wider">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                                                    <div className="text-xl leading-none mb-1 font-bold">{date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+                                                    <div className={`text-xs font-medium uppercase tracking-wider ${isSelected ? 'text-black/70' : 'text-gray-400'}`}>{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                                                     
                                                     {isPast ? (
-                                                        <span className="absolute -top-2 -right-2 bg-gray-200 text-[9px] text-gray-600 px-1.5 py-0.5 uppercase font-bold border border-gray-300">Locked</span>
+                                                        <span className="absolute -top-2 -right-2 bg-gray-800 text-[9px] text-gray-400 px-2 py-0.5 uppercase tracking-wider font-bold rounded-full border border-gray-600">Locked</span>
                                                     ) : disabled && (
-                                                        <span className="absolute -top-2 -right-2 bg-red-600 text-[9px] text-white px-1.5 py-0.5 uppercase font-bold shadow-sm">Sold Out</span>
+                                                        <span className="absolute -top-2 -right-2 bg-red-950/90 text-[9px] text-red-400 px-2 py-0.5 uppercase tracking-wider font-bold shadow-lg rounded-full border border-red-500/50 backdrop-blur-md">Sold Out</span>
                                                     )}
                                                 </div>
                                             );
                                         })}
                                     </div>
                                     {bookingType === 'ALL_DAY' && (
-                                        <p className="text-xs text-gray-500 mt-3 font-medium">* All dates are included in the Season Pass.</p>
+                                        <p className="text-xs text-[#AE8638] mt-4 font-medium flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[#AE8638]"></span>
+                                            All dates are included in the Season Pass.
+                                        </p>
                                     )}
                                     {bookingType === 'DAILY' && selectedDates.length === 0 && (
-                                        <p className="text-xs text-red-600 mt-3 font-medium">Please select at least one date to continue.</p>
+                                        <p className="text-xs text-red-400 mt-4 font-medium bg-red-950/30 p-2 rounded border border-red-900/50 inline-block">Please select at least one date to continue.</p>
                                     )}
                                 </div>
 
                                 {selectedDates.length > 0 && (
                                     <>
-                                        <div className="mt-10 flex items-center justify-between border-t border-gray-100 pt-6">
-                                    <Label className="text-black text-xs uppercase tracking-widest font-bold">Quantity</Label>
-                                    <div className="flex items-center gap-3">
+                                        <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
+                                    <Label className="text-[#AE8638] text-xs uppercase tracking-widest font-bold">Quantity</Label>
+                                    <div className="flex items-center gap-4 bg-black/40 border border-white/10 rounded-xl p-1">
                                         <Button
                                             type="button"
-                                            variant="outline"
+                                            variant="ghost"
                                             size="icon"
                                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            className="border-gray-200 text-black hover:bg-gray-100 rounded-none h-10 w-10"
+                                            className="text-white hover:bg-white/10 hover:text-[#AE8638] rounded-lg h-10 w-10"
                                         >-</Button>
-                                        <span className="w-8 text-center font-bold text-xl text-black">{quantity}</span>
+                                        <span className="w-8 text-center font-bold text-2xl text-white">{quantity}</span>
                                         <Button
                                             type="button"
-                                            variant="outline"
+                                            variant="ghost"
                                             size="icon"
                                             onClick={() => setQuantity(Math.min(10, quantity + 1))}
-                                            className="border-gray-200 text-black hover:bg-gray-100 rounded-none h-10 w-10"
+                                            className="text-white hover:bg-white/10 hover:text-[#AE8638] rounded-lg h-10 w-10"
                                         >+</Button>
                                     </div>
                                 </div>
 
-                                <div className="mt-8 space-y-3 bg-gray-50 border border-gray-200 p-6">
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                <div className="mt-8 space-y-4 bg-black/40 border border-white/10 rounded-xl p-6">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>Type:</span>
-                                        <span className="text-black">{bookingType === 'ALL_DAY' ? 'Season Pass' : 'Daily Pass'}</span>
+                                        <span className="text-white">{bookingType === 'ALL_DAY' ? 'Season Pass' : 'Daily Pass'}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>{bookingType === 'ALL_DAY' ? 'Pass Price:' : 'Price per Day:'}</span>
-                                        <span className="text-black">
+                                        <span className="text-white">
                                             {event.ticketConfig?.currency} {bookingType === 'ALL_DAY' ? event.ticketConfig?.allDayPrice : event.ticketConfig?.price}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>Selected Days:</span>
-                                        <span className="text-black">{selectedDates.length}</span>
+                                        <span className="text-white">{selectedDates.length}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>Quantity:</span>
-                                        <span className="text-black">{quantity}</span>
+                                        <span className="text-white">{quantity}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium pt-2 border-t border-gray-200 mt-2">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium pt-3 border-t border-white/10 mt-3">
                                         <span>Base Price:</span>
-                                        <span className="text-black">{event.ticketConfig?.currency} {totalPrice.toFixed(2)}</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {totalPrice.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>Convenience Fee (3%):</span>
-                                        <span className="text-black">{event.ticketConfig?.currency} {(totalPrice * 0.03).toFixed(2)}</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {(totalPrice * 0.03).toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 font-medium">
+                                    <div className="flex justify-between text-sm text-gray-400 font-medium">
                                         <span>GST (18%):</span>
-                                        <span className="text-black">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 0.18).toFixed(2)}</span>
+                                        <span className="text-white">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 0.18).toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between font-bold text-xl pt-4 border-t border-black mt-2 text-black">
+                                    <div className="flex justify-between font-bold text-2xl pt-5 border-t border-white/20 mt-3 text-white">
                                         <span>Total:</span>
-                                        <span>{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}</span>
+                                        <span className="text-[#AE8638]">{event.ticketConfig?.currency} {((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}</span>
                                     </div>
                                 </div>
                                     </>
@@ -428,23 +440,24 @@ export default function CheckoutPage() {
                         )}
 
                         {event && selectedDates.length > 0 && (
-                            <form onSubmit={handleSubmit} className="space-y-5 border-t border-gray-100 pt-8 mt-8">
-                            <h3 className="text-lg font-semibold text-black uppercase tracking-widest mb-4">Attendee Information</h3>
+                            <form onSubmit={handleSubmit} className="space-y-6 border-t border-white/10 pt-10 mt-10">
+                            <h3 className="text-xl font-bold text-white uppercase tracking-widest mb-6 border-l-4 border-[#AE8638] pl-3">Attendee Information</h3>
+                            
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-black font-semibold uppercase tracking-wider text-xs">Full Name</Label>
+                                <Label htmlFor="name" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Full Name</Label>
                                 <Input
                                     id="name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
                                     placeholder="John Doe"
-                                    className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
+                                    className="bg-black/50 border-white/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="age" className="text-black font-semibold uppercase tracking-wider text-xs">Age</Label>
+                                    <Label htmlFor="age" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Age</Label>
                                     <Input
                                         id="age"
                                         type="number"
@@ -452,26 +465,26 @@ export default function CheckoutPage() {
                                         onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                                         required
                                         placeholder="25"
-                                        className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
+                                        className="bg-black/50 border-white/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="gender" className="text-black font-semibold uppercase tracking-wider text-xs">Gender</Label>
+                                    <Label htmlFor="gender" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Gender</Label>
                                     <Select onValueChange={(v) => setFormData({ ...formData, gender: v })} defaultValue="male">
-                                        <SelectTrigger className="bg-white border-gray-200 text-black focus:border-black focus:ring-1 focus:ring-black rounded-none h-12">
+                                        <SelectTrigger className="bg-black/50 border-white/20 text-white focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14">
                                             <SelectValue placeholder="Select Gender" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-white border-gray-200 text-black rounded-none">
-                                            <SelectItem value="male" className="focus:bg-gray-100 focus:text-black">Male</SelectItem>
-                                            <SelectItem value="female" className="focus:bg-gray-100 focus:text-black">Female</SelectItem>
-                                            <SelectItem value="other" className="focus:bg-gray-100 focus:text-black">Other</SelectItem>
+                                        <SelectContent className="bg-[#111111] border-white/20 text-white rounded-xl">
+                                            <SelectItem value="male" className="focus:bg-white/10 focus:text-[#AE8638]">Male</SelectItem>
+                                            <SelectItem value="female" className="focus:bg-white/10 focus:text-[#AE8638]">Female</SelectItem>
+                                            <SelectItem value="other" className="focus:bg-white/10 focus:text-[#AE8638]">Other</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-black font-semibold uppercase tracking-wider text-xs">Email Address</Label>
+                                <Label htmlFor="email" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Email Address</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -479,12 +492,12 @@ export default function CheckoutPage() {
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
                                     placeholder="name@company.com"
-                                    className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
+                                    className="bg-black/50 border-white/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-black font-semibold uppercase tracking-wider text-xs">Phone Number</Label>
+                                <Label htmlFor="phone" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Phone Number</Label>
                                 <Input
                                     id="phone"
                                     type="tel"
@@ -492,29 +505,29 @@ export default function CheckoutPage() {
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     required
                                     placeholder="9876543210"
-                                    className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
+                                    className="bg-black/50 border-white/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="address" className="text-black font-semibold uppercase tracking-wider text-xs">Billing Address</Label>
+                                <Label htmlFor="address" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">Billing Address</Label>
                                 <Input
                                     id="address"
                                     value={formData.address}
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                     required
                                     placeholder="Apartment, Street, Area"
-                                    className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-1 focus:ring-black rounded-none h-12"
+                                    className="bg-black/50 border-white/20 text-white placeholder:text-gray-600 focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="state" className="text-black font-semibold uppercase tracking-wider text-xs">State / Province</Label>
+                                <Label htmlFor="state" className="text-[#AE8638] font-bold uppercase tracking-wider text-xs">State / Province</Label>
                                 <Select onValueChange={(v) => setFormData({ ...formData, state: v })} required>
-                                    <SelectTrigger className="bg-white border-gray-200 text-black focus:border-black focus:ring-1 focus:ring-black rounded-none h-12">
+                                    <SelectTrigger className="bg-black/50 border-white/20 text-white focus:border-[#AE8638] focus:ring-1 focus:ring-[#AE8638] rounded-xl h-14">
                                         <SelectValue placeholder="Select State" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-white border-gray-200 text-black rounded-none max-h-[300px]">
+                                    <SelectContent className="bg-[#111111] border-white/20 text-white rounded-xl max-h-[300px]">
                                         {[
                                             "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
                                             "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", 
@@ -525,7 +538,7 @@ export default function CheckoutPage() {
                                             "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", 
                                             "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
                                         ].map(state => (
-                                            <SelectItem key={state} value={state} className="focus:bg-gray-100 focus:text-black">
+                                            <SelectItem key={state} value={state} className="focus:bg-white/10 focus:text-[#AE8638]">
                                                 {state}
                                             </SelectItem>
                                         ))}
@@ -533,14 +546,14 @@ export default function CheckoutPage() {
                                 </Select>
                             </div>
 
-                            <Button type="submit" className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold rounded-none h-14 uppercase tracking-widest text-sm" disabled={loading || selectedDates.length === 0}>
+                            <Button type="submit" className="w-full mt-8 bg-[#AE8638] text-black hover:bg-[#F7EF8A] font-bold rounded-xl h-16 text-lg shadow-[0_0_20px_rgba(174,134,56,0.3)] hover:shadow-[0_0_30px_rgba(174,134,56,0.5)] transition-all" disabled={loading || selectedDates.length === 0}>
                                 {loading ? 'Processing...' : `Pay ${event?.ticketConfig?.currency} ${((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}`}
                             </Button>
                         </form>
                         )}
                     </CardContent>
-                    <CardFooter className="justify-center text-xs text-gray-500 bg-gray-50 py-4 border-t border-gray-200">
-                        Secure 256-bit encrypted transaction. By proceeding, you agree to our Terms of Service.
+                    <CardFooter className="justify-center text-xs text-gray-500 bg-black/40 py-6 border-t border-white/10 uppercase tracking-widest font-medium text-center">
+                        Secure 256-bit encrypted transaction.<br className="md:hidden" /> By proceeding, you agree to our Terms of Service.
                     </CardFooter>
                 </Card>
             </main>

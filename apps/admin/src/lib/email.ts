@@ -29,7 +29,7 @@ const getEmailFooter = () => `
             WYLDCARD STATS PRIVATE LIMITED
         </p>
         <p style="color: #aaaaaa; font-size: 12px; margin: 0 0 15px 0;">
-            For support, contact us at <a href="mailto:supports@wildcardstat.com" style="color: #AE8638; text-decoration: none;">supports@wildcardstat.com</a>
+            For support, contact us at <a href="mailto:support@wildcardstat.com" style="color: #AE8638; text-decoration: none;">support@wildcardstat.com</a>
         </p>
         <div style="border-top: 1px solid #333333; padding-top: 15px; margin-top: 15px;">
             <p style="color: #666666; font-size: 11px; margin: 0;">

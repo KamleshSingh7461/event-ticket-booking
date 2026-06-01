@@ -571,7 +571,7 @@ export default function CreateEventPage() {
                                                 <Label className="text-xs">Start Time (Optional)</Label>
                                                 <Input 
                                                     type="time" 
-                                                    value={day.startTime} 
+                                                    value={day.startTime || ''} 
                                                     onChange={(e) => handleDailyConfigChange(idx, 'startTime', e.target.value)}
                                                 />
                                             </div>
@@ -579,7 +579,7 @@ export default function CreateEventPage() {
                                                 <Label className="text-xs">Cutoff Time (Optional)</Label>
                                                 <Input 
                                                     type="time" 
-                                                    value={day.cutoffTime} 
+                                                    value={day.cutoffTime || ''} 
                                                     onChange={(e) => handleDailyConfigChange(idx, 'cutoffTime', e.target.value)}
                                                 />
                                             </div>

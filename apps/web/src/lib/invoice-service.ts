@@ -24,10 +24,10 @@ export async function createInvoiceForBooking(txnid: string) {
 
     // Determine Seller Details (Override global with event-specific if available)
     const seller = {
-        companyName: event.taxInfo?.companyName || globalSettings?.billing?.companyName || 'WYLDCARD STATS',
-        address: event.taxInfo?.address || globalSettings?.billing?.address || '',
-        gstin: event.taxInfo?.gstin || globalSettings?.billing?.gstin || '',
-        pan: event.taxInfo?.pan || globalSettings?.billing?.pan || '',
+        companyName: event.taxInfo?.companyName || globalSettings?.billing?.companyName || 'WYLDCARD STATS PRIVATE LIMITED',
+        address: event.taxInfo?.address || globalSettings?.billing?.address || 'Ground Floor, Shop No.6/A, Ambica Darshan Society, C.P.Road, Kandivali East, Mumbai, Maharashtra 400101',
+        gstin: event.taxInfo?.gstin || globalSettings?.billing?.gstin || '27AAECW1497L1ZQ',
+        pan: event.taxInfo?.pan || globalSettings?.billing?.pan || 'AAECW1497L',
         cin: event.taxInfo?.cin || globalSettings?.billing?.cin || '',
         logoUrl: globalSettings?.billing?.logoUrl,
         authorizedSignatory: globalSettings?.billing?.authorizedSignatory
@@ -85,9 +85,8 @@ export async function createInvoiceForBooking(txnid: string) {
         });
     }
 
-    // Tax Breakdown (Simplified logic: If customer state != seller state (Assumed Telangana/Delhi), use IGST)
-    // For now, let's assume Wyldcard is in Telangana. If customer state matches, split CGST/SGST.
-    const sellerState = 'Telangana'; // Defaulting to Telangana for Wyldcard Stats
+    // Tax Breakdown (Simplified logic: If customer state != seller state, use IGST)
+    const sellerState = 'Maharashtra'; // Defaulting to Maharashtra for Wyldcard Stats
     const isSameState = customer.state.toLowerCase() === sellerState.toLowerCase();
 
     const taxBreakdown = {

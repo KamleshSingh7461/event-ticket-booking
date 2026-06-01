@@ -202,7 +202,7 @@ export async function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
                 }
             }
             
-            doc.font('Helvetica-Bold').fontSize(10).fillColor('#000000').text(`For ${data.seller.companyName}`, 380, footerY - 20, { align: 'right', width: 175 });
+            doc.font('Helvetica-Bold').fontSize(10).fillColor('#000000').text(`For ${data.seller.companyName}`, 380, footerY - 35, { align: 'right', width: 175 });
             doc.font('Helvetica').fontSize(8).fillColor('#AE8638').text('Authorised Signatory', 380, footerY - 5, { align: 'right', width: 175 });
 
             // Footer Note

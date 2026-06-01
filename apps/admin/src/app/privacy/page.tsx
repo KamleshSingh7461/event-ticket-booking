@@ -63,7 +63,7 @@ export default function PrivacyPage() {
                         <p className="text-muted-foreground">
                             If you have questions about this Privacy Policy, please contact us at:<br />
                             <strong>WYLDCARD STATS PRIVATE LIMITED</strong><br />
-                            Email: supports@wildcardstat.com
+                            Email: support@wildcardstat.com
                         </p>
                     </section>
                 </div>

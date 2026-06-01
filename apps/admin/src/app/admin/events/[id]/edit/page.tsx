@@ -588,7 +588,7 @@ export default function EditEventPage() {
                                                 <Label className="text-[10px] text-gray-500 uppercase">Start Time</Label>
                                                 <Input
                                                     type="time"
-                                                    value={config.startTime}
+                                                    value={config.startTime || ''}
                                                     onChange={(e) => {
                                                         const newConfig = [...formData.dailyConfig];
                                                         newConfig[idx].startTime = e.target.value;
@@ -601,7 +601,7 @@ export default function EditEventPage() {
                                                 <Label className="text-[10px] text-gray-500 uppercase">Booking Cutoff</Label>
                                                 <Input
                                                     type="time"
-                                                    value={config.cutoffTime}
+                                                    value={config.cutoffTime || ''}
                                                     onChange={(e) => {
                                                         const newConfig = [...formData.dailyConfig];
                                                         newConfig[idx].cutoffTime = e.target.value;

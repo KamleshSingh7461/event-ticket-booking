@@ -34,7 +34,7 @@ export function Footer() {
                     <div>
                         <h4 className="font-bold mb-4 text-black">Contact</h4>
                         <ul className="space-y-2 text-sm text-black/80 font-medium">
-                            <li>Email: supports@wildcardstat.com</li>
+                            <li>Email: support@wildcardstat.com</li>
                         </ul>
                     </div>
                 </div>

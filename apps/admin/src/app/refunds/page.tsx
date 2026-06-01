@@ -51,7 +51,7 @@ export default function RefundsPage() {
                         <p className="mt-4 font-medium text-muted-foreground">
                             All refund disputes are handled by:<br />
                             <strong>WYLDCARD STATS PRIVATE LIMITED</strong><br />
-                            Email: supports@wildcardstat.com
+                            Email: support@wildcardstat.com
                         </p>
                     </section>
                 </div>

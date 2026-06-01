@@ -110,6 +110,28 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  
+  --wyld-gold: #AE8638;
+  --wyld-gold-dim: rgba(174, 134, 56, 0.15);
+}
+
+@theme {
+  --color-wyld-gold: var(--wyld-gold);
+  --color-wyld-gold-dim: var(--wyld-gold-dim);
+  
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-mesh: mesh 10s ease-in-out infinite alternate;
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+  @keyframes mesh {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
 }
 
 @layer base {

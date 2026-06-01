@@ -59,7 +59,7 @@ export default function HelpPage() {
                 <div className="mt-12 text-center bg-muted/50 p-8 rounded-xl">
                     <h3 className="text-xl font-semibold mb-2">Still need help?</h3>
                     <p className="text-muted-foreground mb-4">Our support team is available to assist you.</p>
-                    <p className="font-medium">Support Email: supports@wildcardstat.com</p>
+                    <p className="font-medium">Support Email: support@wildcardstat.com</p>
                 </div>
             </main>
 

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,47 +7,108 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { User, Mail, Lock, Bell, CreditCard } from 'lucide-react';
+import { User, Lock, Bell } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 export default function UserSettingsPage() {
-    const [profile, setProfile] = useState({
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '+1 234 567 8900'
-    });
+    const { data: session, status } = useSession();
 
-    const [passwordData, setPasswordData] = useState({
-        current: '',
-        new: '',
-        confirm: ''
-    });
+    const [profile, setProfile] = useState({ name: '', email: '', phone: '' });
+    const [profileLoading, setProfileLoading] = useState(true);
+    const [profileSaving, setProfileSaving] = useState(false);
+
+    const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
+    const [passwordSaving, setPasswordSaving] = useState(false);
 
     const [notifications, setNotifications] = useState({
         emailBooking: true,
         emailReminders: true,
         smsAlerts: false,
-        promotions: false
+        promotions: false,
     });
 
-    const handleProfileUpdate = (e: React.FormEvent) => {
+    // Load real profile from DB
+    useEffect(() => {
+        if (status !== 'authenticated') return;
+        fetch('/api/user/profile')
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.success) {
+                    setProfile({
+                        name: data.data.name || '',
+                        email: data.data.email || '',
+                        phone: data.data.phone || '',
+                    });
+                }
+            })
+            .catch(() => toast.error('Failed to load profile'))
+            .finally(() => setProfileLoading(false));
+    }, [status]);
+
+    const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast.success('Profile updated successfully');
+        setProfileSaving(true);
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: profile.name, phone: profile.phone }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success('Profile updated successfully');
+            } else {
+                toast.error(data.error || 'Failed to update profile');
+            }
+        } catch {
+            toast.error('Something went wrong');
+        } finally {
+            setProfileSaving(false);
+        }
     };
 
-    const handlePasswordChange = (e: React.FormEvent) => {
+    const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwordData.new !== passwordData.confirm) {
-            toast.error('Passwords do not match');
+            toast.error('New passwords do not match');
             return;
         }
-        toast.success('Password changed successfully');
-        setPasswordData({ current: '', new: '', confirm: '' });
+        if (passwordData.new.length < 6) {
+            toast.error('Password must be at least 6 characters');
+            return;
+        }
+        setPasswordSaving(true);
+        try {
+            const res = await fetch('/api/user/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentPassword: passwordData.current,
+                    newPassword: passwordData.new,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success('Password changed successfully');
+                setPasswordData({ current: '', new: '', confirm: '' });
+            } else {
+                toast.error(data.error || 'Failed to change password');
+            }
+        } catch {
+            toast.error('Something went wrong');
+        } finally {
+            setPasswordSaving(false);
+        }
     };
 
     const handleNotificationToggle = (key: string) => {
-        setNotifications({ ...notifications, [key]: !notifications[key as keyof typeof notifications] });
+        setNotifications((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
         toast.success('Notification preferences updated');
     };
+
+    const initials = profile.name
+        ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+        : '?';
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
@@ -59,14 +120,19 @@ export default function UserSettingsPage() {
                     </div>
 
                     <Tabs defaultValue="profile" className="space-y-8">
-                        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-none h-12 p-0">
-                            <TabsTrigger value="profile" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Profile</TabsTrigger>
-                            <TabsTrigger value="security" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Security</TabsTrigger>
-                            <TabsTrigger value="notifications" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Notifications</TabsTrigger>
-                            <TabsTrigger value="billing" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">Billing</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-none h-12 p-0">
+                            <TabsTrigger value="profile" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">
+                                Profile
+                            </TabsTrigger>
+                            <TabsTrigger value="security" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">
+                                Security
+                            </TabsTrigger>
+                            <TabsTrigger value="notifications" className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white h-full">
+                                Notifications
+                            </TabsTrigger>
                         </TabsList>
 
-                        {/* Profile Tab */}
+                        {/* ── Profile Tab ── */}
                         <TabsContent value="profile" className="m-0">
                             <Card className="rounded-none shadow-sm border border-gray-200">
                                 <CardHeader className="border-b border-gray-100 bg-white">
@@ -77,107 +143,145 @@ export default function UserSettingsPage() {
                                     <CardDescription>Update your personal details</CardDescription>
                                 </CardHeader>
                                 <CardContent className="pt-8">
-                                    <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
-                                        <Avatar className="w-20 h-20 bg-black text-white text-2xl rounded-none">
-                                            <AvatarFallback className="rounded-none bg-black text-white">{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <h3 className="text-xl font-bold text-black">{profile.name}</h3>
-                                            <p className="text-sm text-gray-500 mb-3">{profile.email}</p>
-                                            <Button variant="outline" size="sm" className="rounded-none border-gray-300 text-black hover:bg-gray-100">Change Photo</Button>
+                                    {profileLoading ? (
+                                        <div className="flex items-center justify-center py-16">
+                                            <div className="animate-spin h-8 w-8 border-4 border-black border-t-transparent rounded-full" />
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <>
+                                            {/* Avatar + name header */}
+                                            <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+                                                <Avatar className="w-20 h-20 rounded-none">
+                                                    <AvatarFallback className="rounded-none bg-black text-white text-xl font-bold">
+                                                        {initials}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-black">{profile.name || '—'}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">{profile.email}</p>
+                                                    {session?.user?.role && (
+                                                        <span className="inline-block mt-2 text-xs font-bold uppercase tracking-widest text-gray-400 border border-gray-200 px-2 py-0.5">
+                                                            {session.user.role}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
 
-                                    <form onSubmit={handleProfileUpdate} className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Full Name</Label>
-                                                <Input
-                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
-                                                    value={profile.name}
-                                                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Email Address</Label>
-                                                <Input
-                                                    className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
-                                                    type="email"
-                                                    value={profile.email}
-                                                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-black font-semibold text-xs uppercase tracking-widest">Phone Number</Label>
-                                            <Input
-                                                className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
-                                                value={profile.phone}
-                                                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                                            />
-                                        </div>
-                                        <Button type="submit" className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold">Save Changes</Button>
-                                    </form>
+                                            <form onSubmit={handleProfileUpdate} className="space-y-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                            Full Name
+                                                        </Label>
+                                                        <Input
+                                                            className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
+                                                            value={profile.name}
+                                                            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                            Email Address
+                                                        </Label>
+                                                        <Input
+                                                            className="rounded-none border-gray-200 bg-gray-50 h-12 text-gray-400 cursor-not-allowed"
+                                                            type="email"
+                                                            value={profile.email}
+                                                            disabled
+                                                            title="Email cannot be changed"
+                                                        />
+                                                        <p className="text-xs text-gray-400">Email cannot be changed</p>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                        Phone Number
+                                                    </Label>
+                                                    <Input
+                                                        className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
+                                                        value={profile.phone}
+                                                        placeholder="e.g. 9876543210"
+                                                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="submit"
+                                                    disabled={profileSaving}
+                                                    className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold"
+                                                >
+                                                    {profileSaving ? 'Saving...' : 'Save Changes'}
+                                                </Button>
+                                            </form>
+                                        </>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
-                        {/* Security Tab */}
+                        {/* ── Security Tab ── */}
                         <TabsContent value="security" className="m-0">
                             <Card className="rounded-none shadow-sm border border-gray-200">
                                 <CardHeader className="border-b border-gray-100 bg-white">
                                     <CardTitle className="flex items-center gap-2 text-black">
                                         <Lock className="w-5 h-5" />
-                                        Password & Security
+                                        Password &amp; Security
                                     </CardTitle>
                                     <CardDescription>Keep your account secure</CardDescription>
                                 </CardHeader>
                                 <CardContent className="pt-8">
                                     <form onSubmit={handlePasswordChange} className="space-y-6">
                                         <div className="space-y-2">
-                                            <Label className="text-black font-semibold text-xs uppercase tracking-widest">Current Password</Label>
+                                            <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                Current Password
+                                            </Label>
                                             <Input
                                                 className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                 type="password"
                                                 value={passwordData.current}
                                                 onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">New Password</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                    New Password
+                                                </Label>
                                                 <Input
                                                     className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     type="password"
                                                     value={passwordData.new}
                                                     onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
+                                                    required
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">Confirm Password</Label>
+                                                <Label className="text-black font-semibold text-xs uppercase tracking-widest">
+                                                    Confirm New Password
+                                                </Label>
                                                 <Input
                                                     className="rounded-none border-gray-200 focus-visible:ring-1 focus-visible:ring-black h-12"
                                                     type="password"
                                                     value={passwordData.confirm}
                                                     onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
+                                                    required
                                                 />
                                             </div>
                                         </div>
-                                        <Button type="submit" className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold">Update Password</Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={passwordSaving}
+                                            className="rounded-none bg-black text-white hover:bg-gray-800 h-12 px-8 uppercase tracking-widest text-xs font-bold"
+                                        >
+                                            {passwordSaving ? 'Updating...' : 'Update Password'}
+                                        </Button>
                                     </form>
-
-                                    <div className="mt-8 pt-8 border-t border-gray-100">
-                                        <h4 className="font-bold text-black mb-2 tracking-tight text-lg">Two-Factor Authentication</h4>
-                                        <p className="text-sm text-gray-500 mb-6">
-                                            Add an extra layer of security to your account to prevent unauthorized access.
-                                        </p>
-                                        <Button variant="outline" className="rounded-none border-gray-300 text-black hover:bg-gray-100">Enable 2FA</Button>
-                                    </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
-                        {/* Notifications Tab */}
+                        {/* ── Notifications Tab ── */}
                         <TabsContent value="notifications" className="m-0">
                             <Card className="rounded-none shadow-sm border border-gray-200">
                                 <CardHeader className="border-b border-gray-100 bg-white">
@@ -188,85 +292,25 @@ export default function UserSettingsPage() {
                                     <CardDescription>Choose how you want to be notified</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4 pt-8">
-                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
-                                        <div>
-                                            <p className="font-bold text-black">Booking Confirmations</p>
-                                            <p className="text-sm text-gray-500">Receive email when you book a ticket</p>
+                                    {[
+                                        { key: 'emailBooking', label: 'Booking Confirmations', desc: 'Receive email when you book a ticket' },
+                                        { key: 'emailReminders', label: 'Event Reminders', desc: 'Get reminded before your events' },
+                                        { key: 'smsAlerts', label: 'SMS Alerts', desc: 'Receive text messages for important updates' },
+                                        { key: 'promotions', label: 'Promotional Emails', desc: 'Receive updates about new events and offers' },
+                                    ].map(({ key, label, desc }) => (
+                                        <div key={key} className="flex items-center justify-between p-6 border border-gray-200 bg-white">
+                                            <div>
+                                                <p className="font-bold text-black">{label}</p>
+                                                <p className="text-sm text-gray-500">{desc}</p>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications[key as keyof typeof notifications]}
+                                                onChange={() => handleNotificationToggle(key)}
+                                                className="w-5 h-5 accent-black cursor-pointer"
+                                            />
                                         </div>
-                                        <input
-                                            type="checkbox"
-                                            checked={notifications.emailBooking}
-                                            onChange={() => handleNotificationToggle('emailBooking')}
-                                            className="w-5 h-5 accent-black cursor-pointer"
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
-                                        <div>
-                                            <p className="font-bold text-black">Event Reminders</p>
-                                            <p className="text-sm text-gray-500">Get reminded before your events</p>
-                                        </div>
-                                        <input
-                                            type="checkbox"
-                                            checked={notifications.emailReminders}
-                                            onChange={() => handleNotificationToggle('emailReminders')}
-                                            className="w-5 h-5 accent-black cursor-pointer"
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
-                                        <div>
-                                            <p className="font-bold text-black">SMS Alerts</p>
-                                            <p className="text-sm text-gray-500">Receive text messages for important updates</p>
-                                        </div>
-                                        <input
-                                            type="checkbox"
-                                            checked={notifications.smsAlerts}
-                                            onChange={() => handleNotificationToggle('smsAlerts')}
-                                            className="w-5 h-5 accent-black cursor-pointer"
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between p-6 border border-gray-200 bg-white">
-                                        <div>
-                                            <p className="font-bold text-black">Promotional Emails</p>
-                                            <p className="text-sm text-gray-500">Receive updates about new events and offers</p>
-                                        </div>
-                                        <input
-                                            type="checkbox"
-                                            checked={notifications.promotions}
-                                            onChange={() => handleNotificationToggle('promotions')}
-                                            className="w-5 h-5 accent-black cursor-pointer"
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        {/* Billing Tab */}
-                        <TabsContent value="billing" className="m-0">
-                            <Card className="rounded-none shadow-sm border border-gray-200">
-                                <CardHeader className="border-b border-gray-100 bg-white">
-                                    <CardTitle className="flex items-center gap-2 text-black">
-                                        <CreditCard className="w-5 h-5" />
-                                        Payment Methods
-                                    </CardTitle>
-                                    <CardDescription>Manage your saved payment methods</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pt-8">
-                                    <div className="text-center py-16 bg-gray-50 border border-dashed border-gray-300">
-                                        <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                                        <p className="mb-2 font-bold text-black">No saved payment methods</p>
-                                        <p className="text-sm text-gray-500">Payment methods will be saved during checkout</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="mt-8 rounded-none shadow-sm border border-gray-200">
-                                <CardHeader className="border-b border-gray-100 bg-white">
-                                    <CardTitle className="text-black">Billing History</CardTitle>
-                                </CardHeader>
-                                <CardContent className="pt-8">
-                                    <div className="text-center py-12 text-gray-500">
-                                        <p>Your transaction history will appear here</p>
-                                    </div>
+                                    ))}
                                 </CardContent>
                             </Card>
                         </TabsContent>
