@@ -24,6 +24,8 @@ out/
 # misc
 .DS_Store
 *.pem
+database_creds.txt
+scratch/
 
 # debug
 npm-debug.log*
