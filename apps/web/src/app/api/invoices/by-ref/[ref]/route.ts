@@ -9,10 +9,17 @@ export async function GET(
     try {
         const { ref } = await params;
         await dbConnect();
-        const invoice = await Invoice.findOne({ bookingReference: ref }).lean();
+        let invoice = await Invoice.findOne({ bookingReference: ref }).lean();
 
         if (!invoice) {
-            return NextResponse.json({ success: false, error: 'Invoice not found' }, { status: 404 });
+            try {
+                const { createInvoiceForBooking } = await import('@/lib/invoice-service');
+                const newInvoice = await createInvoiceForBooking(ref);
+                invoice = newInvoice;
+            } catch (e) {
+                console.error("Failed to retroactively create invoice:", e);
+                return NextResponse.json({ success: false, error: 'Invoice not found' }, { status: 404 });
+            }
         }
 
         return NextResponse.json({ success: true, invoice });
