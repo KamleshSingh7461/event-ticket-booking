@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import html2canvas from 'html2canvas';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, User, Download, ArrowLeft, Loader2 } from 'lucide-react';
@@ -44,13 +45,32 @@ export default function UserTicketPage() {
         }
     };
 
-    const handleDownload = () => {
-        if (qrCodeUrl) {
-            const link = document.createElement('a');
-            link.href = qrCodeUrl;
-            link.download = `ticket-${ticket._id}.png`;
-            link.click();
-            toast.success('QR Code downloaded');
+    const handleDownload = async () => {
+        const ticketElement = document.getElementById('ticket-card');
+        if (ticketElement) {
+            try {
+                // Temporarily hide the download button to prevent it from being in the screenshot
+                const downloadBtn = document.getElementById('download-btn-container');
+                if (downloadBtn) downloadBtn.style.display = 'none';
+
+                const canvas = await html2canvas(ticketElement, {
+                    scale: 2, // Higher resolution
+                    useCORS: true, // Allow cross-origin images (like from cloudinary)
+                    backgroundColor: '#ffffff'
+                });
+
+                if (downloadBtn) downloadBtn.style.display = 'block';
+
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = `ticket-${ticket._id}.png`;
+                link.click();
+                toast.success('Ticket downloaded successfully!');
+            } catch (error) {
+                console.error('Error generating ticket image:', error);
+                toast.error('Failed to download ticket');
+            }
         }
     };
 
@@ -88,7 +108,7 @@ export default function UserTicketPage() {
 
                 <div className="max-w-2xl mx-auto space-y-8">
                     {/* Ticket Card */}
-                    <Card className="bg-white border border-gray-200 rounded-none shadow-sm overflow-hidden">
+                    <Card id="ticket-card" className="bg-white border border-gray-200 rounded-none shadow-sm overflow-hidden">
                         {/* Event Banner */}
                         {ticket.event?.banner && (
                             <div className="w-full h-48 sm:h-64 relative border-b border-gray-200">
@@ -213,7 +233,7 @@ export default function UserTicketPage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="pt-6 border-t border-gray-200">
+                            <div id="download-btn-container" className="pt-6 border-t border-gray-200">
                                 <Button onClick={handleDownload} className="w-full bg-black hover:bg-gray-800 text-white font-bold h-14 rounded-none uppercase tracking-widest text-sm transition-colors">
                                     <Download className="w-5 h-5 mr-3" /> Download Ticket
                                 </Button>
