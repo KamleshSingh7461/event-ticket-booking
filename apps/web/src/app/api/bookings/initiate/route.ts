@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
                 success: true,
                 freeBooking: true,
                 txnid: txnid,
-                redirectUrl: `/payment/success?txnid=${txnid}`
+                redirectUrl: `/booking/confirmation?id=${tickets[0]._id}`
             });
         }
 
