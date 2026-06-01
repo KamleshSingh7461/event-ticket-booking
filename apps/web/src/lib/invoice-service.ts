@@ -97,48 +97,65 @@ export async function createInvoiceForBooking(txnid: string) {
     };
 
     // Generate PDF
-    const pdfBuffer = await generateInvoicePDF({
-        invoiceNumber: '', // Handled by pre-save
-        invoiceDate: new Date(),
-        bookingReference: txnid,
-        seller,
-        customer,
-        event: {
-            title: event.title,
-            dates: firstTicket.selectedDates.map((d: Date) => new Date(d).toLocaleDateString()),
-            hsnCode: event.taxInfo?.hsnCode || '998599'
-        },
-        items,
-        subtotal,
-        gstAmount: gstTotal,
-        taxBreakdown,
-        totalAmount: grandTotal,
-        currency: event.ticketConfig.currency || 'INR',
-        paymentMethod: 'PayU',
-        transactionId: firstTicket.payuTransactionId
-    });
+    let pdfBuffer: Buffer;
+    try {
+        pdfBuffer = await generateInvoicePDF({
+            invoiceNumber: '', // Handled by pre-save
+            invoiceDate: new Date(),
+            bookingReference: txnid,
+            seller,
+            customer,
+            event: {
+                title: event.title,
+                dates: firstTicket.selectedDates?.map((d: Date) => new Date(d).toLocaleDateString()) || [],
+                hsnCode: event.taxInfo?.hsnCode || '998599'
+            },
+            items,
+            subtotal,
+            gstAmount: gstTotal,
+            taxBreakdown,
+            totalAmount: grandTotal,
+            currency: event.ticketConfig?.currency || 'INR',
+            paymentMethod: 'PayU',
+            transactionId: firstTicket.payuTransactionId
+        });
+    } catch (e) {
+        console.error('Error generating Invoice PDF buffer:', e);
+        throw e;
+    }
 
-    const fileStr = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
-    const uploadResult = await uploadToCloudinary(fileStr, 'invoices');
+    let uploadResult = { secure_url: '' };
+    try {
+        const fileStr = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
+        uploadResult = await uploadToCloudinary(fileStr, 'invoices');
+    } catch (e) {
+        console.error('Error uploading Invoice PDF to Cloudinary:', e);
+        // We will continue even if upload fails so the invoice document is saved!
+    }
 
-    // Save Invoice
-    const invoice = await Invoice.create({
-        bookingReference: txnid,
-        user: user,
-        event: event._id,
-        items,
-        subtotal,
-        gstAmount: gstTotal,
-        taxBreakdown,
-        totalAmount: grandTotal,
-        currency: event.ticketConfig.currency || 'INR',
-        sellerInfo: seller,
-        customerInfo: customer,
-        paymentMethod: 'PayU',
-        payuTransactionId: firstTicket.payuTransactionId,
-        pdfUrl: uploadResult.secure_url,
-        status: 'PAID'
-    });
+    try {
+        // Save Invoice
+        const invoice = await Invoice.create({
+            bookingReference: txnid,
+            user: user,
+            event: event._id,
+            items,
+            subtotal,
+            gstAmount: gstTotal,
+            taxBreakdown,
+            totalAmount: grandTotal,
+            currency: event.ticketConfig?.currency || 'INR',
+            sellerInfo: seller,
+            customerInfo: customer,
+            paymentMethod: 'PayU',
+            payuTransactionId: firstTicket.payuTransactionId,
+            pdfUrl: uploadResult.secure_url || undefined,
+            status: 'PAID'
+        });
 
-    return invoice;
+        return invoice;
+    } catch (e) {
+        console.error('Error saving invoice to MongoDB:', e);
+        throw e;
+    }
 }
