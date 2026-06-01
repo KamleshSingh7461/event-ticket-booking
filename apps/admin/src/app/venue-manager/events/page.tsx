@@ -91,7 +91,14 @@ export default function VenueManagerEventsPage() {
                                 <div className="flex justify-between items-center text-sm border-t border-gray-800 pt-3">
                                     <div>
                                         <p className="text-gray-500 text-xs">Price</p>
-                                        <p className="font-medium text-[#AE8638]">{event.ticketConfig.currency} {event.ticketConfig.price}</p>
+                                        <p className="font-medium text-[#AE8638]">
+                                            {(() => {
+                                                if (event.ticketConfig?.price === 0 && event.dailyConfig?.some((c: any) => c.price !== undefined && c.price !== null && c.price > 0)) {
+                                                    return `Starts from ${event.ticketConfig.currency} ` + Math.min(...event.dailyConfig.filter((c: any) => c.price > 0).map((c: any) => c.price)).toLocaleString();
+                                                }
+                                                return `${event.ticketConfig?.currency || 'INR'} ` + (event.ticketConfig?.price || 0).toLocaleString();
+                                            })()}
+                                        </p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-gray-500 text-xs">Capacity</p>
