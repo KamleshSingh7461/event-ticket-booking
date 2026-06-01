@@ -32,12 +32,9 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
-        if (!invoice.pdfUrl) {
-            return NextResponse.json({ error: 'Invoice PDF not generated yet' }, { status: 404 });
-        }
-
-        // Redirect to the Cloudinary URL
-        return NextResponse.redirect(invoice.pdfUrl);
+        // Redirect to the Web App's HTML invoice page
+        const webUrl = process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000';
+        return NextResponse.redirect(new URL(`/invoice/${invoice._id}`, webUrl));
 
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
