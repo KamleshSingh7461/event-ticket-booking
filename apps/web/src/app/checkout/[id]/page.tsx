@@ -594,7 +594,7 @@ export default function CheckoutPage() {
                             </div>
 
                             <Button type="submit" className="w-full mt-8 bg-[#AE8638] text-black hover:bg-[#F7EF8A] font-bold rounded-xl h-16 text-lg shadow-[0_0_20px_rgba(174,134,56,0.3)] hover:shadow-[0_0_30px_rgba(174,134,56,0.5)] transition-all" disabled={loading || selectedDates.length === 0}>
-                                {loading ? 'Processing...' : `Pay ${event?.ticketConfig?.currency} ${((totalPrice + totalPrice * 0.03) * 1.18).toFixed(2)}`}
+                                {loading ? 'Processing...' : `Pay ${event?.ticketConfig?.currency} ${(totalPrice * 1.18).toFixed(2)}`}
                             </Button>
                         </form>
                         )}
