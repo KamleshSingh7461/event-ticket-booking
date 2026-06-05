@@ -119,6 +119,32 @@ export default function CheckoutPage() {
         return false;
     };
 
+    // Season Pass is only available BEFORE the event start day's cutoff closes
+    const isSeasonPassExpired = (): boolean => {
+        if (!event) return false;
+        const now = new Date();
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const startDay = new Date(event.startDate); startDay.setHours(0, 0, 0, 0);
+
+        // If event start day has already passed completely
+        if (startDay < today) return true;
+
+        // If today IS the start day, check cutoff time
+        if (startDay.getTime() === today.getTime()) {
+            const firstDayConfig = event.dailyConfig?.find((c: any) => {
+                const cd = new Date(c.date); cd.setHours(0, 0, 0, 0);
+                return cd.getTime() === startDay.getTime();
+            });
+            const cutoffStr = firstDayConfig?.cutoffTime || event.bookingCutOffTime || event.entryTime;
+            if (cutoffStr) {
+                const [h, m] = cutoffStr.split(':').map(Number);
+                const cutoffTime = new Date(); cutoffTime.setHours(h, m, 0, 0);
+                if (now > cutoffTime) return true;
+            }
+        }
+        return false;
+    };
+
     const toggleDate = (dateIso: string) => {
         const date = new Date(dateIso);
         if (isDateDisabled(date)) {
@@ -147,6 +173,11 @@ export default function CheckoutPage() {
     // Effect to handle booking type changes (Auto select all dates for ALL_DAY)
     useEffect(() => {
         if (bookingType === 'ALL_DAY' && availableDates.length > 0) {
+            if (isSeasonPassExpired()) {
+                // Season pass expired — force back to DAILY
+                setBookingType('DAILY');
+                return;
+            }
             const validDates = availableDates.filter(d => !isDateDisabled(d)).map(d => d.toISOString());
             setSelectedDates(validDates);
         } else if (bookingType === 'DAILY') {
@@ -300,22 +331,27 @@ export default function CheckoutPage() {
                                                     </div>
                                                     <div className={`
                                                             flex items-center space-x-3 border rounded-xl p-4 transition-all relative
-                                                            ${availableDates.some(d => isDateDisabled(d)) ? 'opacity-50 cursor-not-allowed border-white/10 bg-black' : 'cursor-pointer ' + (bookingType === 'ALL_DAY' ? 'border-[#AE8638] bg-[#AE8638]/10 shadow-[0_0_15px_rgba(174,134,56,0.2)] ring-1 ring-[#AE8638]' : 'border-white/20 bg-black/50 hover:border-white/40')}
+                                                            ${isSeasonPassExpired() ? 'opacity-40 cursor-not-allowed border-red-500/20 bg-red-950/10' : 'cursor-pointer ' + (bookingType === 'ALL_DAY' ? 'border-[#AE8638] bg-[#AE8638]/10 shadow-[0_0_15px_rgba(174,134,56,0.2)] ring-1 ring-[#AE8638]' : 'border-white/20 bg-black/50 hover:border-white/40')}
                                                         `}>
                                                         <RadioGroupItem 
                                                             value="ALL_DAY" 
                                                             id="allday" 
-                                                            disabled={availableDates.some(d => isDateDisabled(d))}
+                                                            disabled={isSeasonPassExpired()}
                                                             className={`border-white/40 ${bookingType === 'ALL_DAY' ? 'text-[#AE8638] border-[#AE8638]' : ''}`} 
                                                         />
-                                                        <Label htmlFor="allday" className={`text-white font-bold ${availableDates.some(d => isDateDisabled(d)) ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                        <Label htmlFor="allday" className={`text-white font-bold ${isSeasonPassExpired() ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                                                             Season Pass
                                                             <span className="block text-sm text-[#AE8638] font-medium mt-1">
                                                                 {event.ticketConfig.currency} {event.ticketConfig.allDayPrice}
                                                             </span>
+                                                            {isSeasonPassExpired() && (
+                                                                <span className="block text-xs text-red-400 font-normal mt-1">
+                                                                    Not available — event has started
+                                                                </span>
+                                                            )}
                                                         </Label>
-                                                        {availableDates.some(d => isDateDisabled(d)) && (
-                                                            <span className="absolute -top-3 -right-3 bg-red-950/80 text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border border-red-500/50 backdrop-blur-md">Unavailable</span>
+                                                        {isSeasonPassExpired() && (
+                                                            <span className="absolute -top-3 -right-3 bg-red-950/90 text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border border-red-500/50 backdrop-blur-md">Booking Closed</span>
                                                         )}
                                                     </div>
                                                 </RadioGroup>

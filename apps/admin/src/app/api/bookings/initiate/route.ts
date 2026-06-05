@@ -47,6 +47,34 @@ export async function POST(req: NextRequest) {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+            // --- SEASON PASS CUTOFF: Block if the first day's booking window has closed ---
+            const startDayOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const firstDayConfig = event.dailyConfig?.find((c: any) => {
+                const configDate = new Date(c.date);
+                return configDate.toDateString() === start.toDateString();
+            });
+            const firstDayCutoffStr = firstDayConfig?.cutoffTime || event.bookingCutOffTime || event.entryTime;
+
+            if (startDayOnly < today) {
+                return NextResponse.json({
+                    success: false,
+                    error: 'Season Pass is no longer available. Bookings closed after the event began.'
+                }, { status: 400 });
+            }
+
+            if (startDayOnly.getTime() === today.getTime() && firstDayCutoffStr) {
+                const [cutHour, cutMin] = firstDayCutoffStr.split(':').map(Number);
+                const cutOffDateTime = new Date(today);
+                cutOffDateTime.setHours(cutHour, cutMin, 0, 0);
+                if (now > cutOffDateTime) {
+                    return NextResponse.json({
+                        success: false,
+                        error: `Season Pass bookings closed at ${firstDayCutoffStr} on Day 1 of the event.`
+                    }, { status: 400 });
+                }
+            }
+            // --- END SEASON PASS CUTOFF ---
+
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                 const config = event.dailyConfig?.find((c: any) => {
                     const configDate = new Date(c.date);
@@ -55,20 +83,6 @@ export async function POST(req: NextRequest) {
 
                 if (config?.isSoldOut) {
                     return NextResponse.json({ success: false, error: `Season Pass unavailable: ${d.toDateString()} is sold out.` }, { status: 400 });
-                }
-
-                // Cutoff check for today if it's part of the range
-                const bookingDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-                if (bookingDate.getTime() === today.getTime()) {
-                    const cutOffTimeStr = config?.cutoffTime || event.bookingCutOffTime || event.entryTime;
-                    if (cutOffTimeStr) {
-                        const [cutHour, cutMin] = cutOffTimeStr.split(':').map(Number);
-                        const cutOffDateTime = new Date(today);
-                        cutOffDateTime.setHours(cutHour, cutMin, 0, 0);
-                        if (now > cutOffDateTime) {
-                             return NextResponse.json({ success: false, error: `Season Pass unavailable: Bookings for today already closed.` }, { status: 400 });
-                        }
-                    }
                 }
 
                 requestedDates.push(d.toDateString());

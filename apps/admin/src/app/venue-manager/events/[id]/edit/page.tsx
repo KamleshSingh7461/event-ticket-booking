@@ -258,13 +258,22 @@ export default function EditEventPage() {
                                     <p className="text-xs text-gray-500">Maximum tickets available per day.</p>
                                 </div>
 
-                                {event.ticketConfig.allDayPrice && (
-                                    <div className="p-3 rounded bg-[#AE8638]/5 border border-[#AE8638]/10">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <Label className="text-[#AE8638]">Season Pass Price</Label>
-                                            <span className="text-white font-bold">{event.ticketConfig.currency} {event.ticketConfig.allDayPrice}</span>
+                                {(event.ticketConfig.allDayPrice !== null && event.ticketConfig.allDayPrice !== undefined) && (
+                                    <div className="p-4 rounded-xl bg-gradient-to-br from-[#AE8638]/10 to-[#AE8638]/5 border border-[#AE8638]/30">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-xs font-bold uppercase tracking-widest text-[#AE8638]">⭐ Season Pass</span>
+                                            <span className="text-[10px] text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">Set by Super Admin</span>
                                         </div>
-                                        <p className="text-[10px] text-gray-500">Fixed price for all 9 days access.</p>
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <p className="text-white text-xl font-bold">{event.ticketConfig.currency} {event.ticketConfig.allDayPrice?.toLocaleString()}</p>
+                                                <p className="text-[11px] text-gray-400 mt-0.5">Full event access for all {(() => { const s = new Date(event.startDate); const e2 = new Date(event.endDate); return Math.round((e2.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1; })()} days</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-[10px] text-gray-500 uppercase tracking-wider">vs Daily</p>
+                                                <p className="text-sm text-gray-300">{event.ticketConfig.currency} {(event.ticketConfig.allDayPrice / ((() => { const s = new Date(event.startDate); const e2 = new Date(event.endDate); return Math.round((e2.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1; })())).toFixed(0)}/day</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
@@ -336,7 +345,14 @@ export default function EditEventPage() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => setDateOverrides({})}
+                                        onClick={() => setDailyConfig(prev => prev.map(c => ({
+                                            ...c,
+                                            startTime: event?.entryTime || '18:00',
+                                            cutoffTime: event?.bookingCutOffTime || '19:00',
+                                            capacity: undefined,
+                                            price: undefined,
+                                            isSoldOut: false
+                                        })))}
                                         className="text-xs border-red-900/30 text-red-400 hover:bg-red-950/30 hover:text-red-300"
                                     >
                                         Reset All Overrides

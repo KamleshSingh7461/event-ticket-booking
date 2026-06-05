@@ -1,13 +1,15 @@
 import { redirect } from 'next/navigation';
 import dbConnect from '@/lib/db';
 import Invoice from '@/models/Invoice';
-import { Printer, Download, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import InvoicePrintButton from './InvoicePrintButton';
 
-export default async function InvoicePage({ params }: { params: { id: string } }) {
+export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     await dbConnect();
 
-    const invoice = await Invoice.findById(params.id).lean();
+    const invoice = await Invoice.findById(id).lean() as any;
 
     if (!invoice) {
         return (
@@ -30,16 +32,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
                 <Link href="/user/dashboard" className="flex items-center text-gray-600 hover:text-black transition">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
                 </Link>
-                <div className="flex gap-4">
-                    <button 
-                        onClick={() => {
-                            if (typeof window !== 'undefined') window.print();
-                        }}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-black text-white font-bold rounded shadow-lg hover:bg-gray-800 transition active:scale-95"
-                    >
-                        <Printer className="w-4 h-4" /> Print / Save PDF
-                    </button>
-                </div>
+                <InvoicePrintButton invoiceNumber={invoice.invoiceNumber} />
             </div>
 
             {/* The Invoice Document */}
@@ -165,16 +158,6 @@ export default async function InvoicePage({ params }: { params: { id: string } }
                     <p>For any queries, please contact support@wyldcardstat.com</p>
                 </div>
             </div>
-            
-            {/* Client-side script to auto-print or just handle print logic */}
-            <script dangerouslySetInnerHTML={{
-                __html: `
-                    // A tiny script just to ensure styling applies nicely on print
-                    window.addEventListener('beforeprint', () => {
-                        document.title = 'Invoice_${invoice.invoiceNumber}';
-                    });
-                `
-            }} />
         </div>
     );
 }

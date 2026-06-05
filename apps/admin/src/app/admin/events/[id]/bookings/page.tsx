@@ -84,9 +84,16 @@ export default function EventBookingsPage() {
                 </Button> */}
             </div>
 
+
             {/* Stats Overview */}
-            {event && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {event && (() => {
+                const eventStart = new Date(event.startDate);
+                const eventEnd = new Date(event.endDate);
+                const totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                const seasonPassTickets = tickets.filter(t => t.selectedDates.length >= totalEventDays && t.paymentStatus === 'SUCCESS');
+                const dailyPassTickets = tickets.filter(t => t.selectedDates.length < totalEventDays && t.paymentStatus === 'SUCCESS');
+                return (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {/* Revenue & Total Sold */}
                     <Card className="bg-black border border-[#AE8638]/30">
                         <CardHeader className="pb-2">
@@ -118,8 +125,54 @@ export default function EventBookingsPage() {
                         </CardContent>
                     </Card>
 
+                    {/* Season Pass Stats */}
+                    <Card className="bg-black border border-purple-500/30">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-purple-400 text-sm font-medium">⭐ Season Pass</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <h3 className="text-3xl font-bold text-white mb-1">{seasonPassTickets.length}</h3>
+                            <p className="text-xs text-gray-400 mb-3">Full event access tickets</p>
+                            {event.ticketConfig?.allDayPrice ? (
+                                <div className="bg-purple-950/20 border border-purple-500/20 rounded-lg p-2 text-xs">
+                                    <div className="flex justify-between text-gray-400">
+                                        <span>Pass Price:</span>
+                                        <span className="text-white font-medium">{event.ticketConfig.currency} {event.ticketConfig.allDayPrice?.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-gray-400 mt-1">
+                                        <span>Season Revenue:</span>
+                                        <span className="text-purple-300 font-medium">₹{(seasonPassTickets.length * (event.ticketConfig.allDayPrice || 0)).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-xs text-gray-600 italic">No season pass configured</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Daily Pass Stats */}
+                    <Card className="bg-black border border-blue-500/30">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-blue-400 text-sm font-medium">📅 Daily Pass</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <h3 className="text-3xl font-bold text-white mb-1">{dailyPassTickets.length}</h3>
+                            <p className="text-xs text-gray-400 mb-3">Single/multi day tickets</p>
+                            <div className="bg-blue-950/20 border border-blue-500/20 rounded-lg p-2 text-xs">
+                                <div className="flex justify-between text-gray-400">
+                                    <span>Base Price:</span>
+                                    <span className="text-white font-medium">{event.ticketConfig?.currency} {event.ticketConfig?.price?.toLocaleString()}/day</span>
+                                </div>
+                                <div className="flex justify-between text-gray-400 mt-1">
+                                    <span>Event Duration:</span>
+                                    <span className="text-blue-300 font-medium">{totalEventDays} days</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {/* Daily Breakdown */}
-                    <Card className="col-span-2 bg-black border border-[#AE8638]/30">
+                    <Card className="bg-black border border-[#AE8638]/30">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-[#AE8638] text-sm font-medium">Daily Ticket Usage</CardTitle>
                         </CardHeader>
@@ -147,7 +200,9 @@ export default function EventBookingsPage() {
                         </CardContent>
                     </Card>
                 </div>
-            )}
+                );
+            })()}
+
 
             {/* Filters */}
             <Card className="bg-black border border-[#AE8638]/30">
@@ -180,8 +235,14 @@ export default function EventBookingsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#AE8638]/10">
-                            {filteredTickets.map((ticket) => {
-                                const isAllDay = ticket.selectedDates.length > 1; // Simplified inference or use explicit type if available
+                                {filteredTickets.map((ticket) => {
+                                const eventStart = event ? new Date(event.startDate) : null;
+                                const eventEnd = event ? new Date(event.endDate) : null;
+                                let totalEventDays = 1;
+                                if (eventStart && eventEnd) {
+                                    totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                }
+                                const isAllDay = ticket.selectedDates.length >= totalEventDays;
                                 return (
                                     <tr key={ticket._id} className="hover:bg-[#AE8638]/5 transition-colors">
                                         <td className="p-4 font-mono text-gray-400">{ticket.bookingReference}</td>
