@@ -581,7 +581,7 @@ export default function EditEventPage() {
                                                 {config.isSoldOut ? 'Mark Available' : 'Mark Sold Out'}
                                             </Button>
                                         </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
                                                 <Label className="text-[10px] text-gray-500 uppercase">Start Time</Label>
                                                 <Input

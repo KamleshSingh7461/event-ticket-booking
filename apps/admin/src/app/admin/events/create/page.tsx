@@ -554,7 +554,7 @@ export default function CreateEventPage() {
                                             </h4>
                                         </div>
                                         
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-1">
                                                 <Label className="text-xs">Price Override</Label>
                                                 <Input 
