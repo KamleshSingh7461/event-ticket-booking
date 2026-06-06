@@ -357,7 +357,7 @@ export default function EditEventPage() {
                 </div>
 
 
-                <form className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Basic Details */}
                     <Card className="bg-neutral-900/50 border border-[#AE8638]/20 shadow-xl">
                         <CardHeader className="border-b border-[#AE8638]/10">
