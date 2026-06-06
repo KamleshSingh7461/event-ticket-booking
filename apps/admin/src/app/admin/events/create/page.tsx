@@ -266,6 +266,7 @@ export default function CreateEventPage() {
 
         // Attach Tax Info
         data.append('taxInfo', JSON.stringify(formData.taxInfo));
+        data.append('mobileBanner', formData.mobileBanner || '');
 
         try {
             const res = await fetch('/api/events', {

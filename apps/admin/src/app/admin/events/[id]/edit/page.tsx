@@ -281,6 +281,7 @@ export default function EditEventPage() {
         data.append('schedule', JSON.stringify(formData.schedule.filter((url: string) => url.trim() !== '')));
         data.append('dailyConfig', JSON.stringify(formData.dailyConfig));
         data.append('taxInfo', JSON.stringify(formData.taxInfo));
+        data.append('mobileBanner', formData.mobileBanner || '');
 
         if (formData.banner instanceof File) {
             data.append('banner', formData.banner);
@@ -355,14 +356,6 @@ export default function EditEventPage() {
                     </div>
                 </div>
 
-                {formData.endDate && new Date() > new Date(formData.endDate) && (
-                    <div className="mb-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-200 shadow-lg backdrop-blur-md">
-                        <h3 className="font-bold flex items-center gap-2 text-red-400">
-                            <AlertTriangle className="w-5 h-5" /> Event Concluded
-                        </h3>
-                        <p className="text-sm mt-1">This event has already ended. As a Super Admin, you may only modify the <strong>Start and End dates</strong> below (to postpone or reactivate it). All other edits will be ignored.</p>
-                    </div>
-                )}
 
                 <form className="space-y-8">
                     {/* Basic Details */}

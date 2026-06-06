@@ -66,6 +66,10 @@ const EventSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-const Event = models.Event || model('Event', EventSchema);
+if (mongoose.models.Event) {
+    delete mongoose.models.Event;
+}
+
+const Event = model('Event', EventSchema);
 
 export default Event;

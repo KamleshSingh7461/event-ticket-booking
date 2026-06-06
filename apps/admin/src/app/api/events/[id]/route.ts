@@ -118,14 +118,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             }
             if (formData.has('schedule')) {
                 try {
-                    body.schedule = JSON.parse(formData.get('schedule') as string);
+                    const parsed = JSON.parse(formData.get('schedule') as string);
+                    body.schedule = Array.isArray(parsed) ? parsed.filter(url => url && url.trim() !== '') : [];
                 } catch {
                     body.schedule = [];
                 }
             }
             if (formData.has('gallery')) {
                 try {
-                    body.gallery = JSON.parse(formData.get('gallery') as string);
+                    const parsed = JSON.parse(formData.get('gallery') as string);
+                    body.gallery = Array.isArray(parsed) ? parsed.filter(url => url && url.trim() !== '') : [];
                 } catch {
                     body.gallery = [];
                 }
@@ -152,23 +154,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
         } else {
             // SUPER_ADMIN
-            const isCompleted = new Date() > new Date(event.endDate);
-            let updateData: any = {};
-
-            if (isCompleted) {
-                // If event is completed, SUPER_ADMIN can only change dates to postpone it
-                if (body.startDate) updateData.startDate = body.startDate;
-                if (body.endDate) updateData.endDate = body.endDate;
-                
-                if (Object.keys(updateData).length === 0) {
-                     return NextResponse.json({ success: false, error: 'Event has concluded. You can only modify the Start and End Dates to postpone/reactivate it.' }, { status: 400 });
-                }
-            } else {
-                updateData = { ...body };
-                if (bannerUrl) {
-                    updateData.banner = bannerUrl;
-                }
+            let updateData: any = { ...body };
+            if (bannerUrl) {
+                updateData.banner = bannerUrl;
             }
+
+            console.log("=== DEBUG PUT EVENT ===");
+            console.log("Raw gallery from FormData:", formData.get('gallery'));
+            console.log("Raw schedule from FormData:", formData.get('schedule'));
+            console.log("Parsed body.gallery:", body.gallery);
+            console.log("Parsed body.schedule:", body.schedule);
+            console.log("Final updateData.gallery:", updateData.gallery);
+            console.log("========================");
 
             await logDebug('Final Update Data:', updateData);
 
