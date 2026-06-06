@@ -159,13 +159,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
                 updateData.banner = bannerUrl;
             }
 
-            console.log("=== DEBUG PUT EVENT ===");
-            console.log("Raw gallery from FormData:", formData.get('gallery'));
-            console.log("Raw schedule from FormData:", formData.get('schedule'));
-            console.log("Parsed body.gallery:", body.gallery);
-            console.log("Parsed body.schedule:", body.schedule);
-            console.log("Final updateData.gallery:", updateData.gallery);
-            console.log("========================");
+
 
             await logDebug('Final Update Data:', updateData);
 
