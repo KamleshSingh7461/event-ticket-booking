@@ -64,8 +64,12 @@ export default function CheckoutPage() {
 
                 // Generate dates
                 if (ev.startDate && ev.endDate) {
-                    const start = new Date(ev.startDate);
-                    const end = new Date(ev.endDate);
+                    const startStr = ev.startDate.split('T')[0];
+                    const endStr = ev.endDate.split('T')[0];
+                    const startParts = startStr.split('-');
+                    const endParts = endStr.split('-');
+                    const start = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]), 12, 0, 0);
+                    const end = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]), 12, 0, 0);
                     const dates = [];
                     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                         dates.push(new Date(d));
@@ -296,7 +300,15 @@ export default function CheckoutPage() {
                             </span>
                             <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tighter drop-shadow-md leading-tight text-white">{event.title}</h1>
                             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-gray-300 text-sm md:text-base font-medium">
-                                <span>{new Date(event.startDate).toDateString()} - {new Date(event.endDate).toDateString()}</span>
+                                <span>
+                                    {event.startDate ? (() => {
+                                        const p = event.startDate.split('T')[0].split('-');
+                                        return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 12, 0, 0).toDateString();
+                                    })() : ''} - {event.endDate ? (() => {
+                                        const p = event.endDate.split('T')[0].split('-');
+                                        return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 12, 0, 0).toDateString();
+                                    })() : ''}
+                                </span>
                                 {event.venue && <span className="hidden md:inline text-[#AE8638]">• {event.venue}</span>}
                                 {event.venue && <span className="md:hidden text-[#AE8638]">{event.venue}</span>}
                             </div>

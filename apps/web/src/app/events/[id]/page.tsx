@@ -94,7 +94,10 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                     <div className="flex flex-wrap gap-y-4 gap-x-8 text-gray-300 text-sm md:text-base font-medium">
                         <div className="flex items-center gap-3">
                             <Calendar className="w-5 h-5 text-[#AE8638]" />
-                            {new Date(serializedEvent.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            {serializedEvent.startDate ? (() => {
+                                const p = serializedEvent.startDate.split('T')[0].split('-');
+                                return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 12, 0, 0).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            })() : ''}
                         </div>
                         {serializedEvent.type === 'OFFLINE' && (
                             <div className="flex items-center gap-3">
