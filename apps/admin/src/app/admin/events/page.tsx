@@ -140,7 +140,7 @@ export default function AdminEventsPage() {
                                 </div>
                                 <CardDescription className="flex items-center gap-2 text-gray-400 text-xs">
                                     <Calendar className="w-3 h-3 text-[#AE8638]" />
-                                    {new Date(event.startDate).toLocaleDateString()}
+                                    {new Date(event.startDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
                                     {event.type === 'OFFLINE' && (
                                         <>
                                             <span className="mx-1 text-gray-600">•</span>

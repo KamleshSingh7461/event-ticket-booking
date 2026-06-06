@@ -256,7 +256,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                                                     <span className="text-[10px] bg-[#AE8638]/20 px-2 py-0.5 rounded text-[#AE8638] font-normal border border-[#AE8638]/30">View Details</span>
                                                 </Link>
                                                 <p className="text-xs text-gray-400">
-                                                    {new Date(event.startDate).toLocaleDateString()} |
+                                                    {new Date(event.startDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} |
                                                     Capacity: <span className="text-white">{event.capacity}</span>
                                                 </p>
                                             </div>

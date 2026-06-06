@@ -3,13 +3,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X, Smartphone, BarChart3, ScanLine, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings, LogOut, Menu, X, Smartphone, BarChart3, ScanLine, CreditCard, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const navItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Events', icon: Calendar },
+    { href: '/admin/bookings', label: 'Bookings', icon: Ticket },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/invoices', label: 'Invoices', icon: CreditCard },
     { href: '/verify', label: 'Ticket Scanner', icon: Smartphone },

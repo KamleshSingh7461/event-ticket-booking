@@ -128,7 +128,7 @@ export default function AdminInvoicesPage() {
                                                 <div className="text-[10px] text-gray-500">{inv.bookingReference}</div>
                                             </TableCell>
                                             <TableCell className="text-gray-300 text-xs whitespace-nowrap">
-                                                {new Date(inv.createdAt).toLocaleDateString()}
+                                                {new Date(inv.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
                                             </TableCell>
                                             <TableCell className="text-white font-medium min-w-[150px]">
                                                 {inv.event?.title || 'Event Deleted'}

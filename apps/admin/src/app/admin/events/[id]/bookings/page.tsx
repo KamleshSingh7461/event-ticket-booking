@@ -259,7 +259,7 @@ export default function EventBookingsPage() {
                                         <td className="p-4 text-xs text-gray-400 max-w-[200px]">
                                             <div className="flex flex-wrap gap-1">
                                                 {ticket.selectedDates.map((d: string) => (
-                                                    <span key={d} className="bg-white/5 px-1 rounded">{new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                                                    <span key={d} className="bg-white/5 px-1 rounded">{new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}</span>
                                                 ))}
                                             </div>
                                         </td>
