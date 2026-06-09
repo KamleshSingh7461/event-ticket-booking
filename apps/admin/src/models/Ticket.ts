@@ -6,6 +6,7 @@ const TicketSchema = new Schema({
     bookingReference: { type: String, required: true }, // From PayU txnid or generated - Shared across tickets in same order
     paymentStatus: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED'], default: 'PENDING' },
     payuTransactionId: { type: String },
+    failureReason: { type: String },
     amountPaid: { type: Number, required: true }, // Deprecated - kept for backward compatibility
 
     // Detailed Pricing Breakdown (NEW)

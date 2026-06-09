@@ -11,10 +11,16 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        // PayU sends S2S webhooks as Form URL Encoded
-        const formData = await req.formData();
-        const data: any = {};
-        formData.forEach((value, key) => (data[key] = value));
+        const contentType = req.headers.get('content-type') || '';
+        let data: any = {};
+
+        if (contentType.includes('application/json')) {
+            const body = await req.json();
+            data = body.event_payload ? body.event_payload : body;
+        } else {
+            const formData = await req.formData();
+            formData.forEach((value, key) => (data[key] = value));
+        }
 
         const salt = process.env.PAYU_SALT || 'TuxqAugd';
 
