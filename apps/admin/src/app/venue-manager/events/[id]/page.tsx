@@ -254,7 +254,8 @@ export default function VenueManagerEventDetailPage() {
                                                 const eventEnd = new Date(event.endDate);
                                                 const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
                                                 const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
-                                                totalEventDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                const calculatedDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                totalEventDays = event.dailyConfig?.length || calculatedDays;
                                             }
                                             const isAllDay = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                             return (

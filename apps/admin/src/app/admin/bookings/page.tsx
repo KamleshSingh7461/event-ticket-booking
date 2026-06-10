@@ -94,7 +94,10 @@ export default function GlobalBookingsPage() {
                                                     const eventEnd = ticket.event ? new Date(ticket.event.endDate) : null;
                                                     let totalEventDays = 1;
                                                     if (eventStart && eventEnd) {
-                                                        totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                        const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+                                                        const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+                                                        const calculatedDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                        totalEventDays = ticket.event?.dailyConfig?.length || calculatedDays;
                                                     }
                                                     const isSeasonPass = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                                     

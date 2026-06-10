@@ -92,7 +92,8 @@ export default function EventBookingsPage() {
                 // Strip time components to safely calculate day difference regardless of timezone offsets
                 const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
                 const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
-                const totalEventDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                const calculatedDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                const totalEventDays = event.dailyConfig?.length || calculatedDays;
                 
                 const seasonPassTickets = tickets.filter(t => t.paymentStatus === 'SUCCESS' && (t.ticketType === 'MULTI_DAY' || (t.selectedDates && t.selectedDates.length >= totalEventDays)));
                 const dailyPassTickets = tickets.filter(t => t.paymentStatus === 'SUCCESS' && t.ticketType !== 'MULTI_DAY' && (!t.selectedDates || t.selectedDates.length < totalEventDays));
@@ -246,7 +247,8 @@ export default function EventBookingsPage() {
                                 if (eventStart && eventEnd) {
                                     const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
                                     const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
-                                    totalEventDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                    const calculatedDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                    totalEventDays = event.dailyConfig?.length || calculatedDays;
                                 }
                                 const isAllDay = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                 return (
