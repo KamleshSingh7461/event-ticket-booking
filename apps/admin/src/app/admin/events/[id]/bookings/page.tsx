@@ -89,9 +89,13 @@ export default function EventBookingsPage() {
             {event && (() => {
                 const eventStart = new Date(event.startDate);
                 const eventEnd = new Date(event.endDate);
-                const totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                const seasonPassTickets = tickets.filter(t => t.selectedDates.length >= totalEventDays && t.paymentStatus === 'SUCCESS');
-                const dailyPassTickets = tickets.filter(t => t.selectedDates.length < totalEventDays && t.paymentStatus === 'SUCCESS');
+                // Strip time components to safely calculate day difference regardless of timezone offsets
+                const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+                const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+                const totalEventDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                
+                const seasonPassTickets = tickets.filter(t => t.paymentStatus === 'SUCCESS' && (t.ticketType === 'MULTI_DAY' || (t.selectedDates && t.selectedDates.length >= totalEventDays)));
+                const dailyPassTickets = tickets.filter(t => t.paymentStatus === 'SUCCESS' && t.ticketType !== 'MULTI_DAY' && (!t.selectedDates || t.selectedDates.length < totalEventDays));
                 return (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {/* Revenue & Total Sold */}
@@ -240,7 +244,9 @@ export default function EventBookingsPage() {
                                 const eventEnd = event ? new Date(event.endDate) : null;
                                 let totalEventDays = 1;
                                 if (eventStart && eventEnd) {
-                                    totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                    const d1 = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+                                    const d2 = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+                                    totalEventDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
                                 }
                                 const isAllDay = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                 return (
