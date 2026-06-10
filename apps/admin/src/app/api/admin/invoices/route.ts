@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Invoice from '@/models/Invoice';
 import Event from '@/models/Event';
+import User from '@/models/User';
 
 export async function GET(req: NextRequest) {
     try {
