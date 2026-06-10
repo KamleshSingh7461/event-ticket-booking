@@ -248,7 +248,11 @@ export default function VenueManagerEventDetailPage() {
                                     </thead>
                                     <tbody className="divide-y divide-[#AE8638]/10 text-sm">
                                         {filteredTickets.map((ticket: any) => {
-                                            const isAllDay = ticket.selectedDates.length > 1;
+                                            let totalEventDays = 1;
+                                            if (event?.startDate && event?.endDate) {
+                                                totalEventDays = Math.round((new Date(event.endDate).getTime() - new Date(event.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                            }
+                                            const isAllDay = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                             return (
                                                 <tr key={ticket._id} className="hover:bg-[#AE8638]/5 transition-colors">
                                                     <td className="p-4 font-mono text-gray-400 align-top">{ticket.bookingReference}</td>

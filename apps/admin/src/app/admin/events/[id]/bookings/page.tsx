@@ -242,7 +242,7 @@ export default function EventBookingsPage() {
                                 if (eventStart && eventEnd) {
                                     totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
                                 }
-                                const isAllDay = ticket.selectedDates.length >= totalEventDays;
+                                const isAllDay = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
                                 return (
                                     <tr key={ticket._id} className="hover:bg-[#AE8638]/5 transition-colors">
                                         <td className="p-4 font-mono text-gray-400">{ticket.bookingReference}</td>

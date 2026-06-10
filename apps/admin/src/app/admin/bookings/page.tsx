@@ -89,9 +89,18 @@ export default function GlobalBookingsPage() {
                                                 <div className="text-xs text-gray-500">{ticket.buyerDetails?.contact}</div>
                                             </td>
                                             <td className="px-4 py-4 text-xs text-gray-300">
-                                                {ticket.ticketType === 'MULTI_DAY' ? 'Season Pass' : (
-                                                    ticket.selectedDates?.map((d: any) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })).join(', ')
-                                                )}
+                                                {(() => {
+                                                    const eventStart = ticket.event ? new Date(ticket.event.startDate) : null;
+                                                    const eventEnd = ticket.event ? new Date(ticket.event.endDate) : null;
+                                                    let totalEventDays = 1;
+                                                    if (eventStart && eventEnd) {
+                                                        totalEventDays = Math.round((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                    }
+                                                    const isSeasonPass = ticket.ticketType === 'MULTI_DAY' || (ticket.selectedDates && ticket.selectedDates.length >= totalEventDays && totalEventDays > 1);
+                                                    
+                                                    if (isSeasonPass) return 'Season Pass';
+                                                    return ticket.selectedDates?.map((d: any) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })).join(', ') || 'N/A';
+                                                })()}
                                             </td>
                                             <td className="px-4 py-4 font-bold text-white">
                                                 {ticket.pricing?.currency || 'INR'} {(ticket.pricing?.totalAmount || ticket.amountPaid || 0).toLocaleString()}

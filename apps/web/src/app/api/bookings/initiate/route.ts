@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
                     address: user.address,
                     state: user.state
                 },
-                // ticketType: 'MULTI_DAY', // Use default from model or derived
+                ticketType: bookingType === 'ALL_DAY' ? 'MULTI_DAY' : 'SINGLE_DAY',
                 selectedDates: validDates, // Array of Dates
                 otp: otp,
                 checkIns: [],
