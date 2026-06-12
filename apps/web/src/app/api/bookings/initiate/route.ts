@@ -107,11 +107,16 @@ export async function POST(req: NextRequest) {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+            // Strip time from event boundaries for timezone-safe date-only comparison
+            const startDateOnly = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+            const endDateOnly = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
+
             let totalDailyPriceSum = 0; // NEW: Keep track of sum
 
             for (const dateStr of selectedDates) {
                 const d = new Date(dateStr);
-                const bookingDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                // Strip time for a timezone-safe, date-only comparison
+                const bookingDate = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 
                 // Find daily config for this date
                 const config = event.dailyConfig?.find((c: any) => {
@@ -119,8 +124,8 @@ export async function POST(req: NextRequest) {
                     return configDate.toDateString() === d.toDateString();
                 });
 
-                // 1. Check if date is outside event range
-                if (d < start || d > end) {
+                // 1. Check if date is outside event range (date-only, timezone-safe)
+                if (bookingDate < startDateOnly || bookingDate > endDateOnly) {
                     return NextResponse.json({ success: false, error: `Date ${dateStr} is outside event range.` }, { status: 400 });
                 }
 
